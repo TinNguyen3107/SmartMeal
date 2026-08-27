@@ -127,131 +127,122 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     ]
     : [];
 
-  const radarData = [
-    { subject: 'Trùng khớp (Match)', value: weights.w_match * 100, fullMark: 100 },
-    { subject: 'Cá nhân hóa (User)', value: weights.w_user * 100, fullMark: 100 },
-    { subject: 'Đánh giá (Rating)', value: weights.w_rating * 100, fullMark: 100 },
-    { subject: 'Độ phổ biến (Pop)', value: weights.w_popularity * 100, fullMark: 100 },
-    { subject: 'Thời gian (Time)', value: weights.w_time * 100, fullMark: 100 },
-    { subject: 'Độ khó (Diff)', value: weights.w_difficulty * 100, fullMark: 100 }
-  ];
-
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Header */}
-      <div className="bg-[#4A5D4E] text-white rounded-[36px] p-6 sm:p-8 card-shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-emerald-500 text-white rounded-3xl p-6 sm:p-8 card-shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 text-[#E9EDC9] text-xs font-semibold mb-2 backdrop-blur-sm">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-emerald-100 text-emerald-600 text-[10px] font-bold tracking-widest uppercase mb-2">
             <ShieldCheck className="w-4 h-4" />
-            Hệ thống Quản trị & Đánh giá Thuật toán AI (Section 17)
+            Quản trị & Kiểm thử
           </div>
-          <h1 className="font-serif text-2xl sm:text-3xl font-normal text-white">Bảng điều khiển Quản trị & Kiểm thử</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-white">Bảng điều khiển Admin</h1>
         </div>
 
         {/* Tab switcher */}
-        <div className="flex bg-black/20 p-1.5 rounded-full border border-white/20 self-start md:self-auto overflow-x-auto scrollbar-none backdrop-blur-sm">
+        <div className="flex bg-emerald-50 p-1.5 rounded-xl border border-zinc-800 self-start md:self-auto overflow-x-auto scrollbar-none">
           <button
             onClick={() => setActiveTab('evaluation')}
-            className={`px-4 py-2 rounded-full text-xs font-bold transition-colors flex items-center gap-2 whitespace-nowrap ${activeTab === 'evaluation'
-                ? 'bg-white text-[#4A5D4E] card-shadow'
-                : 'text-white/80 hover:text-white'
+            className={`px-4 py-2 rounded-lg text-xs font-bold transition-colors flex items-center gap-2 whitespace-nowrap ${activeTab === 'evaluation'
+                ? 'bg-white text-emerald-950 shadow-sm'
+                : 'text-emerald-900/50 hover:text-white'
               }`}
           >
             <BarChart3 className="w-4 h-4" />
-            Đánh giá Độ chính xác
+            Đánh giá
           </button>
           <button
             onClick={() => setActiveTab('recipes')}
-            className={`px-4 py-2 rounded-full text-xs font-bold transition-colors flex items-center gap-2 whitespace-nowrap ${activeTab === 'recipes'
-                ? 'bg-white text-[#4A5D4E] card-shadow'
-                : 'text-white/80 hover:text-white'
+            className={`px-4 py-2 rounded-lg text-xs font-bold transition-colors flex items-center gap-2 whitespace-nowrap ${activeTab === 'recipes'
+                ? 'bg-white text-emerald-950 shadow-sm'
+                : 'text-emerald-900/50 hover:text-white'
               }`}
           >
             <BookOpen className="w-4 h-4" />
-            Quản lý Công thức ({recipes.length})
+            Công thức ({recipes.length})
           </button>
           <button
             onClick={() => setActiveTab('ingredients')}
-            className={`px-4 py-2 rounded-full text-xs font-bold transition-colors flex items-center gap-2 whitespace-nowrap ${activeTab === 'ingredients'
-                ? 'bg-white text-[#4A5D4E] card-shadow'
-                : 'text-white/80 hover:text-white'
+            className={`px-4 py-2 rounded-lg text-xs font-bold transition-colors flex items-center gap-2 whitespace-nowrap ${activeTab === 'ingredients'
+                ? 'bg-white text-emerald-950 shadow-sm'
+                : 'text-emerald-900/50 hover:text-white'
               }`}
           >
             <Layers className="w-4 h-4" />
-            Từ điển Nguyên liệu ({allIngredients.length})
+            Nguyên liệu ({allIngredients.length})
           </button>
           <button
             onClick={() => setActiveTab('logs')}
-            className={`px-4 py-2 rounded-full text-xs font-bold transition-colors flex items-center gap-2 whitespace-nowrap ${activeTab === 'logs'
-                ? 'bg-white text-[#4A5D4E] card-shadow'
-                : 'text-white/80 hover:text-white'
+            className={`px-4 py-2 rounded-lg text-xs font-bold transition-colors flex items-center gap-2 whitespace-nowrap ${activeTab === 'logs'
+                ? 'bg-white text-emerald-950 shadow-sm'
+                : 'text-emerald-900/50 hover:text-white'
               }`}
           >
             <Activity className="w-4 h-4" />
-            Nhật ký Hệ thống ({logs.length})
+            Nhật ký
           </button>
         </div>
       </div>
 
-      {/* TAB 1: EVALUATION & BENCHMARK METRICS (Section 17, 12.6, 13) */}
+      {/* TAB 1: EVALUATION & BENCHMARK METRICS */}
       {activeTab === 'evaluation' && (
         <div className="space-y-8">
           {/* Top Score Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-white border border-[#EAE7E0] rounded-[28px] p-6 card-shadow space-y-1">
-              <div className="flex justify-between items-center text-xs text-[#7D857E] font-semibold">
+            <div className="bg-white border border-zinc-200 rounded-2xl p-6 card-shadow space-y-1">
+              <div className="flex justify-between items-center text-xs text-emerald-900/60 font-bold uppercase tracking-wider">
                 <span>Precision@{kValue}</span>
-                <span className="text-[#8BA08E] font-bold">Target &ge; 80%</span>
+                <span className="text-emerald-950">&ge; 80%</span>
               </div>
-              <p className="font-serif text-3xl font-normal text-[#3D3D3D]">{metrics?.precisionAtK || 0}%</p>
-              <p className="text-[11px] text-[#7D857E]">Tỷ lệ công thức đề xuất thực sự chuẩn xác trong Top {kValue}</p>
+              <p className="text-3xl font-bold text-emerald-950">{metrics?.precisionAtK || 0}%</p>
+              <p className="text-[11px] text-emerald-900/60">Tỷ lệ công thức đề xuất thực sự chuẩn xác</p>
             </div>
 
-            <div className="bg-white border border-[#EAE7E0] rounded-[28px] p-6 card-shadow space-y-1">
-              <div className="flex justify-between items-center text-xs text-[#7D857E] font-semibold">
+            <div className="bg-white border border-zinc-200 rounded-2xl p-6 card-shadow space-y-1">
+              <div className="flex justify-between items-center text-xs text-emerald-900/60 font-bold uppercase tracking-wider">
                 <span>HitRate@{kValue}</span>
-                <span className="text-[#4A5D4E] font-bold">Target &ge; 90%</span>
+                <span className="text-emerald-950">&ge; 90%</span>
               </div>
-              <p className="font-serif text-3xl font-normal text-[#4A5D4E]">{metrics?.hitRateAtK || 0}%</p>
-              <p className="text-[11px] text-[#7D857E]">Tỷ lệ phiên gợi ý chứa ít nhất 1 món người dùng ưng ý</p>
+              <p className="text-3xl font-bold text-zinc-700">{metrics?.hitRateAtK || 0}%</p>
+              <p className="text-[11px] text-emerald-900/60">Tỷ lệ phiên gợi ý chứa 1 món ưng ý</p>
             </div>
 
-            <div className="bg-white border border-[#EAE7E0] rounded-[28px] p-6 card-shadow space-y-1">
-              <div className="flex justify-between items-center text-xs text-[#7D857E] font-semibold">
+            <div className="bg-white border border-zinc-200 rounded-2xl p-6 card-shadow space-y-1">
+              <div className="flex justify-between items-center text-xs text-emerald-900/60 font-bold uppercase tracking-wider">
                 <span>Recall@{kValue}</span>
-                <span className="text-[#C87D55] font-bold">Target &ge; 70%</span>
+                <span className="text-emerald-950">&ge; 70%</span>
               </div>
-              <p className="font-serif text-3xl font-normal text-[#8C5D36]">{metrics?.recallAtK || 0}%</p>
-              <p className="text-[11px] text-[#7D857E]">Độ bao phủ các món mục tiêu trong toàn bộ kho dữ liệu</p>
+              <p className="text-3xl font-bold text-zinc-700">{metrics?.recallAtK || 0}%</p>
+              <p className="text-[11px] text-emerald-900/60">Độ bao phủ món mục tiêu</p>
             </div>
 
-            <div className="bg-white border border-[#EAE7E0] rounded-[28px] p-6 card-shadow space-y-1">
-              <div className="flex justify-between items-center text-xs text-[#7D857E] font-semibold">
+            <div className="bg-white border border-zinc-200 rounded-2xl p-6 card-shadow space-y-1">
+              <div className="flex justify-between items-center text-xs text-emerald-900/60 font-bold uppercase tracking-wider">
                 <span>NDCG@{kValue}</span>
-                <span className="text-[#8C5D36] font-bold">Target &ge; 85%</span>
+                <span className="text-emerald-950">&ge; 85%</span>
               </div>
-              <p className="font-serif text-3xl font-normal text-[#8C5D36]">{metrics?.ndcgAtK || 0}%</p>
-              <p className="text-[11px] text-[#7D857E]">Đo lường chất lượng xếp hạng giảm dần theo vị trí</p>
+              <p className="text-3xl font-bold text-zinc-700">{metrics?.ndcgAtK || 0}%</p>
+              <p className="text-[11px] text-emerald-900/60">Chất lượng xếp hạng giảm dần</p>
             </div>
           </div>
 
           {/* Charts & Interactive Simulator */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             {/* Chart: Precision vs Target (7 cols) */}
-            <div className="lg:col-span-7 bg-white border border-[#EAE7E0] rounded-[36px] p-6 sm:p-8 card-shadow space-y-4">
+            <div className="lg:col-span-7 bg-white border border-zinc-200 rounded-2xl p-6 sm:p-8 card-shadow space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="font-serif text-base font-bold text-[#3D3D3D]">Biểu đồ Đánh giá Thuật toán Gợi ý</h3>
-                  <p className="text-xs text-[#7D857E]">So sánh chỉ số thực tế đạt được so với Benchmark SRS</p>
+                  <h3 className="text-base font-bold text-emerald-950">Biểu đồ Đánh giá Thuật toán</h3>
+                  <p className="text-xs text-emerald-900/60">So sánh chỉ số thực tế so với Benchmark</p>
                 </div>
                 {/* K Selector */}
-                <div className="flex items-center gap-1 bg-[#F9F7F2] p-1 rounded-full border border-[#EAE7E0] text-xs">
-                  <span className="text-[11px] text-[#7D857E] px-2 font-semibold">K =</span>
+                <div className="flex items-center gap-1 bg-zinc-50 p-1 rounded-md border border-zinc-200 text-xs">
+                  <span className="text-[11px] text-emerald-900/60 px-2 font-bold uppercase">K =</span>
                   {[3, 5, 10].map(k => (
                     <button
                       key={k}
                       onClick={() => setKValue(k)}
-                      className={`px-3 py-1 rounded-full font-bold transition-colors ${kValue === k ? 'bg-[#8BA08E] text-white shadow-sm' : 'text-[#7D857E] hover:text-[#3D3D3D]'
+                      className={`px-3 py-1 rounded-md font-bold transition-colors ${kValue === k ? 'bg-emerald-500 text-white shadow-sm' : 'text-emerald-900/60 hover:text-emerald-950'
                         }`}
                     >
                       {k}
@@ -263,38 +254,38 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <div className="h-64 w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={chartData} margin={{ top: 10, right: 10, left: -15, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#EAE7E0" />
-                    <XAxis dataKey="metric" stroke="#7D857E" fontSize={12} />
-                    <YAxis stroke="#7D857E" fontSize={12} domain={[0, 100]} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                    <XAxis dataKey="metric" stroke="#6b7280" fontSize={12} />
+                    <YAxis stroke="#6b7280" fontSize={12} domain={[0, 100]} />
                     <Tooltip
-                      contentStyle={{ backgroundColor: '#FDFBF7', borderColor: '#EAE7E0', borderRadius: '16px', color: '#3D3D3D' }}
+                      contentStyle={{ backgroundColor: '#ffffff', borderColor: '#e5e7eb', borderRadius: '8px', color: '#111827' }}
                     />
                     <Legend wrapperStyle={{ fontSize: '12px' }} />
-                    <Bar dataKey="score" name="Thực tế đạt (%)" fill="#8BA08E" radius={[6, 6, 0, 0]} />
-                    <Bar dataKey="target" name="Mục tiêu SRS (%)" fill="#4A5D4E" radius={[6, 6, 0, 0]} />
+                    <Bar dataKey="score" name="Thực tế đạt (%)" fill="#18181b" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="target" name="Mục tiêu (%)" fill="#a1a1aa" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
             </div>
 
             {/* Radar & Weights Simulator (5 cols) */}
-            <div className="lg:col-span-5 bg-white border border-[#EAE7E0] rounded-[36px] p-6 sm:p-8 card-shadow space-y-4">
+            <div className="lg:col-span-5 bg-white border border-zinc-200 rounded-2xl p-6 sm:p-8 card-shadow space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="font-serif text-base font-bold text-[#3D3D3D] flex items-center gap-2">
-                    <Sliders className="w-4 h-4 text-[#8BA08E]" />
-                    Trọng số Thuật toán (Formula Weights)
+                  <h3 className="text-base font-bold text-emerald-950 flex items-center gap-2">
+                    <Sliders className="w-4 h-4 text-emerald-900/60" />
+                    Trọng số Thuật toán
                   </h3>
-                  <p className="text-[11px] text-[#7D857E]">Score = $w_1 \cdot M + w_2 \cdot U + w_3 \cdot R + ...$</p>
+                  <p className="text-[11px] text-emerald-900/60 font-mono mt-1">Score = w1*M + w2*U + w3*R + ...</p>
                 </div>
               </div>
 
               {/* Weight sliders */}
               <div className="space-y-3.5 text-xs">
                 <div>
-                  <div className="flex justify-between text-[#3D3D3D] mb-1 font-medium">
-                    <span>w_match (Trùng khớp):</span>
-                    <span className="font-bold text-[#8BA08E]">{Math.round(weights.w_match * 100)}%</span>
+                  <div className="flex justify-between text-zinc-700 mb-1 font-semibold">
+                    <span>Trùng khớp:</span>
+                    <span className="font-bold text-emerald-950">{Math.round(weights.w_match * 100)}%</span>
                   </div>
                   <input
                     type="range"
@@ -303,14 +294,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     step="0.05"
                     value={weights.w_match}
                     onChange={e => setWeights(w => ({ ...w, w_match: parseFloat(e.target.value) }))}
-                    className="w-full accent-[#8BA08E]"
+                    className="w-full accent-black"
                   />
                 </div>
 
                 <div>
-                  <div className="flex justify-between text-[#3D3D3D] mb-1 font-medium">
-                    <span>w_user (Sở thích cá nhân):</span>
-                    <span className="font-bold text-[#4A5D4E]">{Math.round(weights.w_user * 100)}%</span>
+                  <div className="flex justify-between text-zinc-700 mb-1 font-semibold">
+                    <span>Sở thích cá nhân:</span>
+                    <span className="font-bold text-emerald-950">{Math.round(weights.w_user * 100)}%</span>
                   </div>
                   <input
                     type="range"
@@ -319,14 +310,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     step="0.05"
                     value={weights.w_user}
                     onChange={e => setWeights(w => ({ ...w, w_user: parseFloat(e.target.value) }))}
-                    className="w-full accent-[#4A5D4E]"
+                    className="w-full accent-black"
                   />
                 </div>
 
                 <div>
-                  <div className="flex justify-between text-[#3D3D3D] mb-1 font-medium">
-                    <span>w_time (Tối ưu thời gian):</span>
-                    <span className="font-bold text-[#C87D55]">{Math.round(weights.w_time * 100)}%</span>
+                  <div className="flex justify-between text-zinc-700 mb-1 font-semibold">
+                    <span>Tối ưu thời gian:</span>
+                    <span className="font-bold text-emerald-950">{Math.round(weights.w_time * 100)}%</span>
                   </div>
                   <input
                     type="range"
@@ -335,79 +326,78 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     step="0.05"
                     value={weights.w_time}
                     onChange={e => setWeights(w => ({ ...w, w_time: parseFloat(e.target.value) }))}
-                    className="w-full accent-[#C87D55]"
+                    className="w-full accent-black"
                   />
                 </div>
               </div>
 
               <button
                 onClick={runEvaluationSuite}
-                className="w-full py-3 rounded-full bg-[#8BA08E] hover:bg-[#798E7C] text-white font-bold text-xs card-shadow flex items-center justify-center gap-2 transition-all mt-2"
+                className="w-full py-3 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs shadow-sm flex items-center justify-center gap-2 transition-all mt-2"
               >
                 {isEvaluating ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
-                Chạy lại Kiểm thử với bộ trọng số mới
+                Cập nhật & Chạy lại
               </button>
             </div>
           </div>
 
-          {/* Test Cases Runner Table (TC-REC-01 to TC-REC-04) */}
-          <div className="bg-white border border-[#EAE7E0] rounded-[36px] p-6 sm:p-8 card-shadow space-y-4">
+          {/* Test Cases Runner Table */}
+          <div className="bg-white border border-zinc-200 rounded-2xl p-6 sm:p-8 card-shadow space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-serif text-base font-bold text-[#3D3D3D] flex items-center gap-2">
-                  <Activity className="w-4 h-4 text-[#8BA08E]" />
-                  Bộ kịch bản Kiểm thử Tự động (Automated Test Cases)
+                <h3 className="text-base font-bold text-emerald-950 flex items-center gap-2">
+                  <Activity className="w-4 h-4 text-emerald-900/60" />
+                  Kịch bản Kiểm thử (Test Cases)
                 </h3>
-                <p className="text-xs text-[#7D857E]">Kiểm tra tính đúng đắn của động cơ gợi ý theo bảng TC-REC trong SRS</p>
               </div>
 
               <button
                 onClick={runEvaluationSuite}
-                className="px-4 py-2 rounded-full bg-[#F9F7F2] hover:bg-[#F2EDE4] text-[#3D3D3D] text-xs font-semibold flex items-center gap-1.5 border border-[#EAE7E0] transition-colors"
+                className="px-4 py-2 rounded-lg bg-zinc-50 hover:bg-zinc-100 text-zinc-700 text-xs font-semibold flex items-center gap-1.5 border border-zinc-200 transition-colors"
               >
                 <RefreshCw className={`w-3.5 h-3.5 ${isEvaluating ? 'animate-spin' : ''}`} />
-                Chạy toàn bộ Test Cases
+                Chạy kiểm thử
               </button>
             </div>
 
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead>
-                  <tr className="border-b border-[#EAE7E0] text-[#7D857E] font-semibold uppercase text-[10px]">
+                  <tr className="border-b border-zinc-200 text-emerald-900/60 font-bold uppercase tracking-wider text-[10px]">
                     <th className="pb-3 px-3">Mã Test</th>
-                    <th className="pb-3 px-3">Mô tả kịch bản</th>
-                    <th className="pb-3 px-3">Nguyên liệu đầu vào</th>
-                    <th className="pb-3 px-3">Món kỳ vọng (Expected)</th>
-                    <th className="pb-3 px-3">Top 1 Trả về (Actual)</th>
-                    <th className="pb-3 px-3 text-center">Kết quả</th>
+                    <th className="pb-3 px-3">Mô tả</th>
+                    <th className="pb-3 px-3">Đầu vào</th>
+                    <th className="pb-3 px-3">Kỳ vọng</th>
+                    <th className="pb-3 px-3">Kết quả Top 1</th>
+                    <th className="pb-3 px-3 text-center">Trạng thái</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#EAE7E0] text-[#3D3D3D]">
+                <tbody className="divide-y divide-zinc-100 text-zinc-800">
                   {testCases.map(tc => (
-                    <tr key={tc.testId} className="hover:bg-[#F9F7F2]">
-                      <td className="py-3 px-3 font-mono font-bold text-[#4A5D4E]">{tc.testId}</td>
+                    <tr key={tc.testId} className="hover:bg-zinc-50">
+                      <td className="py-3 px-3 font-mono font-bold text-emerald-950">{tc.testId}</td>
                       <td className="py-3 px-3">{tc.description}</td>
                       <td className="py-3 px-3">
                         <div className="flex flex-wrap gap-1">
                           {tc.inputIngredients.map(i => (
-                            <span key={i} className="px-2 py-0.5 rounded-full bg-[#F2EDE4] text-[10px] text-[#4A5D4E] font-medium">
+                            <span key={i} className="px-2 py-0.5 rounded-md bg-zinc-100 text-[10px] text-zinc-700 font-bold">
                               {i}
                             </span>
                           ))}
                         </div>
                       </td>
-                      <td className="py-3 px-3 font-medium text-[#4A5D4E]">{tc.expectedRecipeNames.join(', ')}</td>
-                      <td className="py-3 px-3 font-medium text-[#3D3D3D]">{tc.returnedTopRecipes[0]?.name || 'N/A'}</td>
+                      <td className="py-3 px-3 font-medium text-zinc-600">{tc.expectedRecipeNames.join(', ')}</td>
+                      <td className="py-3 px-3 font-medium text-emerald-950">{tc.returnedTopRecipes[0]?.name || 'N/A'}</td>
                       <td className="py-3 px-3 text-center">
                         {tc.passed ? (
-                          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-[#8BA08E]/15 text-[#4A5D4E] font-bold text-[11px]">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-zinc-100 text-emerald-950 font-bold text-[10px] uppercase">
                             <CheckCircle2 className="w-3.5 h-3.5" />
-                            PASS
+                            Pass
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-[#C87D55]/15 text-[#8C5D36] font-bold text-[11px]">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-red-50 text-red-600 font-bold text-[10px] uppercase">
                             <XCircle className="w-3.5 h-3.5" />
-                            FAIL
+                            Fail
                           </span>
                         )}
                       </td>
@@ -422,44 +412,43 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
       {/* TAB 2: RECIPE MANAGEMENT */}
       {activeTab === 'recipes' && (
-        <div className="bg-white border border-[#EAE7E0] rounded-[36px] p-6 sm:p-8 card-shadow space-y-6">
+        <div className="bg-white border border-zinc-200 rounded-2xl p-6 sm:p-8 card-shadow space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="font-serif text-base font-bold text-[#3D3D3D]">Danh sách Công thức Hệ thống ({recipes.length})</h3>
-              <p className="text-xs text-[#7D857E]">Xem và quản lý các công thức chuẩn trong cơ sở dữ liệu</p>
+              <h3 className="text-base font-bold text-emerald-950">Danh sách Công thức ({recipes.length})</h3>
             </div>
           </div>
 
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="border-b border-[#EAE7E0] text-[#7D857E] font-semibold uppercase text-[10px]">
+                <tr className="border-b border-zinc-200 text-emerald-900/60 font-bold uppercase tracking-wider text-[10px]">
                   <th className="pb-3 px-3">Tên món ăn</th>
                   <th className="pb-3 px-3">Phân loại</th>
                   <th className="pb-3 px-3">Thời gian</th>
                   <th className="pb-3 px-3">Calo</th>
                   <th className="pb-3 px-3">Độ khó</th>
                   <th className="pb-3 px-3">Đánh giá</th>
-                  <th className="pb-3 px-3">Số nguyên liệu</th>
+                  <th className="pb-3 px-3">Nguyên liệu</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#EAE7E0] text-[#3D3D3D]">
+              <tbody className="divide-y divide-zinc-100 text-zinc-800">
                 {recipes.map(r => (
-                  <tr key={r.id} className="hover:bg-[#F9F7F2]">
-                    <td className="py-3 px-3 font-semibold text-[#3D3D3D] flex items-center gap-2.5">
-                      <img src={r.image} alt={r.name} className="w-9 h-9 rounded-xl object-cover" />
+                  <tr key={r.id} className="hover:bg-zinc-50">
+                    <td className="py-3 px-3 font-bold text-emerald-950 flex items-center gap-2.5">
+                      <img src={r.image} alt={r.name} className="w-9 h-9 rounded-lg object-cover" />
                       <span>{r.name}</span>
                     </td>
                     <td className="py-3 px-3">
-                      <span className="px-2.5 py-0.5 rounded-full bg-[#F2EDE4] text-[10px] text-[#4A5D4E] font-medium">
+                      <span className="px-2.5 py-0.5 rounded-md bg-zinc-100 text-[10px] text-zinc-700 font-bold uppercase">
                         {r.category}
                       </span>
                     </td>
-                    <td className="py-3 px-3">{r.totalTime} phút</td>
-                    <td className="py-3 px-3 text-[#8C5D36] font-medium">{r.calories} kcal</td>
-                    <td className="py-3 px-3">{r.difficulty}</td>
-                    <td className="py-3 px-3 text-[#D9AE94] font-medium">⭐ {r.rating} ({r.reviewCount})</td>
-                    <td className="py-3 px-3 font-mono">{r.ingredients.length} món</td>
+                    <td className="py-3 px-3 font-medium">{r.totalTime}p</td>
+                    <td className="py-3 px-3 text-zinc-600 font-medium">{r.calories} kcal</td>
+                    <td className="py-3 px-3 font-medium">{r.difficulty}</td>
+                    <td className="py-3 px-3 text-emerald-950 font-bold">★ {r.rating} ({r.reviewCount})</td>
+                    <td className="py-3 px-3 font-mono font-medium">{r.ingredients.length} món</td>
                   </tr>
                 ))}
               </tbody>
@@ -470,26 +459,27 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
       {/* TAB 3: INGREDIENT & ALIAS MASTER DATA */}
       {activeTab === 'ingredients' && (
-        <div className="bg-white border border-[#EAE7E0] rounded-[36px] p-6 sm:p-8 card-shadow space-y-6">
+        <div className="bg-white border border-zinc-200 rounded-2xl p-6 sm:p-8 card-shadow space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="font-serif text-base font-bold text-[#3D3D3D]">Từ điển Nguyên liệu Chuẩn hóa ({allIngredients.length})</h3>
-              <p className="text-xs text-[#7D857E]">Danh mục chuẩn và bí danh (aliases) phục vụ chuẩn hóa văn bản</p>
+              <h3 className="text-base font-bold text-emerald-950">Từ điển Nguyên liệu ({allIngredients.length})</h3>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {allIngredients.map(ing => (
-              <div key={ing.id} className="bg-[#F9F7F2] border border-[#EAE7E0] rounded-2xl p-4 space-y-2">
+              <div key={ing.id} className="bg-zinc-50 border border-zinc-200 rounded-xl p-4 space-y-2">
                 <div className="flex items-center gap-2.5">
-                  <span className="text-2xl">{ing.icon || '🥗'}</span>
+                  <div className="w-10 h-10 rounded-lg bg-zinc-200 flex items-center justify-center font-bold text-zinc-600 uppercase">
+                    {ing.name.charAt(0)}
+                  </div>
                   <div>
-                    <h4 className="font-bold text-[#3D3D3D] text-xs">{ing.name}</h4>
-                    <span className="text-[10px] font-mono text-[#4A5D4E]">{ing.normalizedName}</span>
+                    <h4 className="font-bold text-emerald-950 text-xs">{ing.name}</h4>
+                    <span className="text-[10px] font-mono text-emerald-900/60">{ing.normalizedName}</span>
                   </div>
                 </div>
-                <div className="text-[11px] text-[#7D857E]">
-                  <span className="font-semibold text-[#3D3D3D]">Bí danh: </span>
+                <div className="text-[11px] text-zinc-600 font-medium">
+                  <span className="font-bold text-emerald-950">Bí danh: </span>
                   {ing.aliases.slice(0, 4).join(', ')}
                 </div>
               </div>
@@ -500,24 +490,24 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
       {/* TAB 4: SYSTEM LOGS */}
       {activeTab === 'logs' && (
-        <div className="bg-white border border-[#EAE7E0] rounded-[36px] p-6 sm:p-8 card-shadow space-y-4">
-          <h3 className="font-serif text-base font-bold text-[#3D3D3D]">Nhật ký Hoạt động Hệ thống</h3>
-          <div className="space-y-2.5 max-h-125 overflow-y-auto pr-1">
+        <div className="bg-white border border-zinc-200 rounded-2xl p-6 sm:p-8 card-shadow space-y-4">
+          <h3 className="text-base font-bold text-emerald-950">Nhật ký Hoạt động Hệ thống</h3>
+          <div className="space-y-2 max-h-125 overflow-y-auto pr-1">
             {logs.map(log => (
-              <div key={log.id} className="p-3.5 rounded-2xl bg-[#F9F7F2] border border-[#EAE7E0] text-xs flex items-start gap-3">
-                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono ${log.type === 'AUTH'
-                    ? 'bg-[#8BA08E]/20 text-[#4A5D4E]'
+              <div key={log.id} className="p-3.5 rounded-xl bg-zinc-50 border border-zinc-100 text-xs flex items-start gap-3">
+                <span className={`px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider ${log.type === 'AUTH'
+                    ? 'bg-emerald-500 text-white'
                     : log.type === 'RECOMMEND'
-                      ? 'bg-[#4A5D4E]/20 text-[#4A5D4E]'
+                      ? 'bg-zinc-700 text-white'
                       : log.type === 'AI_NLP'
-                        ? 'bg-[#C87D55]/20 text-[#8C5D36]'
-                        : 'bg-[#F2EDE4] text-[#7D857E]'
+                        ? 'bg-zinc-300 text-emerald-950'
+                        : 'bg-zinc-200 text-zinc-600'
                   }`}>
                   {log.type}
                 </span>
                 <div className="flex-1">
-                  <p className="text-[#3D3D3D]">{log.message}</p>
-                  <span className="text-[10px] text-[#7D857E]">{new Date(log.timestamp).toLocaleString()}</span>
+                  <p className="text-emerald-950 font-medium">{log.message}</p>
+                  <span className="text-[10px] text-emerald-900/60 font-mono mt-1 block">{new Date(log.timestamp).toLocaleString()}</span>
                 </div>
               </div>
             ))}
