@@ -178,7 +178,7 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FDFBF7] text-[#3D3D3D] flex flex-col font-sans selection:bg-[#8BA08E] selection:text-white">
+    <div className="min-h-screen bg-zinc-50 text-emerald-950 flex flex-col font-sans selection:bg-emerald-500 selection:text-white">
       {/* Top Navigation */}
       <Navbar
         activeTab={activeTab}
@@ -273,16 +273,16 @@ export function App() {
         />
       )}
 
-      {/* Natural Tones Footer */}
-      <footer className="border-t border-[#EAE7E0] bg-[#F9F7F2] py-8 text-center text-xs text-[#7D857E]">
+      {/* Footer */}
+      <footer className="border-t border-zinc-200 bg-white py-8 text-center text-xs text-emerald-900/60">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-full bg-[#8BA08E] flex items-center justify-center text-white text-[10px] font-bold">SM</div>
-            <span className="font-serif font-semibold text-[#4A5D4E]">SmartMeal</span>
-            <span className="text-[#A9A296]">•</span>
-            <span>Hệ thống Gợi ý Món ăn Thông minh</span>
+            <div className="w-6 h-6 rounded-md bg-emerald-500 flex items-center justify-center text-white text-[10px] font-bold">SM</div>
+            <span className="font-bold text-emerald-950">SmartMeal</span>
+            <span className="text-emerald-600">•</span>
+            <span>Hệ thống Gợi ý Món ăn</span>
           </div>
-          <p>© 2026 SmartMeal • Khởi nguồn món ngon từ nguyên liệu tự nhiên & AI cá nhân hóa</p>
+          <p>© 2026 SmartMeal.</p>
         </div>
       </footer>
     </div>

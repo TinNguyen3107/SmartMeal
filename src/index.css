@@ -1,62 +1,49 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @layer base {
   body {
-    background-color: #FDFBF7;
-    color: #3D3D3D;
-    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    background-color: #FFFFFF;
+    color: #022c22; /* Zinc 950 */
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
   }
 
   h1, h2, h3, .font-serif, .serif {
-    font-family: 'Fraunces', 'Georgia', serif;
+    font-family: 'Inter', system-ui, sans-serif;
+    letter-spacing: -0.02em;
   }
 }
 
 .card-shadow {
-  box-shadow: 0 10px 30px -10px rgba(74, 93, 78, 0.08), 0 4px 12px -4px rgba(74, 93, 78, 0.04);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
 }
 
 .card-shadow-lg {
-  box-shadow: 0 20px 40px -15px rgba(74, 93, 78, 0.12), 0 8px 16px -6px rgba(74, 93, 78, 0.06);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
 }
 
-.sage-bg {
-  background-color: #8BA08E;
-}
+/* Ghi đè các class màu cũ sang phong cách Minimalist Đen/Xám */
+.sage-bg { background-color: #10b981; } /* Zinc 900 */
+.terracotta-text { color: #3F3F46; } 
+.terracotta-bg { background-color: #F4F4F5; }
+.clay-bg { background-color: #F4F4F5; }
+.linen-bg { background-color: #FFFFFF; }
+.forest-bg { background-color: #022c22; }
 
-.terracotta-text {
-  color: #C87D55;
-}
-
-.terracotta-bg {
-  background-color: #D9AE94;
-}
-
-.clay-bg {
-  background-color: #F2EDE4;
-}
-
-.linen-bg {
-  background-color: #FDFBF7;
-}
-
-.forest-bg {
-  background-color: #4A5D4E;
-}
-
-/* Custom scrollbar matching natural theme */
+/* Custom scrollbar tối giản */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 4px;
+  height: 4px;
 }
 ::-webkit-scrollbar-track {
-  background: #F2EDE4;
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #C4BEB3;
-  border-radius: 9999px;
+  background: #E4E4E7;
+  border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #A9A296;
+  background: #A1A1AA;
 }
 
