@@ -74,30 +74,30 @@ export const RecipeExplorer: React.FC<RecipeExplorerProps> = ({
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Header */}
-      <div className="bg-[#4A5D4E] text-white rounded-[36px] p-8 sm:p-10 card-shadow-lg">
+      <div className="bg-emerald-500 text-white rounded-3xl p-8 sm:p-10 card-shadow-lg">
         <div className="flex items-center gap-3 mb-2">
-          <div className="w-12 h-12 rounded-2xl bg-white/15 text-[#E9EDC9] flex items-center justify-center">
+          <div className="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center">
             <UtensilsCrossed className="w-6 h-6" />
           </div>
           <div>
-            <h1 className="font-serif text-2xl sm:text-4xl font-normal text-white">Thư viện công thức món ngon</h1>
-            <p className="text-xs sm:text-sm text-[#E9EDC9] opacity-90 mt-1">Khám phá {recipes.length} món ăn chuẩn vị với định lượng và dinh dưỡng chi tiết</p>
+            <h1 className="text-2xl sm:text-4xl font-semibold text-white tracking-tight">Kho công thức</h1>
+            <p className="text-xs sm:text-sm text-emerald-900/50 mt-1">Khám phá {recipes.length} món ăn với định lượng và dinh dưỡng chi tiết</p>
           </div>
         </div>
       </div>
 
       {/* Filter & Search Bar */}
-      <div className="bg-white border border-[#EAE7E0] rounded-4xl p-6 card-shadow space-y-4">
+      <div className="bg-white border border-zinc-200 rounded-2xl p-6 card-shadow space-y-4">
         {/* Search */}
         <div className="relative">
-          <Search className="w-4 h-4 text-[#A9A296] absolute left-4 top-3.5" />
+          <Search className="w-4 h-4 text-emerald-900/50 absolute left-4 top-3.5" />
           <input
             id="recipe-explorer-search"
             type="text"
             placeholder="Tìm theo tên món ăn, nguyên liệu, hương vị..."
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            className="w-full pl-11 pr-4 py-3 rounded-2xl bg-[#F9F7F2] border border-[#EAE7E0] text-[#3D3D3D] placeholder-[#A9A296] text-xs sm:text-sm focus:outline-none focus:border-[#8BA08E] font-medium"
+            className="w-full pl-11 pr-4 py-3 rounded-xl bg-zinc-50 border border-zinc-200 text-emerald-950 placeholder-zinc-400 text-xs sm:text-sm focus:outline-none focus:border-zinc-400 font-medium"
           />
         </div>
 
@@ -105,11 +105,11 @@ export const RecipeExplorer: React.FC<RecipeExplorerProps> = ({
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 text-xs">
           {/* Cuisine */}
           <div>
-            <label className="block text-[#7D857E] mb-1 font-semibold">Ẩm thực:</label>
+            <label className="block text-emerald-900/60 mb-1 font-semibold">Ẩm thực:</label>
             <select
               value={selectedCuisine}
               onChange={e => setSelectedCuisine(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-2xl bg-[#F9F7F2] border border-[#EAE7E0] text-[#3D3D3D] focus:outline-none focus:border-[#8BA08E] font-medium"
+              className="w-full px-3.5 py-2.5 rounded-lg bg-zinc-50 border border-zinc-200 text-emerald-950 focus:outline-none focus:border-zinc-400 font-medium"
             >
               {cuisines.map(c => (
                 <option key={c} value={c}>{c === 'All' ? 'Tất cả ẩm thực' : c}</option>
@@ -119,11 +119,11 @@ export const RecipeExplorer: React.FC<RecipeExplorerProps> = ({
 
           {/* Category */}
           <div>
-            <label className="block text-[#7D857E] mb-1 font-semibold">Loại món:</label>
+            <label className="block text-emerald-900/60 mb-1 font-semibold">Loại món:</label>
             <select
               value={selectedCategory}
               onChange={e => setSelectedCategory(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-2xl bg-[#F9F7F2] border border-[#EAE7E0] text-[#3D3D3D] focus:outline-none focus:border-[#8BA08E] font-medium"
+              className="w-full px-3.5 py-2.5 rounded-lg bg-zinc-50 border border-zinc-200 text-emerald-950 focus:outline-none focus:border-zinc-400 font-medium"
             >
               {categories.map(c => (
                 <option key={c} value={c}>{c === 'All' ? 'Tất cả loại món' : c}</option>
@@ -133,11 +133,11 @@ export const RecipeExplorer: React.FC<RecipeExplorerProps> = ({
 
           {/* Diet */}
           <div>
-            <label className="block text-[#7D857E] mb-1 font-semibold">Chế độ ăn:</label>
+            <label className="block text-emerald-900/60 mb-1 font-semibold">Chế độ ăn:</label>
             <select
               value={selectedDiet}
               onChange={e => setSelectedDiet(e.target.value as any)}
-              className="w-full px-3.5 py-2.5 rounded-2xl bg-[#F9F7F2] border border-[#EAE7E0] text-[#3D3D3D] focus:outline-none focus:border-[#8BA08E] font-medium"
+              className="w-full px-3.5 py-2.5 rounded-lg bg-zinc-50 border border-zinc-200 text-emerald-950 focus:outline-none focus:border-zinc-400 font-medium"
             >
               {diets.map(d => (
                 <option key={d} value={d}>{d === 'All' ? 'Tất cả chế độ' : d}</option>
@@ -147,11 +147,11 @@ export const RecipeExplorer: React.FC<RecipeExplorerProps> = ({
 
           {/* Sort */}
           <div>
-            <label className="block text-[#7D857E] mb-1 font-semibold">Sắp xếp theo:</label>
+            <label className="block text-emerald-900/60 mb-1 font-semibold">Sắp xếp theo:</label>
             <select
               value={sortBy}
               onChange={e => setSortBy(e.target.value as any)}
-              className="w-full px-3.5 py-2.5 rounded-2xl bg-[#F9F7F2] border border-[#EAE7E0] text-[#3D3D3D] focus:outline-none focus:border-[#8BA08E] font-medium"
+              className="w-full px-3.5 py-2.5 rounded-lg bg-zinc-50 border border-zinc-200 text-emerald-950 focus:outline-none focus:border-zinc-400 font-medium"
             >
               <option value="rating">Đánh giá cao nhất</option>
               <option value="time">Thời gian nấu nhanh nhất</option>
@@ -168,7 +168,7 @@ export const RecipeExplorer: React.FC<RecipeExplorerProps> = ({
           return (
             <div
               key={recipe.id}
-              className="bg-white border border-[#EAE7E0] hover:border-[#D1CEC7] rounded-4xl overflow-hidden card-shadow flex flex-col group transition-all"
+              className="bg-white border border-zinc-200 hover:border-zinc-300 rounded-2xl overflow-hidden card-shadow flex flex-col group transition-all"
             >
               {/* Image & Favorite toggle */}
               <div className="relative h-48 w-full overflow-hidden">
@@ -181,16 +181,16 @@ export const RecipeExplorer: React.FC<RecipeExplorerProps> = ({
 
                 <button
                   onClick={() => onToggleFavorite(recipe.id)}
-                  className="absolute top-3 right-3 p-2.5 rounded-full bg-black/40 hover:bg-black/70 text-white backdrop-blur-sm transition-colors"
+                  className="absolute top-3 right-3 p-2.5 rounded-lg bg-emerald-500/40 hover:bg-emerald-500/70 text-white backdrop-blur-sm transition-colors"
                 >
-                  <Heart className={`w-4 h-4 ${isFav ? 'fill-[#C87D55] text-[#C87D55]' : 'text-white'}`} />
+                  <Heart className={`w-4 h-4 ${isFav ? 'fill-white text-white' : 'text-white'}`} />
                 </button>
 
                 <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between">
-                  <span className="px-3 py-1 rounded-full bg-[#8BA08E] text-white text-[11px] font-bold shadow-sm">
+                  <span className="px-3 py-1 rounded-md bg-emerald-500/60 text-white text-[11px] font-bold backdrop-blur-sm">
                     {recipe.category}
                   </span>
-                  <span className="text-xs font-semibold text-white bg-black/50 backdrop-blur-sm px-2.5 py-0.5 rounded-full">
+                  <span className="text-xs font-semibold text-white bg-emerald-500/50 backdrop-blur-sm px-2.5 py-0.5 rounded-md">
                     {recipe.cuisine}
                   </span>
                 </div>
@@ -201,36 +201,36 @@ export const RecipeExplorer: React.FC<RecipeExplorerProps> = ({
                 <div>
                   <h3
                     onClick={() => onSelectRecipe(recipe.id)}
-                    className="font-serif text-base font-bold text-[#3D3D3D] group-hover:text-[#8BA08E] transition-colors cursor-pointer leading-tight mb-1.5"
+                    className="text-base font-bold text-emerald-950 group-hover:text-zinc-600 transition-colors cursor-pointer leading-tight mb-1.5"
                   >
                     {recipe.name}
                   </h3>
-                  <p className="text-xs text-[#7D857E] line-clamp-2 leading-relaxed">
+                  <p className="text-xs text-emerald-900/60 line-clamp-2 leading-relaxed">
                     {recipe.description}
                   </p>
                 </div>
 
-                <div className="space-y-3.5 pt-3 border-t border-[#F2EDE4]">
-                  <div className="flex items-center justify-between text-xs text-[#7D857E] font-medium">
+                <div className="space-y-3.5 pt-3 border-t border-zinc-100">
+                  <div className="flex items-center justify-between text-xs text-emerald-900/60 font-medium">
                     <span className="flex items-center gap-1">
-                      <Clock className="w-3.5 h-3.5 text-[#8BA08E]" />
+                      <Clock className="w-3.5 h-3.5" />
                       {formatMinutes(recipe.totalTime)}
                     </span>
-                    <span className="flex items-center gap-1 text-[#8C5D36]">
-                      <Flame className="w-3.5 h-3.5 text-[#C87D55]" />
+                    <span className="flex items-center gap-1">
+                      <Flame className="w-3.5 h-3.5" />
                       {recipe.calories} kcal
                     </span>
-                    <span className="flex items-center gap-1 text-[#8C5D36]">
-                      <Star className="w-3.5 h-3.5 fill-[#D9AE94] text-[#D9AE94]" />
+                    <span className="flex items-center gap-1 text-emerald-950 font-bold">
+                      <Star className="w-3.5 h-3.5 fill-emerald-500" />
                       {recipe.rating}
                     </span>
                   </div>
 
                   <button
                     onClick={() => onSelectRecipe(recipe.id)}
-                    className="w-full py-3 rounded-full bg-[#8BA08E] hover:bg-[#798E7C] text-white text-xs font-bold transition-colors flex items-center justify-center gap-2 card-shadow"
+                    className="w-full py-3 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold transition-colors flex items-center justify-center gap-2 shadow-sm"
                   >
-                    <span>Xem công thức & Nấu</span>
+                    <span>Xem công thức</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
