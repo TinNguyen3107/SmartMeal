@@ -17,10 +17,7 @@ export function App() {
   const [allIngredients, setAllIngredients] = useState<Ingredient[]>([]);
   const [pantryItems, setPantryItems] = useState<UserIngredient[]>([]);
   const [favorites, setFavorites] = useState<string[]>([]);
-  const [shoppingList, setShoppingList] = useState<ShoppingItem[]>([
-    { id: 'shop-1', name: 'Nước dừa xiêm', quantity: 1, unit: 'trái', recipeName: 'Thịt kho tàu nước dừa', isBought: false },
-    { id: 'shop-2', name: 'Ớt chuông đỏ', quantity: 2, unit: 'quả', recipeName: 'Bò xào ớt chuông hành tây', isBought: false }
-  ]);
+  const [shoppingList, setShoppingList] = useState<ShoppingItem[]>([]);
 
   const [selectedRecipeId, setSelectedRecipeId] = useState<string | null>(null);
   const [showProfileModal, setShowProfileModal] = useState<boolean>(false);

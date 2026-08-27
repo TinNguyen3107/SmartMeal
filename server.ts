@@ -35,7 +35,7 @@ dotenv.config();
 let dbIngredients: Ingredient[] = [...INITIAL_INGREDIENTS];
 let dbRecipes: Recipe[] = [...INITIAL_RECIPES];
 let dbUsers: UserProfile[] = [...DEMO_USERS];
-let currentUser: UserProfile | null = DEMO_USERS[0]; // Default logged in as demo user
+let currentUser: UserProfile | null = null; // User must login manually
 
 let dbPantry: Record<string, UserIngredient[]> = {};
 
@@ -89,13 +89,7 @@ async function startServer() {
     res.json({ success: true, user });
   });
 
-  app.post('/api/auth/demo-login', (req, res) => {
-    const { role } = req.body;
-    const user = dbUsers.find(u => u.role === (role || 'user')) || dbUsers[0];
-    currentUser = user;
-    addLog('AUTH', `Đăng nhập Demo chế độ: ${user.role} (${user.name})`);
-    res.json({ success: true, user });
-  });
+
 
   app.post('/api/auth/register', (req, res) => {
     const { name, email, password } = req.body;
@@ -108,6 +102,7 @@ async function startServer() {
     const newUser: UserProfile = {
       id: `user-${Date.now()}`,
       email,
+      password,
       name,
       avatar: `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(name)}`,
       gender: 'Other',
