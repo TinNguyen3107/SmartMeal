@@ -84,22 +84,22 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-white border border-[#EAE7E0] rounded-[36px] max-w-xl w-full p-6 sm:p-8 card-shadow-lg text-[#3D3D3D] relative">
+    <div className="fixed inset-0 z-50 bg-emerald-500/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+      <div className="bg-white border border-zinc-200 rounded-2xl max-w-xl w-full p-6 sm:p-8 card-shadow-lg text-emerald-950 relative">
         <button
           onClick={onClose}
-          className="absolute top-5 right-5 p-2 rounded-full bg-[#F9F7F2] hover:bg-[#F2EDE4] text-[#7D857E] transition-colors"
+          className="absolute top-5 right-5 p-2 rounded-lg bg-zinc-50 hover:bg-zinc-100 text-emerald-900/60 transition-colors"
         >
           <X className="w-4 h-4" />
         </button>
 
         <div className="flex items-center gap-3.5 mb-6">
-          <div className="w-12 h-12 rounded-2xl bg-[#8BA08E]/20 text-[#4A5D4E] flex items-center justify-center">
+          <div className="w-12 h-12 rounded-xl bg-zinc-100 text-zinc-600 flex items-center justify-center">
             <User className="w-6 h-6" />
           </div>
           <div>
-            <h2 className="font-serif text-xl font-normal text-[#3D3D3D]">Hồ sơ & Sở thích cá nhân (FR-03)</h2>
-            <p className="text-xs text-[#7D857E]">Tùy chỉnh để hệ thống cá nhân hóa gợi ý món ăn chuẩn xác nhất</p>
+            <h2 className="text-xl font-semibold text-emerald-950">Hồ sơ & Sở thích</h2>
+            <p className="text-xs text-emerald-900/60">Tùy chỉnh để hệ thống gợi ý món ăn phù hợp hơn</p>
           </div>
         </div>
 
@@ -107,30 +107,30 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
           {/* General Info */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-[#3D3D3D] font-semibold mb-1.5">Họ và tên</label>
+              <label className="block text-zinc-700 font-semibold mb-1.5">Họ và tên</label>
               <input
                 type="text"
                 value={name}
                 onChange={e => setName(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-2xl bg-[#F9F7F2] border border-[#EAE7E0] text-[#3D3D3D] text-xs focus:outline-none focus:border-[#8BA08E] font-medium"
+                className="w-full px-3.5 py-2.5 rounded-lg bg-zinc-50 border border-zinc-200 text-emerald-950 text-xs focus:outline-none focus:border-zinc-400 font-medium"
               />
             </div>
             <div>
-              <label className="block text-[#3D3D3D] font-semibold mb-1.5">Tuổi</label>
+              <label className="block text-zinc-700 font-semibold mb-1.5">Tuổi</label>
               <input
                 type="number"
                 value={age}
                 onChange={e => setAge(Number(e.target.value))}
-                className="w-full px-3.5 py-2.5 rounded-2xl bg-[#F9F7F2] border border-[#EAE7E0] text-[#3D3D3D] text-xs focus:outline-none focus:border-[#8BA08E] font-medium"
+                className="w-full px-3.5 py-2.5 rounded-lg bg-zinc-50 border border-zinc-200 text-emerald-950 text-xs focus:outline-none focus:border-zinc-400 font-medium"
               />
             </div>
           </div>
 
           {/* Max cooking time slider */}
           <div>
-            <div className="flex justify-between text-[#3D3D3D] font-semibold mb-1.5">
-              <span>Thời gian nấu ưa thích mặc định:</span>
-              <span className="text-[#8BA08E] font-bold">{maxCookingTime} phút</span>
+            <div className="flex justify-between text-zinc-700 font-semibold mb-1.5">
+              <span>Thời gian nấu ưa thích:</span>
+              <span className="text-emerald-950 font-bold">{maxCookingTime} phút</span>
             </div>
             <input
               type="range"
@@ -139,23 +139,23 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
               step="5"
               value={maxCookingTime}
               onChange={e => setMaxCookingTime(Number(e.target.value))}
-              className="w-full accent-[#8BA08E]"
+              className="w-full accent-black"
             />
           </div>
 
           {/* Preferred Difficulty */}
           <div>
-            <label className="block text-[#3D3D3D] font-semibold mb-1.5">Độ khó ưa thích:</label>
+            <label className="block text-zinc-700 font-semibold mb-1.5">Độ khó ưa thích:</label>
             <div className="grid grid-cols-4 gap-2">
               {['Any', 'Easy', 'Medium', 'Hard'].map(d => (
                 <button
                   type="button"
                   key={d}
                   onClick={() => setPreferredDifficulty(d as any)}
-                  className={`py-2 rounded-xl font-semibold border text-center transition-colors ${
+                  className={`py-2 rounded-lg font-semibold border text-center transition-colors ${
                     preferredDifficulty === d
-                      ? 'bg-[#8BA08E] text-white border-[#8BA08E]'
-                      : 'bg-[#F9F7F2] text-[#7D857E] border-[#EAE7E0] hover:border-[#D1CEC7]'
+                      ? 'bg-emerald-500 text-white border-emerald-500'
+                      : 'bg-zinc-50 text-zinc-600 border-zinc-200 hover:border-zinc-300'
                   }`}
                 >
                   {d === 'Any' ? 'Bất kỳ' : d === 'Easy' ? 'Dễ làm' : d === 'Medium' ? 'Trung bình' : 'Cầu kỳ'}
@@ -166,7 +166,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
 
           {/* Dietary Types */}
           <div>
-            <label className="block text-[#3D3D3D] font-semibold mb-1.5">Chế độ ăn & Lối sống:</label>
+            <label className="block text-zinc-700 font-semibold mb-1.5">Chế độ ăn & Lối sống:</label>
             <div className="flex flex-wrap gap-2">
               {availableDiets.map(diet => {
                 const isSelected = dietaryTypes.includes(diet);
@@ -175,10 +175,10 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                     type="button"
                     key={diet}
                     onClick={() => handleToggleDiet(diet)}
-                    className={`px-3.5 py-1.5 rounded-full font-medium border flex items-center gap-1.5 transition-colors ${
+                    className={`px-3.5 py-1.5 rounded-lg font-medium border flex items-center gap-1.5 transition-colors ${
                       isSelected
-                        ? 'bg-[#8BA08E] text-white border-[#8BA08E]'
-                        : 'bg-[#F9F7F2] text-[#7D857E] border-[#EAE7E0] hover:border-[#D1CEC7]'
+                        ? 'bg-emerald-500 text-white border-emerald-500'
+                        : 'bg-zinc-50 text-zinc-600 border-zinc-200 hover:border-zinc-300'
                     }`}
                   >
                     {isSelected && <Check className="w-3 h-3" />}
@@ -191,7 +191,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
 
           {/* Allergies */}
           <div>
-            <label className="block text-[#3D3D3D] font-semibold mb-1.5">
+            <label className="block text-zinc-700 font-semibold mb-1.5">
               Dị ứng / Thực phẩm cần loại trừ (ngăn cách bằng dấu phẩy):
             </label>
             <input
@@ -199,22 +199,22 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
               placeholder="Ví dụ: Đậu phộng, Hải sản, Hành tây..."
               value={allergiesText}
               onChange={e => setAllergiesText(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-2xl bg-[#F9F7F2] border border-[#EAE7E0] text-[#3D3D3D] placeholder-[#A9A296] text-xs focus:outline-none focus:border-[#8BA08E] font-medium"
+              className="w-full px-3.5 py-2.5 rounded-lg bg-zinc-50 border border-zinc-200 text-emerald-950 placeholder-zinc-400 text-xs focus:outline-none focus:border-zinc-400 font-medium"
             />
           </div>
 
-          <div className="pt-4 border-t border-[#EAE7E0] flex justify-end gap-3">
+          <div className="pt-4 border-t border-zinc-200 flex justify-end gap-3">
             <button
               type="button"
               onClick={onClose}
-              className="px-5 py-2.5 rounded-full bg-[#F9F7F2] hover:bg-[#F2EDE4] text-[#7D857E] font-semibold transition-colors"
+              className="px-5 py-2.5 rounded-lg bg-zinc-50 hover:bg-zinc-100 text-zinc-600 font-semibold transition-colors"
             >
               Hủy
             </button>
             <button
               type="submit"
               disabled={isSaving}
-              className="px-6 py-2.5 rounded-full bg-[#8BA08E] hover:bg-[#798E7C] text-white font-bold flex items-center gap-2 card-shadow transition-colors"
+              className="px-6 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-bold flex items-center gap-2 shadow-sm transition-colors"
             >
               <Save className="w-4 h-4" />
               Lưu thay đổi
