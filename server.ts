@@ -86,27 +86,78 @@ async function startServer() {
   const app = express();
   const PORT = 3000;
 
-  // ==================== SEED DATABASE ====================
-  // Tạo 2 tài khoản mẫu nếu chưa tồn tại trên TiDB
-  async function seedDatabase() {
+  // ==================== SEED & LOAD DATABASE ====================
+  async function seedAndLoadDatabase() {
+    // 1. Seed tài khoản mẫu
     const adminExists = await prisma.user.findUnique({ where: { email: 'admin@gmail.com' } });
     if (!adminExists) {
       await prisma.user.create({
         data: { email: 'admin@gmail.com', password: 'admin123', name: 'Admin', role: 'admin', avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=Admin' }
       });
-      addLog('AUTH', 'Tạo tài khoản Admin mẫu trên TiDB');
     }
     const userExists = await prisma.user.findUnique({ where: { email: 'user@gmail.com' } });
     if (!userExists) {
       await prisma.user.create({
         data: { email: 'user@gmail.com', password: 'user123', name: 'User', role: 'user', avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=User' }
       });
-      addLog('AUTH', 'Tạo tài khoản User mẫu trên TiDB');
     }
-    console.log('✅ Database seeded (2 demo accounts ready)');
+
+    // 2. Load Ingredients từ TiDB vào RAM
+    const dbIngs = await prisma.ingredient.findMany();
+    if (dbIngs.length > 0) {
+      dbIngredients = dbIngs.map(ing => ({
+        id: ing.id,
+        name: ing.name,
+        normalizedName: ing.normalizedName,
+        category: ing.category as any,
+        categoryNameVi: ing.categoryNameVi,
+        defaultUnit: ing.defaultUnit,
+        aliases: [],
+        icon: ''
+      }));
+    }
+
+    // 3. Load Recipes từ TiDB vào RAM (kèm nguyên liệu)
+    const dbRecs = await prisma.recipe.findMany({ include: { ingredients: true } });
+    if (dbRecs.length > 0) {
+      dbRecipes = dbRecs.map(r => ({
+        id: r.id,
+        name: r.name,
+        vietnameseName: r.vietnameseName,
+        description: r.description,
+        image: r.image,
+        cuisine: r.cuisine,
+        category: r.category,
+        dietaryTags: ['Vietnamese'] as any[],
+        difficulty: r.difficulty as any,
+        preparationTime: 5,
+        cookingTime: r.totalTime - 5,
+        totalTime: r.totalTime,
+        calories: r.calories,
+        servings: 2,
+        rating: r.rating,
+        reviewCount: r.reviewCount,
+        popularityScore: r.popularityScore,
+        ingredients: r.ingredients.map(i => ({
+          ingredientId: i.ingredientId,
+          name: i.name,
+          normalizedName: i.normalizedName,
+          quantity: i.quantity,
+          unit: i.unit,
+          isOptional: i.isOptional
+        })),
+        instructions: [
+          { stepNumber: 1, instruction: 'Chuẩn bị nguyên liệu.' },
+          { stepNumber: 2, instruction: 'Chế biến và thưởng thức.' }
+        ],
+        createdAt: r.createdAt.toISOString()
+      }));
+    }
+
+    console.log(`✅ Database loaded: ${dbIngredients.length} nguyên liệu, ${dbRecipes.length} công thức, 2 tài khoản`);
   }
 
-  await seedDatabase();
+  await seedAndLoadDatabase();
 
   app.use(express.json({ limit: '20mb' }));
   app.use(express.urlencoded({ extended: true, limit: '20mb' }));
@@ -358,21 +409,20 @@ async function startServer() {
     res.json({ recipes: list, total: list.length });
   });
 
-  app.get('/api/recipes/:id', (req, res) => {
+  app.get('/api/recipes/:id', async (req, res) => {
     const recipe = dbRecipes.find(r => r.id === req.params.id);
     if (!recipe) return res.status(404).json({ message: 'Không tìm thấy công thức món ăn' });
 
-    // Ghi lịch sử xem món (FR-15)
+    // Ghi lịch sử xem món vào TiDB (FR-15)
     if (currentUser) {
-      dbHistory.unshift({
-        id: `hist-${Date.now()}`,
-        userId: currentUser.id,
-        recipeName: recipe.name,
-        recipeId: recipe.id,
-        type: 'VIEW',
-        date: new Date().toISOString()
+      await prisma.history.create({
+        data: {
+          userId: currentUser.id,
+          recipeId: recipe.id,
+          recipeName: recipe.name,
+          type: 'VIEW'
+        }
       });
-      if (dbHistory.length > 100) dbHistory.pop();
     }
 
     addLog('RECIPE_VIEW', `Xem chi tiết món: ${recipe.name}`);
@@ -380,17 +430,50 @@ async function startServer() {
     res.json({ recipe, reviews });
   });
 
-  app.post('/api/recipes', (req, res) => {
+  app.post('/api/recipes', async (req, res) => {
+    const body = req.body;
+
+    // Lưu Recipe vào TiDB
+    const created = await prisma.recipe.create({
+      data: {
+        name: body.name,
+        vietnameseName: body.vietnameseName || body.name,
+        description: body.description || '',
+        image: body.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&auto=format&fit=crop&q=80',
+        cuisine: body.cuisine || 'Vietnamese',
+        category: body.category || 'Món chính',
+        difficulty: body.difficulty || 'Easy',
+        totalTime: body.totalTime || 15,
+        calories: body.calories || 250,
+        rating: 5.0,
+        reviewCount: 1,
+        popularityScore: 80,
+        ingredients: {
+          create: (body.ingredients || []).map((ing: any) => ({
+            ingredientId: ing.ingredientId || `ing-${Date.now()}-${Math.random().toString(36).substr(2,4)}`,
+            name: ing.name,
+            normalizedName: ing.normalizedName || ing.name.toUpperCase().replace(/\s+/g, '_'),
+            quantity: ing.quantity || 1,
+            unit: ing.unit || 'phần',
+            isOptional: ing.isOptional || false
+          }))
+        }
+      },
+      include: { ingredients: true }
+    });
+
+    // Đồng bộ vào RAM
     const newRecipe: Recipe = {
-      ...req.body,
-      id: `rec-${Date.now()}`,
+      ...body,
+      id: created.id,
       rating: 5.0,
       reviewCount: 1,
       popularityScore: 80,
-      createdAt: new Date().toISOString()
+      createdAt: created.createdAt.toISOString()
     };
     dbRecipes.unshift(newRecipe);
-    addLog('SEARCH', `Admin tạo món ăn mới: ${newRecipe.name}`);
+
+    addLog('SEARCH', `Admin tạo món ăn mới (TiDB): ${created.name}`);
     res.json({ success: true, recipe: newRecipe });
   });
 
