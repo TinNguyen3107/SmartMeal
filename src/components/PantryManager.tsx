@@ -33,14 +33,14 @@ export const PantryManager: React.FC<PantryManagerProps> = ({
   const [newUnit, setNewUnit] = useState('quả');
   const [newCategory, setNewCategory] = useState<IngredientCategory>('Vegetable');
 
-  const categories: { id: string; name: string; icon: string }[] = [
-    { id: 'All', name: 'Tất cả', icon: '🍽️' },
-    { id: 'EggDairy', name: 'Trứng & Sữa', icon: '🥚' },
-    { id: 'Vegetable', name: 'Rau củ', icon: '🥬' },
-    { id: 'Meat', name: 'Thịt tươi', icon: '🥩' },
-    { id: 'Seafood', name: 'Hải sản', icon: '🦐' },
-    { id: 'GrainCarb', name: 'Gạo & Mì', icon: '🍚' },
-    { id: 'Condiment', name: 'Gia vị', icon: '🧂' }
+  const categories: { id: string; name: string }[] = [
+    { id: 'All', name: 'Tất cả' },
+    { id: 'EggDairy', name: 'Trứng & Sữa' },
+    { id: 'Vegetable', name: 'Rau củ' },
+    { id: 'Meat', name: 'Thịt tươi' },
+    { id: 'Seafood', name: 'Hải sản' },
+    { id: 'GrainCarb', name: 'Gạo & Mì' },
+    { id: 'Condiment', name: 'Gia vị' }
   ];
 
   const handleQuickAdd = (ing: Ingredient) => {
@@ -63,18 +63,18 @@ export const PantryManager: React.FC<PantryManagerProps> = ({
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-      {/* Header - Forest Tone */}
-      <div className="bg-[#4A5D4E] text-white rounded-[36px] p-8 sm:p-10 card-shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden">
+      {/* Header */}
+      <div className="bg-emerald-500 text-white rounded-3xl p-8 sm:p-10 card-shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden">
         <div className="max-w-2xl relative z-10">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/15 border border-white/20 text-[#E9EDC9] text-xs font-semibold mb-3 tracking-wide">
-            <Refrigerator className="w-4 h-4 text-[#D9AE94]" />
-            Quản lý kho nguyên liệu gia đình (FR-04)
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-emerald-100 border border-zinc-700 text-emerald-600 text-[10px] font-bold uppercase tracking-widest mb-3">
+            <Refrigerator className="w-4 h-4 text-zinc-100" />
+            Quản lý nguyên liệu
           </div>
-          <h1 className="font-serif text-2xl sm:text-4xl font-normal text-white tracking-tight">
-            Tủ lạnh thông minh của tôi
+          <h1 className="text-2xl sm:text-4xl font-semibold text-white tracking-tight">
+            Tủ lạnh của tôi
           </h1>
-          <p className="mt-2 text-[#E9EDC9] text-xs sm:text-sm leading-relaxed opacity-95">
-            Lưu giữ danh sách thực phẩm đang có trong tủ lạnh. Nhấn "Nấu ngay từ tủ lạnh" để AI tự động tìm công thức ngon nhất!
+          <p className="mt-2 text-emerald-900/50 text-xs sm:text-sm leading-relaxed">
+            Lưu giữ danh sách thực phẩm đang có. Nhấn "Gợi ý món" để tìm công thức phù hợp nhất.
           </p>
         </div>
 
@@ -84,10 +84,10 @@ export const PantryManager: React.FC<PantryManagerProps> = ({
             id="cook-from-pantry-btn"
             disabled={pantryItems.length === 0}
             onClick={() => onTriggerRecommendation(pantryItems.map(p => ({ name: p.name, quantity: p.quantity, unit: p.unit })))}
-            className="w-full sm:w-auto px-6 py-3.5 rounded-full bg-[#8BA08E] hover:bg-[#798E7C] text-white font-bold text-sm card-shadow flex items-center justify-center gap-2.5 transition-all disabled:opacity-50"
+            className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-white hover:bg-zinc-100 text-emerald-950 font-bold text-sm shadow-sm flex items-center justify-center gap-2.5 transition-all disabled:opacity-50"
           >
-            <Sparkles className="w-5 h-5 text-[#E9EDC9]" />
-            Nấu ngay từ {pantryItems.length} món trong tủ lạnh
+            <Sparkles className="w-5 h-5" />
+            Gợi ý món từ {pantryItems.length} nguyên liệu
           </button>
         </div>
       </div>
@@ -96,53 +96,53 @@ export const PantryManager: React.FC<PantryManagerProps> = ({
         {/* LEFT: Add Ingredient Form & Quick Add Catalog (4 cols) */}
         <div className="lg:col-span-4 space-y-6">
           {/* Custom Add Form */}
-          <form onSubmit={handleFormSubmit} className="bg-white border border-[#EAE7E0] rounded-4xl p-6 card-shadow space-y-4">
-            <h3 className="font-serif text-base font-bold text-[#3D3D3D] flex items-center gap-2">
-              <Plus className="w-4 h-4 text-[#8BA08E]" />
-              Thêm nguyên liệu mới vào tủ
+          <form onSubmit={handleFormSubmit} className="bg-white border border-zinc-200 rounded-2xl p-6 card-shadow space-y-4">
+            <h3 className="text-sm font-bold text-emerald-950 flex items-center gap-2">
+              <Plus className="w-4 h-4 text-emerald-900/60" />
+              Thêm nguyên liệu mới
             </h3>
 
             <div>
-              <label className="block text-xs font-semibold text-[#3D3D3D] mb-1">Tên thực phẩm</label>
+              <label className="block text-xs font-semibold text-zinc-700 mb-1">Tên thực phẩm</label>
               <input
                 type="text"
                 placeholder="Ví dụ: Trứng gà, Thịt bò, Nấm rơm..."
                 value={newName}
                 onChange={e => setNewName(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-2xl bg-[#F9F7F2] border border-[#EAE7E0] text-[#3D3D3D] placeholder-[#A9A296] text-xs focus:outline-none focus:border-[#8BA08E] focus:bg-white"
+                className="w-full px-3.5 py-2.5 rounded-lg bg-zinc-50 border border-zinc-200 text-emerald-950 placeholder-zinc-400 text-xs focus:outline-none focus:border-zinc-400 focus:bg-white"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-[#3D3D3D] mb-1">Số lượng</label>
+                <label className="block text-xs font-semibold text-zinc-700 mb-1">Số lượng</label>
                 <input
                   type="number"
                   min="0.5"
                   step="0.5"
                   value={newQty}
                   onChange={e => setNewQty(Number(e.target.value))}
-                  className="w-full px-3.5 py-2.5 rounded-2xl bg-[#F9F7F2] border border-[#EAE7E0] text-[#3D3D3D] text-xs focus:outline-none focus:border-[#8BA08E] focus:bg-white font-medium"
+                  className="w-full px-3.5 py-2.5 rounded-lg bg-zinc-50 border border-zinc-200 text-emerald-950 text-xs focus:outline-none focus:border-zinc-400 focus:bg-white font-medium"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-[#3D3D3D] mb-1">Đơn vị</label>
+                <label className="block text-xs font-semibold text-zinc-700 mb-1">Đơn vị</label>
                 <input
                   type="text"
                   placeholder="quả, g, củ, ml..."
                   value={newUnit}
                   onChange={e => setNewUnit(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-2xl bg-[#F9F7F2] border border-[#EAE7E0] text-[#3D3D3D] text-xs focus:outline-none focus:border-[#8BA08E] focus:bg-white font-medium"
+                  className="w-full px-3.5 py-2.5 rounded-lg bg-zinc-50 border border-zinc-200 text-emerald-950 text-xs focus:outline-none focus:border-zinc-400 focus:bg-white font-medium"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[#3D3D3D] mb-1">Nhóm nguyên liệu</label>
+              <label className="block text-xs font-semibold text-zinc-700 mb-1">Nhóm nguyên liệu</label>
               <select
                 value={newCategory}
                 onChange={e => setNewCategory(e.target.value as any)}
-                className="w-full px-3.5 py-2.5 rounded-2xl bg-[#F9F7F2] border border-[#EAE7E0] text-[#3D3D3D] text-xs focus:outline-none focus:border-[#8BA08E] font-medium"
+                className="w-full px-3.5 py-2.5 rounded-lg bg-zinc-50 border border-zinc-200 text-emerald-950 text-xs focus:outline-none focus:border-zinc-400 font-medium"
               >
                 <option value="EggDairy">Trứng & Sữa</option>
                 <option value="Vegetable">Rau củ</option>
@@ -157,15 +157,15 @@ export const PantryManager: React.FC<PantryManagerProps> = ({
             <button
               type="submit"
               disabled={!newName.trim()}
-              className="w-full py-3 rounded-full bg-[#8BA08E] hover:bg-[#798E7C] text-white font-bold text-xs card-shadow disabled:opacity-50 transition-colors"
+              className="w-full py-3 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs shadow-sm disabled:opacity-50 transition-colors"
             >
               + Lưu vào tủ lạnh
             </button>
           </form>
 
           {/* Quick Add Recommendations */}
-          <div className="bg-white border border-[#EAE7E0] rounded-4xl p-6 card-shadow space-y-3">
-            <h4 className="text-xs font-bold text-[#7D857E] uppercase tracking-wider">Thêm nhanh từ thư viện</h4>
+          <div className="bg-white border border-zinc-200 rounded-2xl p-6 card-shadow space-y-3">
+            <h4 className="text-xs font-bold text-emerald-900/60 uppercase tracking-wider">Thêm nhanh từ thư viện</h4>
             <div className="flex flex-wrap gap-1.5 max-h-48 overflow-y-auto pr-1">
               {allIngredients.slice(0, 16).map(ing => {
                 const inPantry = pantryItems.some(p => p.normalizedName === ing.normalizedName);
@@ -174,12 +174,11 @@ export const PantryManager: React.FC<PantryManagerProps> = ({
                     key={ing.id}
                     disabled={inPantry}
                     onClick={() => handleQuickAdd(ing)}
-                    className={`px-3 py-1 rounded-full text-xs font-medium border flex items-center gap-1 transition-colors ${inPantry
-                        ? 'bg-[#F2EDE4] text-[#A9A296] border-[#EAE7E0] cursor-not-allowed'
-                        : 'bg-[#F9F7F2] hover:bg-white text-[#3D3D3D] border-[#EAE7E0] hover:border-[#8BA08E]'
+                    className={`px-3 py-1 rounded-md text-xs font-medium border flex items-center gap-1 transition-colors ${inPantry
+                        ? 'bg-zinc-100 text-emerald-900/50 border-zinc-200 cursor-not-allowed'
+                        : 'bg-zinc-50 hover:bg-white text-zinc-700 border-zinc-200 hover:border-zinc-400'
                       }`}
                   >
-                    <span>{ing.icon || '🥗'}</span>
                     <span>{ing.name}</span>
                   </button>
                 );
@@ -191,19 +190,18 @@ export const PantryManager: React.FC<PantryManagerProps> = ({
         {/* RIGHT: Visual Fridge Grid (8 cols) */}
         <div className="lg:col-span-8 space-y-4">
           {/* Filter Bar */}
-          <div className="bg-white border border-[#EAE7E0] rounded-[28px] p-5 card-shadow flex flex-col sm:flex-row gap-3 items-center justify-between">
+          <div className="bg-white border border-zinc-200 rounded-2xl p-5 card-shadow flex flex-col sm:flex-row gap-3 items-center justify-between">
             {/* Category tabs */}
-            <div className="flex gap-1 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0 scrollbar-none">
+            <div className="flex gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0 scrollbar-none">
               {categories.map(cat => (
                 <button
                   key={cat.id}
                   onClick={() => setSelectedCategory(cat.id)}
-                  className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors ${selectedCategory === cat.id
-                      ? 'bg-[#4A5D4E] text-white shadow-sm'
-                      : 'bg-[#F9F7F2] text-[#686868] hover:text-[#3D3D3D] border border-[#EAE7E0]'
+                  className={`px-4 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${selectedCategory === cat.id
+                      ? 'bg-emerald-500 text-white shadow-sm'
+                      : 'bg-zinc-50 text-zinc-600 hover:bg-zinc-100 border border-zinc-200'
                     }`}
                 >
-                  <span className="mr-1">{cat.icon}</span>
                   {cat.name}
                 </button>
               ))}
@@ -211,40 +209,40 @@ export const PantryManager: React.FC<PantryManagerProps> = ({
 
             {/* Search filter */}
             <div className="relative w-full sm:w-52">
-              <Search className="w-3.5 h-3.5 text-[#A9A296] absolute left-3.5 top-3" />
+              <Search className="w-3.5 h-3.5 text-emerald-900/50 absolute left-3.5 top-3" />
               <input
                 type="text"
                 placeholder="Lọc tủ lạnh..."
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-3.5 py-2 rounded-xl bg-[#F9F7F2] border border-[#EAE7E0] text-[#3D3D3D] placeholder-[#A9A296] text-xs focus:outline-none focus:border-[#8BA08E] font-medium"
+                className="w-full pl-9 pr-3.5 py-2 rounded-lg bg-zinc-50 border border-zinc-200 text-emerald-950 placeholder-zinc-400 text-xs focus:outline-none focus:border-zinc-400 font-medium"
               />
             </div>
           </div>
 
           {/* Grid of items */}
           {filteredItems.length === 0 ? (
-            <div className="text-center py-16 bg-white rounded-4xl border border-[#EAE7E0] p-6 card-shadow">
-              <Refrigerator className="w-12 h-12 text-[#A9A296] mx-auto mb-3" />
-              <h3 className="font-serif text-base font-bold text-[#3D3D3D]">Chưa có nguyên liệu nào trong danh mục này</h3>
-              <p className="text-xs text-[#7D857E] max-w-sm mx-auto mt-1 mb-4 leading-relaxed">
-                Hãy thêm đồ ăn bằng form bên trái để tủ lạnh luôn đầy ắp đồ ngon nhé!
+            <div className="text-center py-16 bg-white rounded-2xl border border-zinc-200 p-6 card-shadow">
+              <Refrigerator className="w-12 h-12 text-emerald-600 mx-auto mb-3" />
+              <h3 className="text-base font-bold text-emerald-950">Chưa có nguyên liệu nào</h3>
+              <p className="text-xs text-emerald-900/60 max-w-sm mx-auto mt-1 mb-4 leading-relaxed">
+                Hãy thêm đồ ăn bằng form bên trái để bắt đầu.
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {filteredItems.map(item => (
                 <div
                   key={item.id}
-                  className="bg-white border border-[#EAE7E0] hover:border-[#D1CEC7] rounded-3xl p-4 card-shadow flex items-center justify-between group transition-all"
+                  className="bg-white border border-zinc-200 hover:border-zinc-300 rounded-xl p-4 card-shadow flex items-center justify-between group transition-all"
                 >
                   <div className="flex items-center gap-3 truncate">
-                    <div className="w-10 h-10 rounded-full bg-[#8BA08E]/20 text-[#4A5D4E] flex items-center justify-center text-lg shrink-0">
-                      {item.category === 'EggDairy' ? '🥚' : item.category === 'Meat' ? '🥩' : item.category === 'Seafood' ? '🦐' : item.category === 'Vegetable' ? '🥬' : '🧂'}
+                    <div className="w-10 h-10 rounded-lg bg-zinc-100 text-zinc-600 flex items-center justify-center text-xs font-bold uppercase shrink-0">
+                      {item.name.charAt(0)}
                     </div>
                     <div className="truncate">
-                      <h4 className="text-xs font-bold text-[#3D3D3D] truncate leading-tight">{item.name}</h4>
-                      <p className="text-[11px] text-[#8C5D36] font-semibold mt-0.5">
+                      <h4 className="text-xs font-bold text-emerald-950 truncate leading-tight">{item.name}</h4>
+                      <p className="text-[11px] text-emerald-900/60 font-medium mt-0.5">
                         {item.quantity} {item.unit}
                       </p>
                     </div>
@@ -252,7 +250,7 @@ export const PantryManager: React.FC<PantryManagerProps> = ({
 
                   <button
                     onClick={() => onRemovePantryItem(item.id)}
-                    className="p-2 rounded-full text-[#A9A296] hover:text-[#B85244] hover:bg-[#B85244]/10 transition-colors"
+                    className="p-2 rounded-lg text-emerald-900/50 hover:text-red-500 hover:bg-red-50 transition-colors"
                     title="Xóa khỏi tủ lạnh"
                   >
                     <Trash2 className="w-4 h-4" />
