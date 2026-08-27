@@ -8,6 +8,7 @@ import { MealPlanShopping, ShoppingItem } from './components/MealPlanShopping';
 import { AdminDashboard } from './components/AdminDashboard';
 import { RecipeDetailModal } from './components/RecipeDetailModal';
 import { UserProfileModal } from './components/UserProfileModal';
+import { AuthModal } from './components/AuthModal';
 import { Ingredient, UserProfile, UserIngredient, IngredientCategory } from './types';
 
 export function App() {
@@ -23,6 +24,7 @@ export function App() {
 
   const [selectedRecipeId, setSelectedRecipeId] = useState<string | null>(null);
   const [showProfileModal, setShowProfileModal] = useState<boolean>(false);
+  const [showAuthModal, setShowAuthModal] = useState<boolean>(false);
 
   // Load initial application data
   const refreshAppData = async () => {
@@ -52,22 +54,11 @@ export function App() {
     refreshAppData();
   }, []);
 
-  // Demo Login Handler
-  const handleLoginDemo = async (role: 'user' | 'admin') => {
-    try {
-      const res = await fetch('/api/auth/demo-login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ role })
-      });
-      const data = await res.json();
-      if (data.success) {
-        setCurrentUser(data.user);
-        refreshAppData();
-      }
-    } catch (e) {
-      console.error('Demo login error:', e);
-    }
+  // Auth Handler
+  const handleAuthSuccess = (user: UserProfile) => {
+    setCurrentUser(user);
+    setShowAuthModal(false);
+    refreshAppData();
   };
 
   // Logout Handler
@@ -184,7 +175,7 @@ export function App() {
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         currentUser={currentUser}
-        onLoginDemo={handleLoginDemo}
+        onOpenAuth={() => setShowAuthModal(true)}
         onLogout={handleLogout}
         onOpenProfile={() => setShowProfileModal(true)}
         pantryCount={pantryItems.length}
@@ -270,6 +261,14 @@ export function App() {
           currentUser={currentUser}
           onClose={() => setShowProfileModal(false)}
           onUpdateProfile={updated => setCurrentUser({ ...currentUser, ...updated } as UserProfile)}
+        />
+      )}
+
+      {/* Auth Modal */}
+      {showAuthModal && (
+        <AuthModal
+          onClose={() => setShowAuthModal(false)}
+          onSuccess={handleAuthSuccess}
         />
       )}
 

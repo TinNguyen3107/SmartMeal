@@ -27,6 +27,14 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
   const [dietaryTypes, setDietaryTypes] = useState<DietaryType[]>(currentUser.preferences.dietaryTypes || ['Vietnamese', 'Healthy']);
   const [allergiesText, setAllergiesText] = useState((currentUser.preferences.allergies || []).join(', '));
   const [isSaving, setIsSaving] = useState(false);
+  const [activeTab, setActiveTab] = useState<'info' | 'history'>('info');
+
+  // Lịch sử mock data (có thể load từ API sau)
+  const historyItems = [
+    { id: 'h1', name: 'Trứng sốt cà chua', date: 'Vừa xong', type: 'VIEW' },
+    { id: 'h2', name: 'Ức gà áp chảo', date: 'Hôm qua', type: 'COOKED' },
+    { id: 'h3', name: 'Salad cá ngừ', date: '3 ngày trước', type: 'VIEW' },
+  ];
 
   const availableDiets: DietaryType[] = [
     'Vietnamese',
@@ -93,17 +101,38 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
           <X className="w-4 h-4" />
         </button>
 
-        <div className="flex items-center gap-3.5 mb-6">
-          <div className="w-12 h-12 rounded-xl bg-zinc-100 text-zinc-600 flex items-center justify-center">
-            <User className="w-6 h-6" />
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3.5">
+            <div className="w-12 h-12 rounded-xl bg-zinc-100 text-zinc-600 flex items-center justify-center">
+              <User className="w-6 h-6" />
+            </div>
+            <div>
+              <h2 className="text-xl font-semibold text-emerald-950">Hồ sơ & Lịch sử</h2>
+              <p className="text-xs text-emerald-900/60">Quản lý sở thích và hoạt động của bạn</p>
+            </div>
           </div>
-          <div>
-            <h2 className="text-xl font-semibold text-emerald-950">Hồ sơ & Sở thích</h2>
-            <p className="text-xs text-emerald-900/60">Tùy chỉnh để hệ thống gợi ý món ăn phù hợp hơn</p>
+          <div className="flex bg-zinc-100 p-1 rounded-lg">
+            <button
+              onClick={() => setActiveTab('info')}
+              className={`px-4 py-1.5 rounded-md text-xs font-bold transition-all ${
+                activeTab === 'info' ? 'bg-white text-emerald-950 shadow-sm' : 'text-zinc-500'
+              }`}
+            >
+              Thông tin
+            </button>
+            <button
+              onClick={() => setActiveTab('history')}
+              className={`px-4 py-1.5 rounded-md text-xs font-bold transition-all ${
+                activeTab === 'history' ? 'bg-white text-emerald-950 shadow-sm' : 'text-zinc-500'
+              }`}
+            >
+              Lịch sử
+            </button>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5 text-xs">
+        {activeTab === 'info' ? (
+          <form onSubmit={handleSubmit} className="space-y-5 text-xs">
           {/* General Info */}
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -221,6 +250,24 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
             </button>
           </div>
         </form>
+        ) : (
+          <div className="space-y-3 max-h-96 overflow-y-auto pr-1">
+            <h3 className="text-sm font-bold text-emerald-950 mb-2">Hoạt động gần đây</h3>
+            {historyItems.map(item => (
+              <div key={item.id} className="p-4 rounded-xl border border-zinc-200 flex justify-between items-center bg-zinc-50">
+                <div>
+                  <h4 className="font-semibold text-emerald-950">{item.name}</h4>
+                  <p className="text-[10px] text-zinc-500">{item.date}</p>
+                </div>
+                <span className={`px-2 py-1 rounded-md text-[10px] font-bold ${
+                  item.type === 'COOKED' ? 'bg-emerald-100 text-emerald-700' : 'bg-zinc-200 text-zinc-700'
+                }`}>
+                  {item.type === 'COOKED' ? 'Đã nấu' : 'Đã xem'}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

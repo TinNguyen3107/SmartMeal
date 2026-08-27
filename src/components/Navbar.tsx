@@ -17,7 +17,7 @@ interface NavbarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
   currentUser: UserProfile | null;
-  onLoginDemo: (role: 'user' | 'admin') => void;
+  onOpenAuth: () => void;
   onLogout: () => void;
   onOpenProfile: () => void;
   pantryCount: number;
@@ -27,7 +27,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   activeTab,
   setActiveTab,
   currentUser,
-  onLoginDemo,
+  onOpenAuth,
   onLogout,
   onOpenProfile,
   pantryCount
@@ -213,36 +213,6 @@ export const Navbar: React.FC<NavbarProps> = ({
 
                       <div className="my-1 border-t border-[#F2EDE4]" />
 
-                      <div className="px-3 py-1 text-[10px] text-[#7D857E] font-bold uppercase tracking-wider">Chuyển đổi vai trò Demo</div>
-                      <button
-                        id="switch-to-user-btn"
-                        onClick={() => {
-                          setShowUserMenu(false);
-                          onLoginDemo('user');
-                        }}
-                        className={`w-full px-3 py-1.5 text-left rounded-lg text-xs flex items-center justify-between font-medium ${
-                          currentUser.role === 'user' ? 'text-emerald-950 bg-zinc-100 font-bold' : 'text-zinc-600 hover:bg-zinc-50'
-                        }`}
-                      >
-                        <span>Người dùng (User)</span>
-                        {currentUser.role === 'user' && <span className="text-[10px] text-emerald-900/60">Đang chọn</span>}
-                      </button>
-                      <button
-                        id="switch-to-admin-btn"
-                        onClick={() => {
-                          setShowUserMenu(false);
-                          onLoginDemo('admin');
-                        }}
-                        className={`w-full px-3 py-1.5 text-left rounded-lg text-xs flex items-center justify-between font-medium ${
-                          currentUser.role === 'admin' ? 'text-emerald-950 bg-zinc-100 font-bold' : 'text-zinc-600 hover:bg-zinc-50'
-                        }`}
-                      >
-                        <span>Quản trị viên (Admin)</span>
-                        {currentUser.role === 'admin' && <span className="text-[10px] text-emerald-900/60">Đang chọn</span>}
-                      </button>
-
-                      <div className="my-1 border-t border-[#F2EDE4]" />
-
                       <button
                         id="user-menu-logout-btn"
                         onClick={() => {
@@ -261,18 +231,11 @@ export const Navbar: React.FC<NavbarProps> = ({
             ) : (
               <div className="flex items-center gap-2">
                 <button
-                  id="guest-login-user-btn"
-                  onClick={() => onLoginDemo('user')}
-                  className="px-4 py-2 rounded-full text-xs font-semibold bg-[#4A5D4E] hover:bg-[#3D4D40] text-white shadow-sm transition-colors"
+                  id="auth-login-btn"
+                  onClick={onOpenAuth}
+                  className="px-5 py-2 rounded-full text-xs font-semibold bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm transition-colors"
                 >
-                  Đăng nhập Demo
-                </button>
-                <button
-                  id="guest-login-admin-btn"
-                  onClick={() => onLoginDemo('admin')}
-                  className="px-4 py-2 rounded-full text-xs font-semibold bg-[#F2EDE4] hover:bg-[#EAE7E0] text-[#4A5D4E] border border-[#D1CEC7] transition-colors"
-                >
-                  Admin
+                  Đăng nhập
                 </button>
               </div>
             )}
