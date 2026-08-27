@@ -417,6 +417,51 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             <div>
               <h3 className="text-base font-bold text-emerald-950">Danh sách Công thức ({recipes.length})</h3>
             </div>
+            <button
+              onClick={() => {
+                const name = prompt('Nhập tên món ăn mới (VD: Trứng chiên):');
+                if (!name) return;
+                const ings = prompt('Nhập các nguyên liệu chính, cách nhau dấu phẩy (VD: Trứng gà, Hành lá):');
+                if (!ings) return;
+                
+                const newRecipe = {
+                  name,
+                  vietnameseName: name,
+                  description: 'Công thức mới được thêm từ Admin',
+                  image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&auto=format&fit=crop&q=80',
+                  cuisine: 'Vietnamese',
+                  category: 'Món chính',
+                  dietaryTags: ['Vietnamese'],
+                  difficulty: 'Easy',
+                  preparationTime: 5,
+                  cookingTime: 10,
+                  totalTime: 15,
+                  calories: 250,
+                  servings: 2,
+                  ingredients: ings.split(',').map(i => ({
+                    ingredientId: 'ing-' + Date.now(),
+                    name: i.trim(),
+                    normalizedName: i.trim().toUpperCase().replace(/\s+/g, '_'),
+                    quantity: 1,
+                    unit: 'phần'
+                  })),
+                  instructions: [
+                    { stepNumber: 1, instruction: 'Chuẩn bị nguyên liệu.' },
+                    { stepNumber: 2, instruction: 'Nấu chín và thưởng thức.' }
+                  ]
+                };
+
+                fetch('/api/recipes', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(newRecipe)
+                }).then(() => onRefreshData());
+              }}
+              className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold rounded-lg flex items-center gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              Tạo công thức nhanh
+            </button>
           </div>
 
           <div className="overflow-x-auto">
@@ -433,6 +478,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-100 text-zinc-800">
+                {recipes.length === 0 && (
+                  <tr>
+                    <td colSpan={7} className="py-8 text-center text-zinc-500">
+                      Chưa có công thức nào. Hãy bấm "Tạo công thức nhanh" ở trên.
+                    </td>
+                  </tr>
+                )}
                 {recipes.map(r => (
                   <tr key={r.id} className="hover:bg-zinc-50">
                     <td className="py-3 px-3 font-bold text-emerald-950 flex items-center gap-2.5">

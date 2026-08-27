@@ -1,0 +1,86 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      String   @default("user")
+  avatar    String?
+  createdAt DateTime @default(now())
+  
+  // Relations
+  histories History[]
+}
+
+model Recipe {
+  id              String   @id @default(uuid())
+  name            String
+  vietnameseName  String
+  description     String   @db.Text
+  image           String
+  cuisine         String
+  category        String
+  difficulty      String
+  totalTime       Int
+  calories        Int
+  rating          Float    @default(5.0)
+  reviewCount     Int      @default(0)
+  popularityScore Int      @default(50)
+  createdAt       DateTime @default(now())
+
+  // Relations
+  ingredients RecipeIngredient[]
+  histories   History[]
+}
+
+model Ingredient {
+  id             String   @id @default(uuid())
+  name           String
+  normalizedName String   @unique
+  category       String
+  categoryNameVi String
+  defaultUnit    String
+  
+  // Relations
+  recipes RecipeIngredient[]
+}
+
+model RecipeIngredient {
+  id               String  @id @default(uuid())
+  recipeId         String
+  ingredientId     String
+  name             String
+  normalizedName   String
+  quantity         Float
+  unit             String
+  isOptional       Boolean @default(false)
+  
+  recipe     Recipe     @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  ingredient Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+
+  @@index([recipeId])
+  @@index([ingredientId])
+}
+
+model History {
+  id         String   @id @default(uuid())
+  userId     String
+  recipeId   String
+  recipeName String
+  type       String   // "VIEW" or "COOKED"
+  date       DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([recipeId])
+}

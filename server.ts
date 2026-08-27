@@ -2,6 +2,11 @@ import express from 'express';
 import path from 'path';
 import dotenv from 'dotenv';
 import { createServer as createViteServer } from 'vite';
+import { PrismaClient } from './src/generated/prisma/client';
+import { PrismaMariaDb } from '@prisma/adapter-mariadb';
+
+const adapter = new PrismaMariaDb(process.env.DATABASE_URL!);
+const prisma = new PrismaClient({ adapter });
 import {
   INITIAL_INGREDIENTS,
   INITIAL_RECIPES,
@@ -81,6 +86,28 @@ async function startServer() {
   const app = express();
   const PORT = 3000;
 
+  // ==================== SEED DATABASE ====================
+  // Tạo 2 tài khoản mẫu nếu chưa tồn tại trên TiDB
+  async function seedDatabase() {
+    const adminExists = await prisma.user.findUnique({ where: { email: 'admin@gmail.com' } });
+    if (!adminExists) {
+      await prisma.user.create({
+        data: { email: 'admin@gmail.com', password: 'admin123', name: 'Admin', role: 'admin', avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=Admin' }
+      });
+      addLog('AUTH', 'Tạo tài khoản Admin mẫu trên TiDB');
+    }
+    const userExists = await prisma.user.findUnique({ where: { email: 'user@gmail.com' } });
+    if (!userExists) {
+      await prisma.user.create({
+        data: { email: 'user@gmail.com', password: 'user123', name: 'User', role: 'user', avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=User' }
+      });
+      addLog('AUTH', 'Tạo tài khoản User mẫu trên TiDB');
+    }
+    console.log('✅ Database seeded (2 demo accounts ready)');
+  }
+
+  await seedDatabase();
+
   app.use(express.json({ limit: '20mb' }));
   app.use(express.urlencoded({ extended: true, limit: '20mb' }));
 
@@ -89,33 +116,75 @@ async function startServer() {
     res.json({ user: currentUser });
   });
 
-  app.post('/api/auth/login', (req, res) => {
+  app.post('/api/auth/login', async (req, res) => {
     const { email, password } = req.body;
-    const user = dbUsers.find(u => u.email.toLowerCase() === (email || '').toLowerCase());
+
+    // Tìm user trong TiDB
+    const user = await prisma.user.findUnique({
+      where: { email: (email || '').toLowerCase() }
+    });
+
     if (!user || user.password !== password) {
       return res.status(401).json({ message: 'Email hoặc mật khẩu không chính xác' });
     }
-    currentUser = user;
-    addLog('AUTH', `Người dùng đăng nhập: ${user.name} (${user.email})`);
-    res.json({ success: true, user });
+
+    // Map Prisma User to UserProfile
+    const userProfile: UserProfile = {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      avatar: user.avatar || '',
+      role: user.role as 'admin' | 'user',
+      preferences: {
+        dietaryTypes: ['Vietnamese', 'Healthy'],
+        preferredCuisine: ['Vietnamese'],
+        maxCookingTime: 30,
+        preferredDifficulty: 'Any',
+        spiceLevel: 'Mild',
+        allergies: []
+      },
+      createdAt: user.createdAt.toISOString()
+    };
+
+    currentUser = userProfile;
+    addLog('AUTH', `Người dùng đăng nhập từ CSDL: ${user.name} (${user.email})`);
+    res.json({ success: true, user: userProfile });
   });
 
 
 
-  app.post('/api/auth/register', (req, res) => {
+  app.post('/api/auth/register', async (req, res) => {
     const { name, email, password } = req.body;
     if (!email || !name) {
       return res.status(400).json({ message: 'Vui lòng điền đủ thông tin' });
     }
-    if (dbUsers.some(u => u.email.toLowerCase() === email.toLowerCase())) {
+
+    // Kiểm tra trùng email trên TiDB
+    const existing = await prisma.user.findUnique({
+      where: { email: email.toLowerCase() }
+    });
+
+    if (existing) {
       return res.status(400).json({ message: 'Email đã tồn tại trên hệ thống' });
     }
+
+    // Tạo user mới trên TiDB
+    const created = await prisma.user.create({
+      data: {
+        email: email.toLowerCase(),
+        password,
+        name,
+        avatar: `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(name)}`,
+        role: 'user'
+      }
+    });
+
     const newUser: UserProfile = {
-      id: `user-${Date.now()}`,
-      email,
+      id: created.id,
+      email: created.email,
       password,
-      name,
-      avatar: `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(name)}`,
+      name: created.name,
+      avatar: created.avatar || '',
       gender: 'Other',
       role: 'user',
       preferences: {
@@ -126,11 +195,11 @@ async function startServer() {
         spiceLevel: 'Mild',
         allergies: []
       },
-      createdAt: new Date().toISOString()
+      createdAt: created.createdAt.toISOString()
     };
-    dbUsers.push(newUser);
+
     currentUser = newUser;
-    addLog('AUTH', `Tài khoản mới đăng ký: ${name} (${email})`);
+    addLog('AUTH', `Tài khoản mới đăng ký vào CSDL: ${name} (${email})`);
     res.json({ success: true, user: newUser });
   });
 
@@ -250,9 +319,16 @@ async function startServer() {
   });
 
   // ==================== USER HISTORY (FR-15) ====================
-  app.get('/api/user/history', (req, res) => {
-    const userId = currentUser?.id || 'guest';
-    const items = dbHistory.filter(h => h.userId === userId).slice(0, 20);
+  app.get('/api/user/history', async (req, res) => {
+    const userId = currentUser?.id;
+    if (!userId) return res.json({ history: [] });
+
+    const items = await prisma.history.findMany({
+      where: { userId },
+      orderBy: { date: 'desc' },
+      take: 20
+    });
+
     res.json({ history: items });
   });
 
@@ -337,12 +413,12 @@ async function startServer() {
 
     const userPref = currentUser?.preferences
       ? {
-          dietaryTypes: preferences.dietaryTypes || currentUser.preferences.dietaryTypes,
-          preferredCuisine: preferences.preferredCuisine || currentUser.preferences.preferredCuisine[0],
-          maxCookingTime: preferences.maxCookingTime || currentUser.preferences.maxCookingTime,
-          difficulty: preferences.difficulty || currentUser.preferences.preferredDifficulty,
-          excludeIngredients: preferences.excludeIngredients || currentUser.preferences.allergies
-        }
+        dietaryTypes: preferences.dietaryTypes || currentUser.preferences.dietaryTypes,
+        preferredCuisine: preferences.preferredCuisine || currentUser.preferences.preferredCuisine[0],
+        maxCookingTime: preferences.maxCookingTime || currentUser.preferences.maxCookingTime,
+        difficulty: preferences.difficulty || currentUser.preferences.preferredDifficulty,
+        excludeIngredients: preferences.excludeIngredients || currentUser.preferences.allergies
+      }
       : preferences;
 
     const results = calculateRecommendations(
