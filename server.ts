@@ -1,6 +1,8 @@
 import express from 'express';
 import path from 'path';
 import dotenv from 'dotenv';
+dotenv.config(); // Load .env TRƯỚC khi dùng process.env
+
 import { createServer as createViteServer } from 'vite';
 import { PrismaClient } from './src/generated/prisma/client';
 import { PrismaMariaDb } from '@prisma/adapter-mariadb';
@@ -33,8 +35,6 @@ import {
   SystemLog,
   TestCaseResult
 } from './src/types';
-
-dotenv.config();
 
 // In-memory persistent database store for session
 let dbIngredients: Ingredient[] = [...INITIAL_INGREDIENTS];
