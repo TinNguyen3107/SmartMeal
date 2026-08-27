@@ -144,6 +144,7 @@ export interface RecommendedRecipe {
 export interface UserProfile {
   id: string;
   email: string;
+  password?: string;
   name: string;
   avatar?: string;
   gender?: 'Male' | 'Female' | 'Other';

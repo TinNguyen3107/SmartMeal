@@ -37,76 +37,18 @@ let dbRecipes: Recipe[] = [...INITIAL_RECIPES];
 let dbUsers: UserProfile[] = [...DEMO_USERS];
 let currentUser: UserProfile | null = DEMO_USERS[0]; // Default logged in as demo user
 
-let dbPantry: Record<string, UserIngredient[]> = {
-  'user-demo-01': [
-    {
-      id: 'p-1',
-      ingredientId: 'ing-egg',
-      name: 'Trứng gà',
-      normalizedName: 'EGG',
-      category: 'EggDairy',
-      quantity: 4,
-      unit: 'quả',
-      addedAt: new Date().toISOString()
-    },
-    {
-      id: 'p-2',
-      ingredientId: 'ing-tomato',
-      name: 'Cà chua',
-      normalizedName: 'TOMATO',
-      category: 'Vegetable',
-      quantity: 3,
-      unit: 'quả',
-      addedAt: new Date().toISOString()
-    },
-    {
-      id: 'p-3',
-      ingredientId: 'ing-green-onion',
-      name: 'Hành lá',
-      normalizedName: 'GREEN_ONION',
-      category: 'Vegetable',
-      quantity: 2,
-      unit: 'nhánh',
-      addedAt: new Date().toISOString()
-    }
-  ]
-};
+let dbPantry: Record<string, UserIngredient[]> = {};
 
-let dbFavorites: Record<string, string[]> = {
-  'user-demo-01': ['rec-01', 'rec-04']
-};
-
-let dbReviews: RecipeReview[] = [
-  {
-    id: 'rev-1',
-    recipeId: 'rec-01',
-    userId: 'user-demo-01',
-    userName: 'Nguyễn Minh Anh',
-    userAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80',
-    rating: 5,
-    comment: 'Món làm siêu nhanh và ngon chuẩn cơm mẹ nấu! Sốt cà chua sánh đậm đà.',
-    date: '2026-02-20'
-  }
-];
-
-let dbFeedbacks: RecommendationFeedback[] = [
-  {
-    id: 'fb-1',
-    userId: 'user-demo-01',
-    recipeId: 'rec-01',
-    recipeName: 'Trứng sốt cà chua',
-    feedbackType: 'HELPFUL',
-    rating: 5,
-    timestamp: new Date().toISOString()
-  }
-];
+let dbFavorites: Record<string, string[]> = {};
+let dbReviews: RecipeReview[] = [];
+let dbFeedbacks: RecommendationFeedback[] = [];
 
 let dbLogs: SystemLog[] = [
   {
     id: 'log-1',
     timestamp: new Date().toISOString(),
     type: 'AUTH',
-    message: 'Hệ thống SmartMeal khởi động thành công với 18 công thức chuẩn.'
+    message: 'Hệ thống SmartMeal khởi động thành công với cơ sở dữ liệu trống.'
   }
 ];
 
@@ -139,7 +81,7 @@ async function startServer() {
   app.post('/api/auth/login', (req, res) => {
     const { email, password } = req.body;
     const user = dbUsers.find(u => u.email.toLowerCase() === (email || '').toLowerCase());
-    if (!user) {
+    if (!user || user.password !== password) {
       return res.status(401).json({ message: 'Email hoặc mật khẩu không chính xác' });
     }
     currentUser = user;
