@@ -296,7 +296,7 @@ export const RecommendationHub: React.FC<RecommendationHubProps> = ({
           {/* Input Method Switcher Box */}
           <div className="bg-white border border-[#EAE7E0] rounded-4xl p-6 card-shadow">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-serif text-lg font-bold text-[#3D3D3D] flex items-center gap-2">
+              <h2 className="font-sans text-lg font-bold text-[#3D3D3D] flex items-center gap-2">
                 <ChefHat className="w-5 h-5 text-[#8BA08E]" />
                 Phương thức nhập nguyên liệu
               </h2>
@@ -599,7 +599,7 @@ export const RecommendationHub: React.FC<RecommendationHubProps> = ({
           {/* Tray: Selected Ingredients (Active List) */}
           <div className="bg-white border border-[#EAE7E0] rounded-4xl p-6 card-shadow">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="font-serif text-base font-bold text-[#3D3D3D] flex items-center gap-2">
+              <h3 className="font-sans text-base font-bold text-[#3D3D3D] flex items-center gap-2">
                 <span>Nguyên liệu bạn đang có</span>
                 <span className="px-2.5 py-0.5 rounded-full bg-[#8BA08E]/20 text-[#4A5D4E] text-xs font-bold">
                   {selectedIngredients.length} món
@@ -769,7 +769,7 @@ export const RecommendationHub: React.FC<RecommendationHubProps> = ({
           {/* Status Bucket Filter & Sort Bar (FR-10) */}
           <div className="bg-white border border-[#EAE7E0] rounded-[28px] p-5 card-shadow flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div>
-              <h2 className="font-serif text-lg font-bold text-[#3D3D3D] flex items-center gap-2">
+              <h2 className="font-sans text-lg font-bold text-[#3D3D3D] flex items-center gap-2">
                 <span>Kết quả gợi ý</span>
                 <span className="px-2.5 py-0.5 rounded-full bg-[#8BA08E]/20 text-[#4A5D4E] text-xs font-bold">
                   {filteredRecommendations.length} món
@@ -827,7 +827,7 @@ export const RecommendationHub: React.FC<RecommendationHubProps> = ({
           ) : filteredRecommendations.length === 0 ? (
             <div className="text-center py-16 bg-white rounded-4xl border border-[#EAE7E0] p-6 card-shadow">
               <AlertCircle className="w-12 h-12 text-[#C87D55] mx-auto mb-3" />
-              <h3 className="font-serif text-lg font-bold text-[#3D3D3D]">Không tìm thấy món ăn phù hợp</h3>
+              <h3 className="font-sans text-lg font-bold text-[#3D3D3D]">Không tìm thấy món ăn phù hợp</h3>
               <p className="text-xs text-[#7D857E] max-w-md mx-auto mt-1 mb-4 leading-relaxed">
                 Bạn có thể thử: Thêm nguyên liệu phổ biến (Trứng gà, Cà chua, Thịt), tăng thời gian nấu hoặc bỏ bớt bộ lọc.
               </p>

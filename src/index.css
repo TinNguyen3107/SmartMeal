@@ -1,16 +1,16 @@
-@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
 @layer base {
-  body {
-    background-color: #FFFFFF;
-    color: #022c22; /* Zinc 950 */
-    font-family: 'Be Vietnam Pro', system-ui, -apple-system, sans-serif;
-    -webkit-font-smoothing: antialiased;
+  * {
+    font-family: 'Nunito', system-ui, -apple-system, sans-serif !important;
   }
 
-  h1, h2, h3, .font-serif, .serif {
-    font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+  body {
+    background-color: #FFFFFF;
+    color: #1a1a1a;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
@@ -22,15 +22,20 @@
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
 }
 
-/* Ghi đè các class màu cũ sang phong cách Minimalist Đen/Xám */
-.sage-bg { background-color: #10b981; } /* Zinc 900 */
-.terracotta-text { color: #3F3F46; } 
+/* Override Tailwind font classes to prevent fallback */
+.font-serif, .font-mono, .font-sans, .serif {
+  font-family: 'Nunito', system-ui, -apple-system, sans-serif !important;
+}
+
+/* Theme colors */
+.sage-bg { background-color: #10b981; }
+.terracotta-text { color: #3F3F46; }
 .terracotta-bg { background-color: #F4F4F5; }
 .clay-bg { background-color: #F4F4F5; }
 .linen-bg { background-color: #FFFFFF; }
 .forest-bg { background-color: #022c22; }
 
-/* Custom scrollbar tối giản */
+/* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 4px;
   height: 4px;
@@ -45,4 +50,3 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #A1A1AA;
 }
-
