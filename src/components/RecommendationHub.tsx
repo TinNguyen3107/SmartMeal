@@ -20,7 +20,8 @@ import {
   RefreshCw,
   Info,
   Check,
-  Star
+  Star,
+  Lightbulb
 } from 'lucide-react';
 import {
   Ingredient,
@@ -954,12 +955,18 @@ export const RecommendationHub: React.FC<RecommendationHubProps> = ({
                             )}
                           </div>
 
-                          {/* Explainable UI Box */}
-                          <div className="mt-3 p-3.5 rounded-xl bg-zinc-100/80 border border-zinc-200 text-[11.5px] text-zinc-700 flex items-start gap-2.5">
-                            <Info className="w-4 h-4 shrink-0 mt-0.5 text-emerald-950" />
-                            <div className="leading-relaxed">
-                              <strong className="text-emerald-950 font-bold">Lý do đề xuất: </strong>
-                              {explanation.summary}
+                          {/* Explainable UI Box (FR-19) */}
+                          <div className="mt-3 p-3.5 rounded-xl bg-emerald-50/70 border border-emerald-100 text-[11.5px] text-emerald-900 flex items-start gap-2.5 shadow-[inset_0_1px_2px_rgba(255,255,255,0.5)]">
+                            <div className="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
+                              <Lightbulb className="w-3.5 h-3.5 text-emerald-600 fill-emerald-100" />
+                            </div>
+                            <div className="leading-relaxed flex-1">
+                              <strong className="text-emerald-950 font-bold block mb-1">💡 AI Giải thích lý do: </strong>
+                              <ul className="space-y-1 list-disc list-inside marker:text-emerald-400">
+                                {explanation.points.map((point, i) => (
+                                  <li key={i}>{point}</li>
+                                ))}
+                              </ul>
                             </div>
                           </div>
                         </div>
