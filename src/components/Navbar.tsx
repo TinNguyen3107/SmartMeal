@@ -42,21 +42,21 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div
             id="brand-logo"
             onClick={() => setActiveTab('recommend')}
-            className="flex items-center gap-3.5 cursor-pointer group"
+            className="flex items-center gap-3 cursor-pointer group"
           >
-            <div className="w-10 h-10 rounded-full bg-[#8BA08E] flex items-center justify-center text-white shadow-sm group-hover:scale-105 transition-transform">
+            <div className="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center text-white shadow-sm group-hover:scale-105 transition-transform">
               <UtensilsCrossed className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-serif font-bold text-xl tracking-tight text-[#4A5D4E]">
+                <span className="font-bold text-xl tracking-tight text-emerald-950">
                   SmartMeal
                 </span>
-                <span className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-0.5 rounded-full bg-[#F2EDE4] text-[#7D857E] border border-[#EAE7E0]">
-                  Natural AI
+                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-md bg-zinc-100 text-emerald-900/60 border border-zinc-200">
+                  BETA
                 </span>
               </div>
-              <p className="text-[11px] text-[#7D857E] hidden sm:block">Gợi ý món ngon từ nguyên liệu tự nhiên</p>
+              <p className="text-[11px] text-emerald-900/60 hidden sm:block">Food Recommendation System</p>
             </div>
           </div>
 
@@ -220,12 +220,12 @@ export const Navbar: React.FC<NavbarProps> = ({
                           setShowUserMenu(false);
                           onLoginDemo('user');
                         }}
-                        className={`w-full px-3 py-1.5 text-left rounded-xl text-xs flex items-center justify-between font-medium ${
-                          currentUser.role === 'user' ? 'text-[#4A5D4E] bg-[#8BA08E]/15 font-bold' : 'text-[#3D3D3D] hover:bg-[#F2EDE4]'
+                        className={`w-full px-3 py-1.5 text-left rounded-lg text-xs flex items-center justify-between font-medium ${
+                          currentUser.role === 'user' ? 'text-emerald-950 bg-zinc-100 font-bold' : 'text-zinc-600 hover:bg-zinc-50'
                         }`}
                       >
-                        <span>🧑 Người dùng (User)</span>
-                        {currentUser.role === 'user' && <span className="text-[10px] text-[#8BA08E]">Đang chọn</span>}
+                        <span>Người dùng (User)</span>
+                        {currentUser.role === 'user' && <span className="text-[10px] text-emerald-900/60">Đang chọn</span>}
                       </button>
                       <button
                         id="switch-to-admin-btn"
@@ -233,12 +233,12 @@ export const Navbar: React.FC<NavbarProps> = ({
                           setShowUserMenu(false);
                           onLoginDemo('admin');
                         }}
-                        className={`w-full px-3 py-1.5 text-left rounded-xl text-xs flex items-center justify-between font-medium ${
-                          currentUser.role === 'admin' ? 'text-[#C87D55] bg-[#D9AE94]/20 font-bold' : 'text-[#3D3D3D] hover:bg-[#F2EDE4]'
+                        className={`w-full px-3 py-1.5 text-left rounded-lg text-xs flex items-center justify-between font-medium ${
+                          currentUser.role === 'admin' ? 'text-emerald-950 bg-zinc-100 font-bold' : 'text-zinc-600 hover:bg-zinc-50'
                         }`}
                       >
-                        <span>🛡️ Quản trị viên (Admin)</span>
-                        {currentUser.role === 'admin' && <span className="text-[10px] text-[#C87D55]">Đang chọn</span>}
+                        <span>Quản trị viên (Admin)</span>
+                        {currentUser.role === 'admin' && <span className="text-[10px] text-emerald-900/60">Đang chọn</span>}
                       </button>
 
                       <div className="my-1 border-t border-[#F2EDE4]" />
@@ -280,63 +280,63 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
 
         {/* Mobile Navigation Row */}
-        <div className="flex lg:hidden overflow-x-auto py-2.5 gap-2 scrollbar-none border-t border-[#EAE7E0]">
+        <div className="flex lg:hidden overflow-x-auto py-2.5 gap-2 scrollbar-none border-t border-zinc-200 px-4">
           <button
             onClick={() => setActiveTab('recommend')}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors ${
-              activeTab === 'recommend' ? 'bg-[#4A5D4E] text-white shadow' : 'bg-[#F2EDE4] text-[#606962]'
+            className={`px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-colors ${
+              activeTab === 'recommend' ? 'bg-emerald-500 text-white shadow' : 'bg-zinc-100 text-zinc-600'
             }`}
           >
-            🎯 Gợi ý món
+            Gợi ý món
           </button>
           <button
             onClick={() => setActiveTab('pantry')}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors ${
-              activeTab === 'pantry' ? 'bg-[#4A5D4E] text-white shadow' : 'bg-[#F2EDE4] text-[#606962]'
+            className={`px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-colors ${
+              activeTab === 'pantry' ? 'bg-emerald-500 text-white shadow' : 'bg-zinc-100 text-zinc-600'
             }`}
           >
-            🧊 Tủ lạnh ({pantryCount})
+            Tủ lạnh ({pantryCount})
           </button>
           <button
             onClick={() => setActiveTab('explorer')}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors ${
-              activeTab === 'explorer' ? 'bg-[#4A5D4E] text-white shadow' : 'bg-[#F2EDE4] text-[#606962]'
+            className={`px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-colors ${
+              activeTab === 'explorer' ? 'bg-emerald-500 text-white shadow' : 'bg-zinc-100 text-zinc-600'
             }`}
           >
-            📖 Công thức
+            Công thức
           </button>
           <button
             onClick={() => setActiveTab('ai-chef')}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors ${
-              activeTab === 'ai-chef' ? 'bg-[#4A5D4E] text-white shadow' : 'bg-[#F2EDE4] text-[#606962]'
+            className={`px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-colors ${
+              activeTab === 'ai-chef' ? 'bg-emerald-500 text-white shadow' : 'bg-zinc-100 text-zinc-600'
             }`}
           >
-            🤖 AI Chef
+            Trợ lý Bếp
           </button>
           <button
             onClick={() => setActiveTab('planner')}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors ${
-              activeTab === 'planner' ? 'bg-[#4A5D4E] text-white shadow' : 'bg-[#F2EDE4] text-[#606962]'
+            className={`px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-colors ${
+              activeTab === 'planner' ? 'bg-emerald-500 text-white shadow' : 'bg-zinc-100 text-zinc-600'
             }`}
           >
-            🛒 Đi chợ
+            Đi chợ
           </button>
           <button
             onClick={() => setActiveTab('evaluation')}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors ${
-              activeTab === 'evaluation' ? 'bg-[#4A5D4E] text-white shadow' : 'bg-[#F2EDE4] text-[#606962]'
+            className={`px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-colors ${
+              activeTab === 'evaluation' ? 'bg-emerald-500 text-white shadow' : 'bg-zinc-100 text-zinc-600'
             }`}
           >
-            📊 Đánh giá AI
+            Đánh giá
           </button>
           {currentUser?.role === 'admin' && (
             <button
               onClick={() => setActiveTab('admin')}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors ${
-                activeTab === 'admin' ? 'bg-[#C87D55] text-white shadow' : 'bg-[#D9AE94]/20 text-[#C87D55]'
+              className={`px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-colors ${
+                activeTab === 'admin' ? 'bg-emerald-100 text-white shadow' : 'bg-zinc-100 text-zinc-800'
               }`}
             >
-              🛡️ Admin
+              Admin
             </button>
           )}
         </div>

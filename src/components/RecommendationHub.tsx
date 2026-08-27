@@ -262,32 +262,30 @@ export const RecommendationHub: React.FC<RecommendationHubProps> = ({
     });
 
   const categories = [
-    { id: 'All', name: 'Tất cả', icon: '🍽️' },
-    { id: 'EggDairy', name: 'Trứng & Sữa', icon: '🥚' },
-    { id: 'Vegetable', name: 'Rau củ', icon: '🥬' },
-    { id: 'Meat', name: 'Thịt', icon: '🥩' },
-    { id: 'Seafood', name: 'Hải sản', icon: '🦐' },
-    { id: 'GrainCarb', name: 'Gạo & Mì', icon: '🍚' },
-    { id: 'Condiment', name: 'Gia vị', icon: '🧂' }
+    { id: 'All', name: 'Tất cả' },
+    { id: 'EggDairy', name: 'Trứng & Sữa' },
+    { id: 'Vegetable', name: 'Rau củ' },
+    { id: 'Meat', name: 'Thịt' },
+    { id: 'Seafood', name: 'Hải sản' },
+    { id: 'GrainCarb', name: 'Gạo & Mì' },
+    { id: 'Condiment', name: 'Gia vị' }
   ];
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-      {/* Hero Header - Deep Forest Botanical */}
-      <div className="bg-[#4A5D4E] text-white rounded-[36px] p-8 sm:p-10 card-shadow-lg relative overflow-hidden">
+      {/* Hero Header - Minimalist */}
+      <div className="bg-emerald-500 text-white rounded-3xl p-8 sm:p-10 card-shadow-lg relative overflow-hidden">
         <div className="absolute right-0 top-0 w-96 h-96 bg-white/5 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -left-10 -bottom-10 w-64 h-64 bg-[#8BA08E]/20 rounded-full blur-2xl pointer-events-none" />
         <div className="relative z-10 max-w-3xl">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/15 border border-white/20 text-[#E9EDC9] text-xs font-semibold mb-4 tracking-wide">
-            <Sparkles className="w-3.5 h-3.5 text-[#D9AE94]" />
-            Động cơ gợi ý thông minh SmartMeal Engine (FR-08)
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-emerald-100 border border-zinc-700 text-emerald-600 text-[10px] font-bold uppercase tracking-widest mb-4">
+            <Sparkles className="w-3.5 h-3.5 text-zinc-100" />
+            AI Recommendation
           </div>
-          <h1 className="font-serif text-3xl sm:text-5xl font-normal text-white tracking-tight leading-tight">
-            "Hôm nay trong bếp bạn có gì?"
+          <h1 className="text-3xl sm:text-5xl font-semibold text-white tracking-tight leading-tight">
+            Hôm nay trong bếp bạn có gì?
           </h1>
-          <p className="mt-3 text-[#E9EDC9] text-sm sm:text-base leading-relaxed opacity-95">
-            Nhập nguyên liệu bằng giọng nói, văn bản tự nhiên, ảnh chụp tủ lạnh hoặc danh mục.
-            Hệ thống sẽ chuẩn hóa, tính toán <strong className="text-[#D9AE94]">Match Score %</strong> và đề xuất thực đơn trọn vị tự nhiên.
+          <p className="mt-3 text-emerald-900/50 text-sm sm:text-base leading-relaxed opacity-95">
+            Nhập nguyên liệu theo cách của bạn. Hệ thống sẽ phân tích và đề xuất thực đơn tối ưu nhất.
           </p>
         </div>
       </div>
@@ -400,9 +398,8 @@ export const RecommendationHub: React.FC<RecommendationHubProps> = ({
                         className="w-full px-3 py-2 text-left rounded-xl text-xs text-[#3D3D3D] hover:bg-[#F2EDE4] hover:text-[#4A5D4E] flex items-center justify-between group transition-colors"
                       >
                         <span className="flex items-center gap-2">
-                          <span className="text-base">{sug.icon || '🥗'}</span>
                           <span className="font-medium">{sug.name}</span>
-                          <span className="text-[10px] text-[#7D857E]">({sug.categoryNameVi})</span>
+                          <span className="text-[10px] text-emerald-900/60 uppercase tracking-wide">({sug.categoryNameVi})</span>
                         </span>
                         <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#F2EDE4] text-[#4A5D4E] group-hover:bg-[#8BA08E] group-hover:text-white font-semibold">
                           + Thêm
@@ -446,12 +443,11 @@ export const RecommendationHub: React.FC<RecommendationHubProps> = ({
                     <button
                       key={cat.id}
                       onClick={() => setActiveCategory(cat.id)}
-                      className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors flex items-center gap-1.5 ${activeCategory === cat.id
-                          ? 'bg-[#4A5D4E] text-white shadow-sm'
-                          : 'bg-[#F9F7F2] text-[#686868] hover:text-[#3D3D3D] border border-[#EAE7E0]'
+                      className={`px-4 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors flex items-center gap-1.5 ${activeCategory === cat.id
+                          ? 'bg-emerald-500 text-white shadow-sm'
+                          : 'bg-zinc-50 text-zinc-600 hover:bg-zinc-100 border border-zinc-200'
                         }`}
                     >
-                      <span>{cat.icon}</span>
                       <span>{cat.name}</span>
                     </button>
                   ))}
@@ -566,7 +562,7 @@ export const RecommendationHub: React.FC<RecommendationHubProps> = ({
                       />
                       <button
                         onClick={() => setVisionImage(null)}
-                        className="absolute top-2 right-2 p-1.5 rounded-full bg-black/70 text-white hover:bg-black"
+                        className="absolute top-2 right-2 p-1.5 rounded-full bg-emerald-500/70 text-white hover:bg-emerald-500"
                       >
                         <X className="w-4 h-4" />
                       </button>
@@ -803,17 +799,17 @@ export const RecommendationHub: React.FC<RecommendationHubProps> = ({
           <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
             {[
               { id: 'ALL', label: 'Tất cả' },
-              { id: 'CAN_COOK', label: '🟢 Có thể nấu ngay (90-100%)' },
-              { id: 'ALMOST', label: '🟡 Gần đủ (70-89%)' },
-              { id: 'SUPPLEMENT', label: '🟠 Cần bổ sung (50-69%)' },
-              { id: 'LOW', label: '⚪ Không ưu tiên (<50%)' }
+              { id: 'CAN_COOK', label: 'Có thể nấu ngay (90-100%)' },
+              { id: 'ALMOST', label: 'Gần đủ (70-89%)' },
+              { id: 'SUPPLEMENT', label: 'Cần bổ sung (50-69%)' },
+              { id: 'LOW', label: 'Không ưu tiên (<50%)' }
             ].map(tab => (
               <button
                 key={tab.id}
                 onClick={() => setStatusFilter(tab.id)}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors border ${statusFilter === tab.id
-                    ? 'bg-[#4A5D4E] text-white border-[#4A5D4E] shadow-sm'
-                    : 'bg-white text-[#686868] border-[#EAE7E0] hover:bg-[#F2EDE4]'
+                className={`px-4 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors border ${statusFilter === tab.id
+                    ? 'bg-emerald-500 text-white border-emerald-500 shadow-sm'
+                    : 'bg-white text-zinc-600 border-zinc-200 hover:bg-zinc-50'
                   }`}
               >
                 {tab.label}
@@ -866,25 +862,25 @@ export const RecommendationHub: React.FC<RecommendationHubProps> = ({
                 return (
                   <div
                     key={recipe.id}
-                    className="bg-white border border-[#EAE7E0] rounded-[28px] overflow-hidden card-shadow hover:border-[#D1CEC7] transition-all group"
+                    className="bg-white border border-zinc-200 rounded-2xl overflow-hidden card-shadow hover:border-zinc-300 transition-all group"
                   >
                     <div className="p-6">
-                      <div className="flex flex-col sm:flex-row sm:items-start gap-4">
+                      <div className="flex flex-col sm:flex-row sm:items-start gap-5">
                         {/* Food Image */}
                         <img
                           src={recipe.image}
                           alt={recipe.name}
-                          className="w-full sm:w-32 h-32 rounded-2xl object-cover ring-1 ring-[#EAE7E0] shrink-0 group-hover:scale-102 transition-transform"
+                          className="w-full sm:w-32 h-32 rounded-xl object-cover border border-zinc-100 shrink-0 group-hover:opacity-90 transition-opacity"
                         />
 
                         {/* Details */}
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between gap-2 mb-1.5">
                             <div>
-                              <span className="text-[11px] text-[#7D857E] font-medium">{recipe.category} • {recipe.cuisine}</span>
+                              <span className="text-[11px] text-emerald-900/60 font-medium uppercase tracking-wider">{recipe.category} • {recipe.cuisine}</span>
                               <h3
                                 onClick={() => onSelectRecipe(recipe.id)}
-                                className="font-serif text-lg font-bold text-[#3D3D3D] hover:text-[#4A5D4E] transition-colors cursor-pointer leading-tight truncate"
+                                className="text-lg font-bold text-emerald-950 hover:text-zinc-600 transition-colors cursor-pointer leading-tight truncate mt-1"
                               >
                                 {idx + 1}. {recipe.name}
                               </h3>
@@ -892,43 +888,43 @@ export const RecommendationHub: React.FC<RecommendationHubProps> = ({
 
                             {/* Match Score Badge (FR-09, FR-10) */}
                             <div className="text-right shrink-0">
-                              <div className={`px-3 py-1 rounded-full text-xs font-extrabold border inline-flex items-center gap-1 ${statusColor}`}>
+                              <div className="px-3 py-1 rounded-md text-xs font-bold border border-zinc-200 bg-zinc-50 text-zinc-700 inline-flex items-center gap-1">
                                 <Check className="w-3.5 h-3.5" />
                                 Match: {matchScore}%
                               </div>
                             </div>
                           </div>
 
-                          <p className="text-xs text-[#686868] line-clamp-2 leading-relaxed mb-3">
+                          <p className="text-sm text-zinc-600 line-clamp-2 leading-relaxed mb-4">
                             {recipe.description}
                           </p>
 
                           {/* Quick Meta */}
-                          <div className="flex flex-wrap items-center gap-3 text-xs text-[#7D857E] mb-3">
-                            <span className="flex items-center gap-1">
-                              <Clock className="w-3.5 h-3.5 text-[#8BA08E]" />
+                          <div className="flex flex-wrap items-center gap-4 text-xs text-emerald-900/60 mb-4">
+                            <span className="flex items-center gap-1 font-medium">
+                              <Clock className="w-3.5 h-3.5" />
                               {formatMinutes(recipe.totalTime)}
                             </span>
-                            <span className="flex items-center gap-1">
-                              <Flame className="w-3.5 h-3.5 text-[#C87D55]" />
+                            <span className="flex items-center gap-1 font-medium">
+                              <Flame className="w-3.5 h-3.5" />
                               {recipe.calories} kcal
                             </span>
-                            <span className="flex items-center gap-1 text-[#C87D55]">
-                              <Star className="w-3.5 h-3.5 fill-[#C87D55]" />
+                            <span className="flex items-center gap-1 font-medium text-emerald-950">
+                              <Star className="w-3.5 h-3.5 fill-emerald-500" />
                               {recipe.rating} ({recipe.reviewCount})
                             </span>
-                            <span className="px-2.5 py-0.5 rounded-full bg-[#F2EDE4] text-[10px] font-semibold text-[#4A5D4E]">
+                            <span className="px-2 py-0.5 rounded-md bg-zinc-100 text-[10px] font-bold uppercase text-zinc-600">
                               {recipe.difficulty === 'Easy' ? 'Dễ làm' : recipe.difficulty === 'Medium' ? 'Vừa phải' : 'Cầu kỳ'}
                             </span>
                           </div>
 
                           {/* FR-11: Matched vs Missing Ingredients breakdown */}
-                          <div className="p-3.5 rounded-2xl bg-[#F9F7F2] border border-[#EAE7E0] text-xs space-y-2">
+                          <div className="p-4 rounded-xl bg-zinc-50 border border-zinc-100 text-xs space-y-2.5">
                             {/* Matched */}
                             {matchedIngredients.length > 0 && (
                               <div className="flex items-start gap-2">
-                                <span className="font-bold text-[#4A5D4E] shrink-0">Đã có ({matchedIngredients.length}):</span>
-                                <span className="text-[#3D3D3D]">
+                                <span className="font-semibold text-emerald-950 shrink-0">Đã có ({matchedIngredients.length}):</span>
+                                <span className="text-zinc-600">
                                   {matchedIngredients.map(m => m.name).join(', ')}
                                 </span>
                               </div>
@@ -936,13 +932,13 @@ export const RecommendationHub: React.FC<RecommendationHubProps> = ({
 
                             {/* Missing */}
                             {missingIngredients.length > 0 ? (
-                              <div className="flex flex-wrap items-center gap-1.5 pt-1.5 border-t border-[#EAE7E0]">
-                                <span className="font-bold text-[#C87D55] shrink-0">Chỉ cần thêm:</span>
+                              <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-zinc-200/60">
+                                <span className="font-semibold text-emerald-950 shrink-0">Chỉ cần thêm:</span>
                                 {missingIngredients.map(miss => (
                                   <button
                                     key={miss.ingredientId}
                                     onClick={() => onAddToShoppingList(miss.name, miss.requiredQuantity, miss.unit, recipe.name)}
-                                    className="px-2.5 py-0.5 rounded-full bg-[#F2EDE4] text-[#8C5D36] border border-[#D9AE94]/50 hover:bg-[#D9AE94]/30 transition-colors flex items-center gap-1 text-[11px] font-medium"
+                                    className="px-2.5 py-1 rounded-md bg-white border border-zinc-200 text-zinc-700 hover:bg-zinc-100 transition-colors flex items-center gap-1 text-[11px] font-medium shadow-sm"
                                     title="Thêm vào danh sách đi chợ"
                                   >
                                     <Plus className="w-3 h-3" />
@@ -951,18 +947,18 @@ export const RecommendationHub: React.FC<RecommendationHubProps> = ({
                                 ))}
                               </div>
                             ) : (
-                              <div className="flex items-center gap-1.5 text-[#4A5D4E] font-semibold">
-                                <CheckCircle2 className="w-3.5 h-3.5" />
+                              <div className="flex items-center gap-1.5 text-emerald-950 font-semibold">
+                                <CheckCircle2 className="w-4 h-4" />
                                 Bạn có đủ tất cả nguyên liệu để nấu ngay món này!
                               </div>
                             )}
                           </div>
 
-                          {/* FR-19: Explainable AI Box */}
-                          <div className="mt-3 p-3 rounded-2xl bg-[#E9EDC9]/50 border border-[#D8DFB0] text-[11px] text-[#364939] flex items-start gap-2">
-                            <Info className="w-3.5 h-3.5 shrink-0 mt-0.5 text-[#4A5D4E]" />
-                            <div>
-                              <strong className="text-[#2D3F30] font-bold">Giải thích đề xuất (XAI): </strong>
+                          {/* Explainable UI Box */}
+                          <div className="mt-3 p-3.5 rounded-xl bg-zinc-100/80 border border-zinc-200 text-[11.5px] text-zinc-700 flex items-start gap-2.5">
+                            <Info className="w-4 h-4 shrink-0 mt-0.5 text-emerald-950" />
+                            <div className="leading-relaxed">
+                              <strong className="text-emerald-950 font-bold">Lý do đề xuất: </strong>
                               {explanation.summary}
                             </div>
                           </div>
@@ -970,15 +966,15 @@ export const RecommendationHub: React.FC<RecommendationHubProps> = ({
                       </div>
 
                       {/* Card Footer: Action & Feedback */}
-                      <div className="mt-4 pt-3 border-t border-[#F2EDE4] flex items-center justify-between">
+                      <div className="mt-5 pt-4 border-t border-zinc-100 flex items-center justify-between">
                         {/* Feedback (FR-16) */}
-                        <div className="flex items-center gap-2 text-xs text-[#7D857E]">
+                        <div className="flex items-center gap-2.5 text-xs text-emerald-900/60 font-medium">
                           <span>Gợi ý này có hữu ích?</span>
                           <button
                             onClick={() => handleFeedback(recipe.id, recipe.name, 'HELPFUL')}
-                            className={`p-2 rounded-full border transition-colors ${feedbackGiven[recipe.id] === 'HELPFUL'
-                                ? 'bg-[#8BA08E] text-white border-[#8BA08E]'
-                                : 'bg-[#F2EDE4] hover:bg-[#EAE7E0] text-[#3D3D3D] border-[#EAE7E0]'
+                            className={`p-2 rounded-md border transition-colors ${feedbackGiven[recipe.id] === 'HELPFUL'
+                                ? 'bg-emerald-500 text-white border-emerald-500'
+                                : 'bg-white hover:bg-zinc-50 text-zinc-600 border-zinc-200'
                               }`}
                             title="Hữu ích"
                           >
@@ -986,9 +982,9 @@ export const RecommendationHub: React.FC<RecommendationHubProps> = ({
                           </button>
                           <button
                             onClick={() => handleFeedback(recipe.id, recipe.name, 'NOT_RELEVANT')}
-                            className={`p-2 rounded-full border transition-colors ${feedbackGiven[recipe.id] === 'NOT_RELEVANT'
-                                ? 'bg-[#B85244] text-white border-[#B85244]'
-                                : 'bg-[#F2EDE4] hover:bg-[#EAE7E0] text-[#3D3D3D] border-[#EAE7E0]'
+                            className={`p-2 rounded-md border transition-colors ${feedbackGiven[recipe.id] === 'NOT_RELEVANT'
+                                ? 'bg-zinc-200 text-emerald-950 border-zinc-300'
+                                : 'bg-white hover:bg-zinc-50 text-zinc-600 border-zinc-200'
                               }`}
                             title="Không phù hợp"
                           >
@@ -999,7 +995,7 @@ export const RecommendationHub: React.FC<RecommendationHubProps> = ({
                         {/* View Recipe detail CTA */}
                         <button
                           onClick={() => onSelectRecipe(recipe.id)}
-                          className="px-5 py-2.5 rounded-full bg-[#8BA08E] hover:bg-[#798E7C] text-white font-bold text-xs flex items-center gap-1.5 card-shadow transition-colors"
+                          className="px-5 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs flex items-center gap-2 shadow-sm transition-colors"
                         >
                           Xem công thức & Nấu
                           <ArrowRight className="w-3.5 h-3.5" />
