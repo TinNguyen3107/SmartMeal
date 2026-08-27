@@ -1,0 +1,6 @@
+{
+  "name": "SmartMeal - Ingredient-Based Food Recommendation",
+  "description": "Hệ thống gợi ý món ăn thông minh dựa trên nguyên liệu có sẵn, tích hợp AI NLP, giải thích đề xuất (XAI) và đánh giá độ chính xác.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

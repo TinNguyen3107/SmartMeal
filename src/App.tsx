@@ -1,0 +1,292 @@
+import React, { useState, useEffect } from 'react';
+import { Navbar } from './components/Navbar';
+import { RecommendationHub } from './components/RecommendationHub';
+import { PantryManager } from './components/PantryManager';
+import { RecipeExplorer } from './components/RecipeExplorer';
+import { AiChefChat } from './components/AiChefChat';
+import { MealPlanShopping, ShoppingItem } from './components/MealPlanShopping';
+import { AdminDashboard } from './components/AdminDashboard';
+import { RecipeDetailModal } from './components/RecipeDetailModal';
+import { UserProfileModal } from './components/UserProfileModal';
+import { Ingredient, UserProfile, UserIngredient, IngredientCategory } from './types';
+
+export function App() {
+  const [activeTab, setActiveTab] = useState<string>('recommend');
+  const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
+  const [allIngredients, setAllIngredients] = useState<Ingredient[]>([]);
+  const [pantryItems, setPantryItems] = useState<UserIngredient[]>([]);
+  const [favorites, setFavorites] = useState<string[]>([]);
+  const [shoppingList, setShoppingList] = useState<ShoppingItem[]>([
+    { id: 'shop-1', name: 'Nước dừa xiêm', quantity: 1, unit: 'trái', recipeName: 'Thịt kho tàu nước dừa', isBought: false },
+    { id: 'shop-2', name: 'Ớt chuông đỏ', quantity: 2, unit: 'quả', recipeName: 'Bò xào ớt chuông hành tây', isBought: false }
+  ]);
+
+  const [selectedRecipeId, setSelectedRecipeId] = useState<string | null>(null);
+  const [showProfileModal, setShowProfileModal] = useState<boolean>(false);
+
+  // Load initial application data
+  const refreshAppData = async () => {
+    try {
+      const [resMe, resIng, resPantry, resFav] = await Promise.all([
+        fetch('/api/auth/me'),
+        fetch('/api/ingredients'),
+        fetch('/api/user/pantry'),
+        fetch('/api/user/favorites')
+      ]);
+
+      const dataMe = await resMe.json();
+      const dataIng = await resIng.json();
+      const dataPantry = await resPantry.json();
+      const dataFav = await resFav.json();
+
+      setCurrentUser(dataMe.user || null);
+      setAllIngredients(dataIng.ingredients || []);
+      setPantryItems(dataPantry.items || []);
+      setFavorites(dataFav.favoriteIds || []);
+    } catch (e) {
+      console.error('Failed to load initial data:', e);
+    }
+  };
+
+  useEffect(() => {
+    refreshAppData();
+  }, []);
+
+  // Demo Login Handler
+  const handleLoginDemo = async (role: 'user' | 'admin') => {
+    try {
+      const res = await fetch('/api/auth/demo-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ role })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setCurrentUser(data.user);
+        refreshAppData();
+      }
+    } catch (e) {
+      console.error('Demo login error:', e);
+    }
+  };
+
+  // Logout Handler
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      setCurrentUser(null);
+    } catch (e) {
+      console.error('Logout error:', e);
+    }
+  };
+
+  // Pantry Management Handlers
+  const handleAddPantryItem = async (name: string, quantity: number, unit: string, category: IngredientCategory) => {
+    try {
+      const res = await fetch('/api/user/pantry', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, quantity, unit, category })
+      });
+      const data = await res.json();
+      if (data.success && data.items) {
+        setPantryItems(data.items);
+      }
+    } catch (e) {
+      console.error('Add pantry item error:', e);
+    }
+  };
+
+  const handleRemovePantryItem = async (id: string) => {
+    try {
+      const res = await fetch(`/api/user/pantry/${id}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (data.success) {
+        setPantryItems(data.items || []);
+      }
+    } catch (e) {
+      console.error('Remove pantry item error:', e);
+    }
+  };
+
+  // Trigger recommendation from Pantry
+  const handleTriggerCookFromPantry = (items: { name: string; quantity: number; unit: string }[]) => {
+    setActiveTab('recommend');
+  };
+
+  // Favorite toggle
+  const handleToggleFavorite = async (recipeId: string) => {
+    try {
+      const res = await fetch('/api/user/favorites/toggle', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ recipeId })
+      });
+      const data = await res.json();
+      setFavorites(data.favoriteIds || []);
+    } catch (e) {
+      console.error('Toggle favorite error:', e);
+    }
+  };
+
+  // Shopping list management
+  const handleAddToShoppingList = (name: string, quantity: number, unit: string, recipeName: string) => {
+    const existing = shoppingList.find(i => i.name.toLowerCase() === name.toLowerCase());
+    if (existing) {
+      setShoppingList(prev =>
+        prev.map(i =>
+          i.id === existing.id ? { ...i, quantity: i.quantity + quantity } : i
+        )
+      );
+    } else {
+      const newItem: ShoppingItem = {
+        id: `shop-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+        name,
+        quantity,
+        unit: unit || 'phần',
+        recipeName,
+        isBought: false
+      };
+      setShoppingList(prev => [newItem, ...prev]);
+    }
+    alert(`🛒 Đã thêm "${name} (${quantity} ${unit})" vào danh sách đi chợ!`);
+  };
+
+  const handleToggleBuyItem = (id: string) => {
+    setShoppingList(prev =>
+      prev.map(i => (i.id === id ? { ...i, isBought: !i.isBought } : i))
+    );
+  };
+
+  const handleRemoveShoppingItem = (id: string) => {
+    setShoppingList(prev => prev.filter(i => i.id !== id));
+  };
+
+  const handleAddCustomShoppingItem = (name: string, quantity: number, unit: string) => {
+    const newItem: ShoppingItem = {
+      id: `shop-${Date.now()}`,
+      name,
+      quantity,
+      unit,
+      isBought: false
+    };
+    setShoppingList(prev => [newItem, ...prev]);
+  };
+
+  const handleClearBought = () => {
+    setShoppingList(prev => prev.filter(i => !i.isBought));
+  };
+
+  return (
+    <div className="min-h-screen bg-[#FDFBF7] text-[#3D3D3D] flex flex-col font-sans selection:bg-[#8BA08E] selection:text-white">
+      {/* Top Navigation */}
+      <Navbar
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        currentUser={currentUser}
+        onLoginDemo={handleLoginDemo}
+        onLogout={handleLogout}
+        onOpenProfile={() => setShowProfileModal(true)}
+        pantryCount={pantryItems.length}
+      />
+
+      {/* Main Views Container */}
+      <main className="flex-1 pb-16">
+        {activeTab === 'recommend' && (
+          <RecommendationHub
+            allIngredients={allIngredients}
+            pantryItems={pantryItems}
+            onSelectRecipe={id => setSelectedRecipeId(id)}
+            onAddToShoppingList={handleAddToShoppingList}
+            userDietaryPreferences={currentUser?.preferences?.dietaryTypes || ['Vietnamese', 'Healthy']}
+          />
+        )}
+
+        {activeTab === 'pantry' && (
+          <PantryManager
+            pantryItems={pantryItems}
+            allIngredients={allIngredients}
+            onAddPantryItem={handleAddPantryItem}
+            onRemovePantryItem={handleRemovePantryItem}
+            onTriggerRecommendation={handleTriggerCookFromPantry}
+          />
+        )}
+
+        {activeTab === 'explorer' && (
+          <RecipeExplorer
+            onSelectRecipe={id => setSelectedRecipeId(id)}
+            favorites={favorites}
+            onToggleFavorite={handleToggleFavorite}
+          />
+        )}
+
+        {activeTab === 'ai-chef' && (
+          <AiChefChat
+            pantryItems={pantryItems}
+            onOpenRecipeModal={id => setSelectedRecipeId(id)}
+          />
+        )}
+
+        {activeTab === 'planner' && (
+          <MealPlanShopping
+            shoppingList={shoppingList}
+            onToggleBuyItem={handleToggleBuyItem}
+            onRemoveShoppingItem={handleRemoveShoppingItem}
+            onAddCustomShoppingItem={handleAddCustomShoppingItem}
+            onClearBought={handleClearBought}
+          />
+        )}
+
+        {activeTab === 'evaluation' && (
+          <AdminDashboard
+            allIngredients={allIngredients}
+            onRefreshData={refreshAppData}
+          />
+        )}
+
+        {activeTab === 'admin' && currentUser?.role === 'admin' && (
+          <AdminDashboard
+            allIngredients={allIngredients}
+            onRefreshData={refreshAppData}
+          />
+        )}
+      </main>
+
+      {/* Recipe Detail & Cooking Modal */}
+      {selectedRecipeId && (
+        <RecipeDetailModal
+          recipeId={selectedRecipeId}
+          onClose={() => setSelectedRecipeId(null)}
+          pantryItems={pantryItems}
+          isFavorite={favorites.includes(selectedRecipeId)}
+          onToggleFavorite={handleToggleFavorite}
+          onAddToShoppingList={handleAddToShoppingList}
+        />
+      )}
+
+      {/* User Profile Modal */}
+      {showProfileModal && currentUser && (
+        <UserProfileModal
+          currentUser={currentUser}
+          onClose={() => setShowProfileModal(false)}
+          onUpdateProfile={updated => setCurrentUser({ ...currentUser, ...updated } as UserProfile)}
+        />
+      )}
+
+      {/* Natural Tones Footer */}
+      <footer className="border-t border-[#EAE7E0] bg-[#F9F7F2] py-8 text-center text-xs text-[#7D857E]">
+        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded-full bg-[#8BA08E] flex items-center justify-center text-white text-[10px] font-bold">SM</div>
+            <span className="font-serif font-semibold text-[#4A5D4E]">SmartMeal</span>
+            <span className="text-[#A9A296]">•</span>
+            <span>Hệ thống Gợi ý Món ăn Thông minh</span>
+          </div>
+          <p>© 2026 SmartMeal • Khởi nguồn món ngon từ nguyên liệu tự nhiên & AI cá nhân hóa</p>
+        </div>
+      </footer>
+    </div>
+  );
+}
+
+export default App;
