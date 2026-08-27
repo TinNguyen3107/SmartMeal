@@ -43,6 +43,17 @@ let dbFavorites: Record<string, string[]> = {};
 let dbReviews: RecipeReview[] = [];
 let dbFeedbacks: RecommendationFeedback[] = [];
 
+// History tracking (FR-15)
+interface HistoryItem {
+  id: string;
+  userId: string;
+  recipeName: string;
+  recipeId: string;
+  type: 'VIEW' | 'COOKED';
+  date: string;
+}
+let dbHistory: HistoryItem[] = [];
+
 let dbLogs: SystemLog[] = [
   {
     id: 'log-1',
@@ -238,6 +249,13 @@ async function startServer() {
     res.json({ success: true, items: dbPantry[userId] || [] });
   });
 
+  // ==================== USER HISTORY (FR-15) ====================
+  app.get('/api/user/history', (req, res) => {
+    const userId = currentUser?.id || 'guest';
+    const items = dbHistory.filter(h => h.userId === userId).slice(0, 20);
+    res.json({ history: items });
+  });
+
   // ==================== RECIPE ROUTES (FR-07, FR-18) ====================
   app.get('/api/recipes', (req, res) => {
     const query = (req.query.q as string || '').trim().toLowerCase();
@@ -267,6 +285,19 @@ async function startServer() {
   app.get('/api/recipes/:id', (req, res) => {
     const recipe = dbRecipes.find(r => r.id === req.params.id);
     if (!recipe) return res.status(404).json({ message: 'Không tìm thấy công thức món ăn' });
+
+    // Ghi lịch sử xem món (FR-15)
+    if (currentUser) {
+      dbHistory.unshift({
+        id: `hist-${Date.now()}`,
+        userId: currentUser.id,
+        recipeName: recipe.name,
+        recipeId: recipe.id,
+        type: 'VIEW',
+        date: new Date().toISOString()
+      });
+      if (dbHistory.length > 100) dbHistory.pop();
+    }
 
     addLog('RECIPE_VIEW', `Xem chi tiết món: ${recipe.name}`);
     const reviews = dbReviews.filter(rev => rev.recipeId === recipe.id);

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   X,
   User,
@@ -7,6 +7,14 @@ import {
   Check
 } from 'lucide-react';
 import { UserProfile, DietaryType, Difficulty } from '../types';
+
+interface HistoryItem {
+  id: string;
+  recipeName: string;
+  recipeId: string;
+  type: 'VIEW' | 'COOKED';
+  date: string;
+}
 
 interface UserProfileModalProps {
   currentUser: UserProfile;
@@ -29,12 +37,20 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
   const [isSaving, setIsSaving] = useState(false);
   const [activeTab, setActiveTab] = useState<'info' | 'history'>('info');
 
-  // Lịch sử mock data (có thể load từ API sau)
-  const historyItems = [
-    { id: 'h1', name: 'Trứng sốt cà chua', date: 'Vừa xong', type: 'VIEW' },
-    { id: 'h2', name: 'Ức gà áp chảo', date: 'Hôm qua', type: 'COOKED' },
-    { id: 'h3', name: 'Salad cá ngừ', date: '3 ngày trước', type: 'VIEW' },
-  ];
+  // Load lịch sử thật từ API (FR-15)
+  const [historyItems, setHistoryItems] = useState<HistoryItem[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
+
+  useEffect(() => {
+    if (activeTab === 'history') {
+      setHistoryLoading(true);
+      fetch('/api/user/history')
+        .then(r => r.json())
+        .then(data => setHistoryItems(data.history || []))
+        .catch(() => setHistoryItems([]))
+        .finally(() => setHistoryLoading(false));
+    }
+  }, [activeTab]);
 
   const availableDiets: DietaryType[] = [
     'Vietnamese',
@@ -253,19 +269,27 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
         ) : (
           <div className="space-y-3 max-h-96 overflow-y-auto pr-1">
             <h3 className="text-sm font-bold text-emerald-950 mb-2">Hoạt động gần đây</h3>
-            {historyItems.map(item => (
-              <div key={item.id} className="p-4 rounded-xl border border-zinc-200 flex justify-between items-center bg-zinc-50">
-                <div>
-                  <h4 className="font-semibold text-emerald-950">{item.name}</h4>
-                  <p className="text-[10px] text-zinc-500">{item.date}</p>
-                </div>
-                <span className={`px-2 py-1 rounded-md text-[10px] font-bold ${
-                  item.type === 'COOKED' ? 'bg-emerald-100 text-emerald-700' : 'bg-zinc-200 text-zinc-700'
-                }`}>
-                  {item.type === 'COOKED' ? 'Đã nấu' : 'Đã xem'}
-                </span>
+            {historyLoading ? (
+              <div className="text-center py-4 text-emerald-900/60 text-xs">Đang tải lịch sử...</div>
+            ) : historyItems.length === 0 ? (
+              <div className="text-center py-8 bg-zinc-50 rounded-xl border border-zinc-200">
+                <p className="text-zinc-500 text-xs">Chưa có hoạt động nào được ghi nhận.</p>
               </div>
-            ))}
+            ) : (
+              historyItems.map(item => (
+                <div key={item.id} className="p-4 rounded-xl border border-zinc-200 flex justify-between items-center bg-zinc-50">
+                  <div>
+                    <h4 className="font-semibold text-emerald-950">{item.recipeName}</h4>
+                    <p className="text-[10px] text-zinc-500">{new Date(item.date).toLocaleString()}</p>
+                  </div>
+                  <span className={`px-2 py-1 rounded-md text-[10px] font-bold ${
+                    item.type === 'COOKED' ? 'bg-emerald-100 text-emerald-700' : 'bg-zinc-200 text-zinc-700'
+                  }`}>
+                    {item.type === 'COOKED' ? 'Đã nấu' : 'Đã xem'}
+                  </span>
+                </div>
+              ))
+            )}
           </div>
         )}
       </div>
