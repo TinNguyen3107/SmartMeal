@@ -46,7 +46,7 @@ export const RecipeFormModal: React.FC<RecipeFormModalProps> = ({ onClose, onSub
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-black/60 z-100 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
         <div className="sticky top-0 bg-white border-b border-zinc-100 p-4 flex justify-between items-center z-10">
           <h2 className="font-bold text-lg text-emerald-950">Tạo công thức thủ công</h2>
@@ -56,34 +56,34 @@ export const RecipeFormModal: React.FC<RecipeFormModalProps> = ({ onClose, onSub
           <div className="grid grid-cols-2 gap-4 text-emerald-950">
             <div className="col-span-2">
               <label className="block text-xs font-bold mb-1">Tên món ăn</label>
-              <input required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full border p-2 rounded-lg text-sm bg-white" placeholder="VD: Bò hầm tiêu xanh" />
+              <input required value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} className="w-full border p-2 rounded-lg text-sm bg-white" placeholder="VD: Bò hầm tiêu xanh" />
             </div>
             <div className="col-span-2">
               <label className="block text-xs font-bold mb-1">Mô tả hấp dẫn</label>
-              <input required value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} className="w-full border p-2 rounded-lg text-sm bg-white" placeholder="Món bò mềm tan..." />
+              <input required value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} className="w-full border p-2 rounded-lg text-sm bg-white" placeholder="Món bò mềm tan..." />
             </div>
             <div>
               <label className="block text-xs font-bold mb-1">Thời gian chuẩn bị (phút)</label>
-              <input required type="number" min="0" value={formData.preparationTime} onChange={e => setFormData({...formData, preparationTime: Number(e.target.value)})} className="w-full border p-2 rounded-lg text-sm bg-white" />
+              <input required type="number" min="0" value={formData.preparationTime} onChange={e => setFormData({ ...formData, preparationTime: Number(e.target.value) })} className="w-full border p-2 rounded-lg text-sm bg-white" />
             </div>
             <div>
               <label className="block text-xs font-bold mb-1">Thời gian nấu (phút)</label>
-              <input required type="number" min="0" value={formData.cookingTime} onChange={e => setFormData({...formData, cookingTime: Number(e.target.value)})} className="w-full border p-2 rounded-lg text-sm bg-white" />
+              <input required type="number" min="0" value={formData.cookingTime} onChange={e => setFormData({ ...formData, cookingTime: Number(e.target.value) })} className="w-full border p-2 rounded-lg text-sm bg-white" />
             </div>
             <div>
               <label className="block text-xs font-bold mb-1">Tổng Calo (kcal)</label>
-              <input required type="number" min="0" value={formData.calories} onChange={e => setFormData({...formData, calories: Number(e.target.value)})} className="w-full border p-2 rounded-lg text-sm bg-white" />
+              <input required type="number" min="0" value={formData.calories} onChange={e => setFormData({ ...formData, calories: Number(e.target.value) })} className="w-full border p-2 rounded-lg text-sm bg-white" />
             </div>
             <div>
               <label className="block text-xs font-bold mb-1">Khẩu phần (người)</label>
-              <input required type="number" min="1" value={formData.servings} onChange={e => setFormData({...formData, servings: Number(e.target.value)})} className="w-full border p-2 rounded-lg text-sm bg-white" />
+              <input required type="number" min="1" value={formData.servings} onChange={e => setFormData({ ...formData, servings: Number(e.target.value) })} className="w-full border p-2 rounded-lg text-sm bg-white" />
             </div>
           </div>
 
           <div>
             <div className="flex justify-between items-center mb-2">
               <label className="block text-xs font-bold text-emerald-950">Nguyên liệu chi tiết</label>
-              <button type="button" onClick={() => setIngredients([...ingredients, { name: '', quantity: 1, unit: 'g'}])} className="text-xs text-emerald-600 font-bold bg-emerald-50 px-2 py-1 rounded">+ Thêm</button>
+              <button type="button" onClick={() => setIngredients([...ingredients, { name: '', quantity: 1, unit: 'g' }])} className="text-xs text-emerald-600 font-bold bg-emerald-50 px-2 py-1 rounded">+ Thêm</button>
             </div>
             {ingredients.map((ing, i) => (
               <div key={i} className="flex gap-2 mb-2">
@@ -98,7 +98,7 @@ export const RecipeFormModal: React.FC<RecipeFormModalProps> = ({ onClose, onSub
           <div>
             <div className="flex justify-between items-center mb-2">
               <label className="block text-xs font-bold text-emerald-950">Các bước thực hiện</label>
-              <button type="button" onClick={() => setInstructions([...instructions, { stepNumber: instructions.length + 1, instruction: ''}])} className="text-xs text-emerald-600 font-bold bg-emerald-50 px-2 py-1 rounded">+ Thêm bước</button>
+              <button type="button" onClick={() => setInstructions([...instructions, { stepNumber: instructions.length + 1, instruction: '' }])} className="text-xs text-emerald-600 font-bold bg-emerald-50 px-2 py-1 rounded">+ Thêm bước</button>
             </div>
             {instructions.map((ins, i) => (
               <div key={i} className="flex gap-2 mb-2 items-start">
