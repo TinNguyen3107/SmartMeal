@@ -381,13 +381,27 @@ Hãy trả về dưới định dạng JSON với đầy đủ thông tin chi ti
 }
 
 export async function generateWeeklyMealPlan(preferences: string) {
+  const ai = getAiClient();
+  if (!ai) {
+    return {
+      "Thứ 2": { breakfast: "Bánh mì trứng", lunch: "Cơm sườn", dinner: "Bún chả" },
+      "Thứ 3": { breakfast: "Phở gà", lunch: "Cơm gà xối mỡ", dinner: "Cá kho tộ" },
+      "Thứ 4": { breakfast: "Bánh cuốn", lunch: "Thịt luộc chấm tôm chua", dinner: "Canh chua ngao" },
+      "Thứ 5": { breakfast: "Xôi xéo", lunch: "Bò lúc lắc", dinner: "Thịt băm rang" },
+      "Thứ 6": { breakfast: "Bún bò Huế", lunch: "Cá chiên mắm", dinner: "Canh mướp mồng tơi" },
+      "Thứ 7": { breakfast: "Bánh mì chảo", lunch: "Bún đậu mắm tôm", dinner: "Lẩu gà lá é" },
+      "Chủ Nhật": { breakfast: "Bún chả gia đình", lunch: "Sườn xào chua ngọt", dinner: "Salad ức gà" }
+    };
+  }
+
   try {
     const prompt = `Bạn là một chuyên gia dinh dưỡng. Hãy lập một thực đơn 7 ngày hợp lý dựa trên sở thích: ${preferences}.
     Trả về định dạng JSON nghiêm ngặt gồm 7 ngày (Thứ 2 đến Chủ Nhật), mỗi ngày có 3 bữa (breakfast, lunch, dinner).`;
     
-    const response = await model.generateContent({
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      generationConfig: {
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: prompt,
+      config: {
         responseMimeType: "application/json",
         responseSchema: {
           type: Type.OBJECT,
