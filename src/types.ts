@@ -233,7 +233,7 @@ export interface ShoppingItem {
 export interface SystemLog {
   id: string;
   timestamp: string;
-  type: 'AUTH' | 'SEARCH' | 'RECOMMEND' | 'FEEDBACK' | 'AI_NLP' | 'RECIPE_VIEW';
+  type: 'AUTH' | 'SEARCH' | 'RECOMMEND' | 'FEEDBACK' | 'AI_NLP' | 'RECIPE_VIEW' | 'AI_GENERATE';
   message: string;
   details?: any;
 }
