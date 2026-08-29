@@ -75,7 +75,9 @@ export const MealPlanShopping: React.FC<MealPlanShoppingProps> = ({
         body: JSON.stringify({ preferences: prefs })
       });
       const data = await res.json();
-      if (data.success && data.plan) {
+      if (res.status === 401) {
+        alert('⚠️ Bạn cần đăng nhập để sử dụng tính năng thiết kế thực đơn AI!');
+      } else if (data.success && data.plan) {
         setMealPlan(data.plan);
       } else {
         alert('Có lỗi khi tạo thực đơn.');

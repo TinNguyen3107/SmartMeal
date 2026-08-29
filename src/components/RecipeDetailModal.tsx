@@ -163,12 +163,16 @@ export const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          message: `Trong món "${recipe?.name}", tôi muốn thay thế hoặc biến tấu: "${substitutionPrompt}". Hãy hướng dẫn tỉ lệ và cách làm phù hợp.`,
+          message: `Tôi đang xem món "${recipe?.name}" với nguyên liệu: [${recipe?.ingredients.map(i => `${i.quantity} ${i.unit} ${i.name}`).join(', ')}]. Câu hỏi: "${substitutionPrompt}". Hãy hướng dẫn tỉ lệ và cách làm phù hợp cho đúng món này.`,
           pantryIngredients: pantryItems.map(p => p.name)
         })
       });
       const data = await res.json();
-      setSubstitutionAdvice(data.reply || 'AI đã tiếp nhận câu hỏi của bạn.');
+      if (res.status === 401) {
+        setSubstitutionAdvice('⚠️ Bạn cần đăng nhập để sử dụng tính năng này.');
+      } else {
+        setSubstitutionAdvice(data.reply || 'AI đã tiếp nhận câu hỏi của bạn.');
+      }
     } catch (e) {
       console.error('Advice error:', e);
     } finally {

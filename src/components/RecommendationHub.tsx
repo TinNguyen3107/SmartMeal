@@ -149,7 +149,9 @@ export const RecommendationHub: React.FC<RecommendationHubProps> = ({
         body: JSON.stringify({ text: nlpText })
       });
       const data = await res.json();
-      if (data.success && data.ingredients?.length) {
+      if (res.status === 401) {
+        alert('⚠️ Bạn cần đăng nhập để sử dụng tính năng AI!');
+      } else if (data.success && data.ingredients?.length) {
         setSelectedIngredients(data.ingredients);
         if (data.constraints?.maxCookingTime) {
           setMaxCookingTime(data.constraints.maxCookingTime);
@@ -184,7 +186,9 @@ export const RecommendationHub: React.FC<RecommendationHubProps> = ({
           body: JSON.stringify({ imageBase64: base64, mimeType: file.type })
         });
         const data = await res.json();
-        if (data.success && data.ingredients?.length) {
+        if (res.status === 401) {
+          alert('⚠️ Bạn cần đăng nhập để sử dụng tính năng AI!');
+        } else if (data.success && data.ingredients?.length) {
           setSelectedIngredients(data.ingredients);
           setNlpSummary(data.understoodIntentSummary || 'Đã nhận diện thành công thực phẩm từ ảnh!');
           runRecommendation(data.ingredients);
@@ -224,6 +228,11 @@ export const RecommendationHub: React.FC<RecommendationHubProps> = ({
         body: JSON.stringify(payload)
       });
       const data = await res.json();
+      if (res.status === 401) {
+        alert('⚠️ Bạn cần đăng nhập để sử dụng tính năng gợi ý món ăn!');
+        setIsLoading(false);
+        return;
+      }
       setRecommendations(data.recommendations || []);
     } catch (err) {
       console.error('Recommendation API error:', err);
@@ -416,9 +425,9 @@ export const RecommendationHub: React.FC<RecommendationHubProps> = ({
 
                 {/* Quick Add Pills */}
                 <div>
-                  <p className="text-xs text-[#7D857E] mb-2 font-medium">Thường có sẵn trong bếp:</p>
+                  <p className="text-xs text-[#7D857E] mb-2 font-medium">Thường có sẵn trong bếp (Tủ lạnh của bạn):</p>
                   <div className="flex flex-wrap gap-1.5">
-                    {['Trứng gà', 'Cà chua', 'Hành lá', 'Tỏi', 'Thịt heo xay', 'Thịt bò', 'Khoai tây', 'Rau muống'].map(item => {
+                    {(pantryItems && pantryItems.length > 0 ? pantryItems.map(p => p.name) : ['Trứng gà', 'Cà chua', 'Hành lá', 'Tỏi', 'Thịt bò', 'Rau muống']).slice(0, 8).map(item => {
                       const isSelected = selectedIngredients.some(i => i.name.toLowerCase() === item.toLowerCase());
                       return (
                         <button
@@ -801,7 +810,7 @@ export const RecommendationHub: React.FC<RecommendationHubProps> = ({
           </div>
 
           {/* Tier Tabs (FR-10 Classification) */}
-          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+          <div className="flex gap-2 overflow-x-auto pb-2">
             {[
               { id: 'ALL', label: 'Tất cả' },
               { id: 'CAN_COOK', label: 'Có thể nấu ngay (90-100%)' },
@@ -838,12 +847,13 @@ export const RecommendationHub: React.FC<RecommendationHubProps> = ({
               </p>
               <button
                 onClick={() => {
-                  setSelectedIngredients([
+                  const sampleList = [
                     { name: 'Trứng gà', quantity: 3, unit: 'quả' },
                     { name: 'Cà chua', quantity: 2, unit: 'quả' },
                     { name: 'Hành lá', quantity: 2, unit: 'nhánh' }
-                  ]);
-                  runRecommendation();
+                  ];
+                  setSelectedIngredients(sampleList);
+                  runRecommendation(sampleList);
                 }}
                 className="px-5 py-2.5 rounded-full bg-[#8BA08E] text-white text-xs font-bold hover:bg-[#798E7C] transition-colors card-shadow"
               >

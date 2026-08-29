@@ -66,6 +66,16 @@ export const AiChefChat: React.FC<AiChefChatProps> = ({ pantryItems }) => {
         })
       });
       const data = await res.json();
+      if (res.status === 401) {
+        setMessages(prev => [...prev, {
+          id: `msg-${Date.now() + 1}`,
+          role: 'model',
+          text: '⚠️ Bạn cần **đăng nhập** để trò chuyện với AI Bếp trưởng. Vui lòng bấm nút "Đăng nhập" ở góc phải trên cùng nhé!',
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        }]);
+        setIsLoading(false);
+        return;
+      }
       const aiReply: ChatMessage = {
         id: `msg-${Date.now() + 1}`,
         role: 'model',
@@ -110,7 +120,9 @@ export const AiChefChat: React.FC<AiChefChatProps> = ({ pantryItems }) => {
       const data = await res.json();
       
       let replyText = 'Rất tiếc, tôi không thể sinh công thức lúc này.';
-      if (data.success && data.recipe) {
+      if (res.status === 401) {
+        replyText = '⚠️ Bạn cần **đăng nhập** để sử dụng tính năng sinh công thức AI.';
+      } else if (data.success && data.recipe) {
         const r = data.recipe;
         replyText = `🎉 Tèn ten! Tôi vừa sáng tạo ra món **${r.vietnameseName || r.name}** dành riêng cho bạn!\n\n`
           + `⏱️ **Thời gian:** ${r.totalTime} phút | 🔥 **Calo:** ${r.calories} kcal | 🔪 **Độ khó:** ${r.difficulty}\n\n`

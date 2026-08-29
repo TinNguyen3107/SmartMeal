@@ -610,6 +610,7 @@ async function startServer() {
 
   // ==================== RECOMMENDATION ENGINE (FR-08 - FR-15) ====================
   app.post('/api/recommendations', (req, res) => {
+    if (!currentUser) return res.status(401).json({ message: 'Vui lòng đăng nhập để sử dụng tính năng gợi ý món ăn' });
     const { ingredients = [], preferences = {}, weights } = req.body;
 
     const userPref = currentUser?.preferences
@@ -747,6 +748,7 @@ async function startServer() {
 
   // ==================== AI NLP & MULTIMODAL API (FR-05, FR-20, FR-21, FR-26) ====================
   app.post('/api/ai/extract-nlp', async (req, res) => {
+    if (!currentUser) return res.status(401).json({ message: 'Vui lòng đăng nhập để sử dụng AI' });
     const { text } = req.body;
     if (!text) return res.status(400).json({ message: 'Vui lòng nhập văn bản mô tả' });
 
@@ -756,6 +758,7 @@ async function startServer() {
   });
 
   app.post('/api/ai/vision-fridge', async (req, res) => {
+    if (!currentUser) return res.status(401).json({ message: 'Vui lòng đăng nhập để sử dụng AI' });
     const { imageBase64, mimeType } = req.body;
     if (!imageBase64) return res.status(400).json({ message: 'Thiếu dữ liệu ảnh' });
 
@@ -765,6 +768,7 @@ async function startServer() {
   });
 
   app.post('/api/ai/chat', async (req, res) => {
+    if (!currentUser) return res.status(401).json({ message: 'Vui lòng đăng nhập để trò chuyện với AI Bếp trưởng' });
     const { message, history = [], pantryIngredients = [] } = req.body;
     const reply = await chatWithRecipeAssistant(
       message,
@@ -776,6 +780,7 @@ async function startServer() {
   });
 
   app.post('/api/ai/generate-recipe', async (req, res) => {
+    if (!currentUser) return res.status(401).json({ message: 'Vui lòng đăng nhập để sử dụng AI' });
     const { ingredients = [], preferences = {} } = req.body;
     if (!ingredients.length) return res.status(400).json({ message: 'Vui lòng cung cấp danh sách nguyên liệu' });
 
@@ -789,6 +794,7 @@ async function startServer() {
   });
 
   app.post('/api/ai/generate-meal-plan', async (req, res) => {
+    if (!currentUser) return res.status(401).json({ message: 'Vui lòng đăng nhập để sử dụng AI' });
     addLog('AI_GENERATE', `AI đang thiết kế thực đơn 7 ngày`);
     try {
       const preferences = req.body.preferences || 'Ăn uống lành mạnh, đủ chất';
