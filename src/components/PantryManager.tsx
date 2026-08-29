@@ -179,8 +179,8 @@ export const PantryManager: React.FC<PantryManagerProps> = ({
                     disabled={inPantry}
                     onClick={() => handleQuickAdd(ing)}
                     className={`px-3 py-1 rounded-md text-xs font-medium border flex items-center gap-1 transition-colors ${inPantry
-                        ? 'bg-zinc-100 text-emerald-900/50 border-zinc-200 cursor-not-allowed'
-                        : 'bg-zinc-50 hover:bg-white text-zinc-700 border-zinc-200 hover:border-zinc-400'
+                      ? 'bg-zinc-100 text-emerald-900/50 border-zinc-200 cursor-not-allowed'
+                      : 'bg-zinc-50 hover:bg-white text-zinc-700 border-zinc-200 hover:border-zinc-400'
                       }`}
                   >
                     <span>{ing.name}</span>
@@ -202,8 +202,8 @@ export const PantryManager: React.FC<PantryManagerProps> = ({
                   key={cat.id}
                   onClick={() => setSelectedCategory(cat.id)}
                   className={`px-4 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${selectedCategory === cat.id
-                      ? 'bg-emerald-500 text-white shadow-sm'
-                      : 'bg-zinc-50 text-zinc-600 hover:bg-zinc-100 border border-zinc-200'
+                    ? 'bg-emerald-500 text-white shadow-sm'
+                    : 'bg-zinc-50 text-zinc-600 hover:bg-zinc-100 border border-zinc-200'
                     }`}
                 >
                   {cat.name}
@@ -271,15 +271,16 @@ export const PantryManager: React.FC<PantryManagerProps> = ({
                       </div>
                     </div>
 
-                  <button
-                    onClick={() => onRemovePantryItem(item.id)}
-                    className="p-2 rounded-lg text-emerald-900/50 hover:text-red-500 hover:bg-red-50 transition-colors"
-                    title="Xóa khỏi tủ lạnh"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              ))}
+                    <button
+                      onClick={() => onRemovePantryItem(item.id)}
+                      className="p-2 rounded-lg text-emerald-900/50 hover:text-red-500 hover:bg-red-50 transition-colors"
+                      title="Xóa khỏi tủ lạnh"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>
