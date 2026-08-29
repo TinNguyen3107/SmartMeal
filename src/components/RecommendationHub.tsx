@@ -232,10 +232,7 @@ export const RecommendationHub: React.FC<RecommendationHubProps> = ({
     }
   };
 
-  // Run initial recommendation on first render
-  useEffect(() => {
-    runRecommendation();
-  }, []);
+  // Bỏ tự động gọi runRecommendation() ở lần render đầu tiên vì lúc này chưa có nguyên liệu nào, gây ra Alert báo lỗi
 
   // Send feedback
   const handleFeedback = async (recipeId: string, recipeName: string, type: 'HELPFUL' | 'NOT_RELEVANT') => {
