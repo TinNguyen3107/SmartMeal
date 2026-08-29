@@ -562,15 +562,35 @@ async function startServer() {
     res.json({ success: true, recipe: newRecipe });
   });
 
-  app.put('/api/recipes/:id', (req, res) => {
+  app.put('/api/recipes/:id', async (req, res) => {
     const idx = dbRecipes.findIndex(r => r.id === req.params.id);
     if (idx === -1) return res.status(404).json({ message: 'Không tìm thấy công thức' });
 
+    // Update in TiDB
+    const updated = await prisma.recipe.update({
+      where: { id: req.params.id },
+      data: {
+        name: req.body.name,
+        vietnameseName: req.body.vietnameseName,
+        description: req.body.description,
+        difficulty: req.body.difficulty,
+        totalTime: req.body.totalTime,
+        calories: req.body.calories
+      }
+    });
+
+    // Sync to RAM
     dbRecipes[idx] = { ...dbRecipes[idx], ...req.body, updatedAt: new Date().toISOString() };
     res.json({ success: true, recipe: dbRecipes[idx] });
   });
 
-  app.delete('/api/recipes/:id', (req, res) => {
+  app.delete('/api/recipes/:id', async (req, res) => {
+    // Delete from TiDB
+    await prisma.recipe.delete({
+      where: { id: req.params.id }
+    }).catch(() => {}); // Bỏ qua lỗi nếu không tìm thấy
+
+    // Sync to RAM
     dbRecipes = dbRecipes.filter(r => r.id !== req.params.id);
     res.json({ success: true });
   });
