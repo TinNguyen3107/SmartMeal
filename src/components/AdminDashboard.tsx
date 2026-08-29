@@ -417,54 +417,94 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             <div>
               <h3 className="text-base font-bold text-emerald-950">Danh sách Công thức ({recipes.length})</h3>
             </div>
-            <button
-              onClick={() => {
-                const name = prompt('Nhập tên món ăn mới (VD: Trứng chiên):');
-                if (!name) return;
-                const ings = prompt('Nhập các nguyên liệu chính, cách nhau dấu phẩy (VD: Trứng gà, Hành lá):');
-                if (!ings) return;
-                
-                const newRecipe = {
-                  name,
-                  vietnameseName: name,
-                  description: 'Công thức mới được thêm từ Admin',
-                  image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&auto=format&fit=crop&q=80',
-                  cuisine: 'Vietnamese',
-                  category: 'Món chính',
-                  dietaryTags: ['Vietnamese'],
-                  difficulty: 'Easy',
-                  preparationTime: 5,
-                  cookingTime: 10,
-                  totalTime: 15,
-                  calories: 250,
-                  servings: 2,
-                  ingredients: ings.split(',').map(i => ({
-                    ingredientId: 'ing-' + Date.now(),
-                    name: i.trim(),
-                    normalizedName: i.trim().toUpperCase().replace(/\s+/g, '_'),
-                    quantity: 1,
-                    unit: 'phần'
-                  })),
-                  instructions: [
-                    { stepNumber: 1, instruction: 'Chuẩn bị nguyên liệu.' },
-                    { stepNumber: 2, instruction: 'Nấu chín và thưởng thức.' }
-                  ]
-                };
+            <div className="flex gap-2">
+              <button
+                onClick={async () => {
+                  const ings = prompt('Nhập các nguyên liệu chính để AI tự động sáng tác món ăn (VD: Trứng gà, Hành lá):');
+                  if (!ings) return;
+                  
+                  // Gọi AI sinh công thức
+                  try {
+                    alert('Đang nhờ AI suy nghĩ... Quá trình này mất khoảng 5-10 giây.');
+                    const aiRes = await fetch('/api/ai/generate-recipe', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ ingredients: ings.split(',') })
+                    });
+                    const data = await aiRes.json();
+                    
+                    if (data.success && data.recipe) {
+                      // Gửi kết quả của AI để tạo Recipe thực sự vào DB
+                      await fetch('/api/recipes', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data.recipe)
+                      });
+                      onRefreshData();
+                      loadAdminData();
+                      alert('Tạo công thức bằng AI thành công!');
+                    } else {
+                      alert('AI sinh công thức thất bại. Vui lòng thử lại.');
+                    }
+                  } catch (e) {
+                    alert('Lỗi kết nối AI.');
+                  }
+                }}
+                className="px-4 py-2 bg-emerald-100 hover:bg-emerald-200 text-emerald-800 text-xs font-bold rounded-lg flex items-center gap-2 border border-emerald-200"
+              >
+                <Plus className="w-4 h-4" />
+                Sáng tác tự động (AI)
+              </button>
 
-                fetch('/api/recipes', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify(newRecipe)
-                }).then(() => {
-                  onRefreshData();
-                  loadAdminData();
-                });
-              }}
-              className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold rounded-lg flex items-center gap-2"
-            >
-              <Plus className="w-4 h-4" />
-              Tạo công thức nhanh
-            </button>
+              <button
+                onClick={() => {
+                  const name = prompt('Nhập tên món ăn mới (VD: Trứng chiên):');
+                  if (!name) return;
+                  const ings = prompt('Nhập các nguyên liệu chính, cách nhau dấu phẩy (VD: Trứng gà, Hành lá):');
+                  if (!ings) return;
+                  
+                  const newRecipe = {
+                    name,
+                    vietnameseName: name,
+                    description: 'Công thức mới được thêm từ Admin',
+                    image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&auto=format&fit=crop&q=80',
+                    cuisine: 'Vietnamese',
+                    category: 'Món chính',
+                    dietaryTags: ['Vietnamese'],
+                    difficulty: 'Easy',
+                    preparationTime: 5,
+                    cookingTime: 10,
+                    totalTime: 15,
+                    calories: 250,
+                    servings: 2,
+                    ingredients: ings.split(',').map(i => ({
+                      ingredientId: 'ing-' + Date.now(),
+                      name: i.trim(),
+                      normalizedName: i.trim().toUpperCase().replace(/\s+/g, '_'),
+                      quantity: 1,
+                      unit: 'phần'
+                    })),
+                    instructions: [
+                      { stepNumber: 1, instruction: 'Chuẩn bị nguyên liệu.' },
+                      { stepNumber: 2, instruction: 'Nấu chín và thưởng thức.' }
+                    ]
+                  };
+
+                  fetch('/api/recipes', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newRecipe)
+                  }).then(() => {
+                    onRefreshData();
+                    loadAdminData();
+                  });
+                }}
+                className="px-4 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 text-xs font-bold rounded-lg flex items-center gap-2 border border-zinc-200"
+              >
+                <Plus className="w-4 h-4" />
+                Tạo Mock Data
+              </button>
+            </div>
           </div>
 
           <div className="overflow-x-auto">

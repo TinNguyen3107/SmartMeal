@@ -51,12 +51,19 @@ export const RecommendationHub: React.FC<RecommendationHubProps> = ({
   // Input Method state
   const [inputTab, setInputTab] = useState<'search' | 'category' | 'nlp' | 'vision'>('search');
 
-  // Selected ingredients list
-  const [selectedIngredients, setSelectedIngredients] = useState<{ name: string; quantity?: number; unit?: string }[]>([
-    { name: 'Trứng gà', quantity: 3, unit: 'quả' },
-    { name: 'Cà chua', quantity: 2, unit: 'quả' },
-    { name: 'Hành lá', quantity: 2, unit: 'nhánh' }
-  ]);
+  const [selectedIngredients, setSelectedIngredients] = useState<{ name: string; quantity?: number; unit?: string }[]>([]);
+
+  // Tự động load từ Pantry nếu có ở lần render đầu tiên
+  useEffect(() => {
+    if (pantryItems && pantryItems.length > 0 && selectedIngredients.length === 0) {
+      const newItems = pantryItems.map(p => ({
+        name: p.name,
+        quantity: p.quantity,
+        unit: p.unit
+      }));
+      setSelectedIngredients(newItems);
+    }
+  }, [pantryItems]);
 
   // Autocomplete search
   const [searchQuery, setSearchQuery] = useState('');
