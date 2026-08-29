@@ -298,25 +298,7 @@ Nhiệm vụ của bạn:
 export async function generateRecipeFromIngredients(ingredients: string[], userPreferences?: any): Promise<any> {
   const ai = getAiClient();
   if (!ai) {
-    // Trả về mock data nếu không có API Key
-    return {
-      name: "Trứng xào cà chua kiểu mới",
-      vietnameseName: "Trứng xào cà chua kiểu mới",
-      description: "Món ăn đơn giản, sinh tự động từ AI giả lập.",
-      cuisine: "Vietnamese",
-      category: "Món chính",
-      difficulty: "Easy",
-      totalTime: 15,
-      calories: 200,
-      ingredients: [
-        { name: "Trứng gà", quantity: 2, unit: "quả" },
-        { name: "Cà chua", quantity: 2, unit: "quả" }
-      ],
-      instructions: [
-        { stepNumber: 1, instruction: "Đánh trứng và thái cà chua." },
-        { stepNumber: 2, instruction: "Xào cà chua mềm, cho trứng vào xào chín." }
-      ]
-    };
+    throw new Error('GEMINI_API_KEY chưa được cấu hình. Không thể sinh công thức.');
   }
 
   try {
@@ -383,15 +365,7 @@ Hãy trả về dưới định dạng JSON với đầy đủ thông tin chi ti
 export async function generateWeeklyMealPlan(preferences: string) {
   const ai = getAiClient();
   if (!ai) {
-    return {
-      "Thứ 2": { breakfast: "Bánh mì trứng", lunch: "Cơm sườn", dinner: "Bún chả" },
-      "Thứ 3": { breakfast: "Phở gà", lunch: "Cơm gà xối mỡ", dinner: "Cá kho tộ" },
-      "Thứ 4": { breakfast: "Bánh cuốn", lunch: "Thịt luộc chấm tôm chua", dinner: "Canh chua ngao" },
-      "Thứ 5": { breakfast: "Xôi xéo", lunch: "Bò lúc lắc", dinner: "Thịt băm rang" },
-      "Thứ 6": { breakfast: "Bún bò Huế", lunch: "Cá chiên mắm", dinner: "Canh mướp mồng tơi" },
-      "Thứ 7": { breakfast: "Bánh mì chảo", lunch: "Bún đậu mắm tôm", dinner: "Lẩu gà lá é" },
-      "Chủ Nhật": { breakfast: "Bún chả gia đình", lunch: "Sườn xào chua ngọt", dinner: "Salad ức gà" }
-    };
+    throw new Error('GEMINI_API_KEY chưa được cấu hình. Không thể tạo thực đơn.');
   }
 
   try {
