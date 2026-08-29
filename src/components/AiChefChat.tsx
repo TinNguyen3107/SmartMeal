@@ -89,6 +89,57 @@ export const AiChefChat: React.FC<AiChefChatProps> = ({ pantryItems }) => {
     }
   };
 
+  const handleGenerateRecipe = async () => {
+    if (isLoading) return;
+    setIsLoading(true);
+    setMessages(prev => [...prev, {
+      id: `msg-${Date.now()}`,
+      role: 'user',
+      text: '🤖 Hãy tự động sinh cho tôi một công thức đặc biệt từ các nguyên liệu trong tủ lạnh!',
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    }]);
+
+    try {
+      const res = await fetch('/api/ai/generate-recipe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ingredients: pantryItems.map(p => p.name)
+        })
+      });
+      const data = await res.json();
+      
+      let replyText = 'Rất tiếc, tôi không thể sinh công thức lúc này.';
+      if (data.success && data.recipe) {
+        const r = data.recipe;
+        replyText = `🎉 Tèn ten! Tôi vừa sáng tạo ra món **${r.vietnameseName || r.name}** dành riêng cho bạn!\n\n`
+          + `⏱️ **Thời gian:** ${r.totalTime} phút | 🔥 **Calo:** ${r.calories} kcal | 🔪 **Độ khó:** ${r.difficulty}\n\n`
+          + `*${r.description}*\n\n`
+          + `**🛒 Nguyên liệu cần dùng:**\n`
+          + r.ingredients.map((i: any) => `- ${i.quantity} ${i.unit} ${i.name}`).join('\n')
+          + `\n\n**👩‍🍳 Cách làm:**\n`
+          + r.instructions.map((step: any) => `${step.stepNumber}. ${step.instruction}`).join('\n');
+      }
+
+      setMessages(prev => [...prev, {
+        id: `msg-${Date.now() + 1}`,
+        role: 'model',
+        text: replyText,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      }]);
+    } catch (err) {
+      console.error('Gen recipe error:', err);
+      setMessages(prev => [...prev, {
+        id: `msg-${Date.now() + 1}`,
+        role: 'model',
+        text: 'Có lỗi xảy ra khi sinh công thức. Bạn thử lại nhé!',
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      }]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const samplePrompts = [
     'Tối nay ăn gì nhanh gọn dưới 20 phút?',
     'Gợi ý 3 món Eat Clean ít dầu mỡ',
@@ -169,6 +220,15 @@ export const AiChefChat: React.FC<AiChefChatProps> = ({ pantryItems }) => {
 
         {/* Quick prompt chips */}
         <div className="pt-3 pb-2 flex gap-2 overflow-x-auto scrollbar-none border-t border-zinc-100">
+          <button
+            disabled={isLoading}
+            onClick={handleGenerateRecipe}
+            className="text-[11px] px-3 py-1.5 rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-800 border border-emerald-200 whitespace-nowrap transition-colors flex items-center gap-1.5 font-bold shadow-sm"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+            Sinh công thức tự động (AI)
+          </button>
+          
           {samplePrompts.map((prompt, idx) => (
             <button
               key={idx}

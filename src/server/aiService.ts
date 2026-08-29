@@ -268,19 +268,18 @@ Nhiệm vụ của bạn:
 2. Khi người dùng bổ sung điều kiện (ví dụ "tôi không ăn cay", "muốn món ít dầu mỡ", "thiếu gia vị này thay thế bằng gì"), hãy cập nhật đề xuất linh hoạt, chính xác.
 3. Luôn đưa ra câu trả lời ngắn gọn, súc tích, có gạch đầu dòng rõ ràng, kèm mẹo nấu ăn hữu ích.`;
 
+    const formattedHistory = history.slice(-6).map(h => ({
+      role: h.role,
+      parts: [{ text: h.text }]
+    }));
+
     const chat = ai.chats.create({
       model: 'gemini-3.7-flash',
       config: {
         systemInstruction: systemPrompt
-      }
+      },
+      history: formattedHistory
     });
-
-    // Send history context if available
-    for (const h of history.slice(-6)) {
-      if (h.role === 'user') {
-        // Just feed prompt
-      }
-    }
 
     const response = await chat.sendMessage({
       message
@@ -290,5 +289,93 @@ Nhiệm vụ của bạn:
   } catch (err) {
     console.error('Chatbot error:', err);
     return 'Xin lỗi bạn, kết nối AI đang tạm gián đoạn. Bạn vẫn có thể dùng công cụ gợi ý món ăn tự động từ danh sách nguyên liệu!';
+  }
+}
+
+/**
+ * MỚI: Phase 5 - Tự động sinh công thức nấu ăn dựa trên nguyên liệu
+ */
+export async function generateRecipeFromIngredients(ingredients: string[], userPreferences?: any): Promise<any> {
+  const ai = getAiClient();
+  if (!ai) {
+    // Trả về mock data nếu không có API Key
+    return {
+      name: "Trứng xào cà chua kiểu mới",
+      vietnameseName: "Trứng xào cà chua kiểu mới",
+      description: "Món ăn đơn giản, sinh tự động từ AI giả lập.",
+      cuisine: "Vietnamese",
+      category: "Món chính",
+      difficulty: "Easy",
+      totalTime: 15,
+      calories: 200,
+      ingredients: [
+        { name: "Trứng gà", quantity: 2, unit: "quả" },
+        { name: "Cà chua", quantity: 2, unit: "quả" }
+      ],
+      instructions: [
+        { stepNumber: 1, instruction: "Đánh trứng và thái cà chua." },
+        { stepNumber: 2, instruction: "Xào cà chua mềm, cho trứng vào xào chín." }
+      ]
+    };
+  }
+
+  try {
+    const response = await ai.models.generateContent({
+      model: 'gemini-3.7-flash',
+      contents: `Hãy đóng vai một siêu đầu bếp. 
+Dựa vào các nguyên liệu sau: [${ingredients.join(', ')}].
+Và sở thích của người dùng: ${JSON.stringify(userPreferences || {})}.
+
+Hãy sáng tạo ra 1 công thức món ăn mới cực kỳ hấp dẫn, dễ làm và ngon miệng.
+Chú ý: Bạn CÓ THỂ bổ sung thêm các loại gia vị cơ bản (muối, tiêu, đường, nước mắm, dầu ăn, tỏi, hành) nếu cần thiết.
+
+Hãy trả về dưới định dạng JSON với đầy đủ thông tin chi tiết.`,
+      config: {
+        responseMimeType: 'application/json',
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            name: { type: Type.STRING, description: "Tên món ăn (tiếng Việt)" },
+            vietnameseName: { type: Type.STRING },
+            description: { type: Type.STRING, description: "Mô tả hấp dẫn về món ăn" },
+            cuisine: { type: Type.STRING, description: "Vietnamese, Western, Asian, v.v." },
+            category: { type: Type.STRING, description: "Món chính, Ăn vặt, Canh..." },
+            difficulty: { type: Type.STRING, description: "Easy, Medium, Hard" },
+            totalTime: { type: Type.NUMBER, description: "Tổng thời gian nấu (phút)" },
+            calories: { type: Type.NUMBER, description: "Calo ước tính" },
+            ingredients: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  name: { type: Type.STRING },
+                  quantity: { type: Type.NUMBER },
+                  unit: { type: Type.STRING }
+                },
+                required: ["name", "quantity", "unit"]
+              }
+            },
+            instructions: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  stepNumber: { type: Type.NUMBER },
+                  instruction: { type: Type.STRING }
+                },
+                required: ["stepNumber", "instruction"]
+              }
+            }
+          },
+          required: ["name", "vietnameseName", "description", "cuisine", "category", "difficulty", "totalTime", "calories", "ingredients", "instructions"]
+        }
+      }
+    });
+
+    const parsed = JSON.parse(response.text || '{}');
+    return parsed;
+  } catch (err) {
+    console.error('Gemini Generate Recipe error:', err);
+    throw err;
   }
 }

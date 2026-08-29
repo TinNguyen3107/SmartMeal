@@ -24,7 +24,8 @@ import {
 import {
   extractIngredientsFromNL,
   detectIngredientsFromImage,
-  chatWithRecipeAssistant
+  chatWithRecipeAssistant,
+  generateRecipeFromIngredients
 } from './src/server/aiService';
 import {
   Ingredient,
@@ -694,6 +695,19 @@ async function startServer() {
       currentUser?.preferences
     );
     res.json({ reply });
+  });
+
+  app.post('/api/ai/generate-recipe', async (req, res) => {
+    const { ingredients = [], preferences = {} } = req.body;
+    if (!ingredients.length) return res.status(400).json({ message: 'Vui lòng cung cấp danh sách nguyên liệu' });
+
+    addLog('AI_GENERATE', `AI đang sáng tạo công thức từ: ${ingredients.join(', ')}`);
+    try {
+      const generatedRecipe = await generateRecipeFromIngredients(ingredients, preferences);
+      res.json({ success: true, recipe: generatedRecipe });
+    } catch (err) {
+      res.status(500).json({ success: false, message: 'Lỗi khi gọi AI sinh công thức.' });
+    }
   });
 
   // ==================== ADMIN & EVALUATION ROUTES (Section 17, 12.6, 13) ====================
