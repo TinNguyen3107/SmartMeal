@@ -177,7 +177,26 @@ async function startServer() {
       where: { email: (email || '').toLowerCase() }
     });
 
-    if (!user || !bcrypt.compareSync(password, user.password)) {
+    if (!user) {
+      return res.status(401).json({ message: 'Email hoặc mật khẩu không chính xác' });
+    }
+
+    // Hỗ trợ migrate user cũ (lưu plaintext) sang mã hóa bcrypt
+    let isValid = false;
+    if (user.password.startsWith('$2a$') || user.password.startsWith('$2b$')) {
+      isValid = bcrypt.compareSync(password, user.password);
+    } else {
+      isValid = (user.password === password);
+      if (isValid) {
+        // Tự động mã hóa lại mật khẩu cũ trên TiDB
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { password: bcrypt.hashSync(password, 10) }
+        });
+      }
+    }
+
+    if (!isValid) {
       return res.status(401).json({ message: 'Email hoặc mật khẩu không chính xác' });
     }
 
