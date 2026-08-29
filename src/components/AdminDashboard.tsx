@@ -62,12 +62,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
   // Engine Weights Tuner
   const [weights, setWeights] = useState<RecommendationWeightConfig>({
-    w_match: 0.55,
-    w_user: 0.15,
-    w_rating: 0.10,
-    w_popularity: 0.05,
-    w_time: 0.10,
-    w_difficulty: 0.05
+    ingredientMatch: 0.55,
+    userPreference: 0.15,
+    rating: 0.10,
+    popularity: 0.05,
+    cookingTime: 0.10,
+    difficulty: 0.05
   });
 
   const loadAdminData = async () => {
@@ -285,15 +285,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 <div>
                   <div className="flex justify-between text-zinc-700 mb-1 font-semibold">
                     <span>Trùng khớp:</span>
-                    <span className="font-bold text-emerald-950">{Math.round(weights.w_match * 100)}%</span>
+                    <span className="font-bold text-emerald-950">{Math.round((weights.ingredientMatch || 0) * 100)}%</span>
                   </div>
                   <input
                     type="range"
                     min="0.2"
                     max="0.8"
                     step="0.05"
-                    value={weights.w_match}
-                    onChange={e => setWeights(w => ({ ...w, w_match: parseFloat(e.target.value) }))}
+                    value={weights.ingredientMatch || 0}
+                    onChange={e => setWeights(w => ({ ...w, ingredientMatch: parseFloat(e.target.value) }))}
                     className="w-full accent-black"
                   />
                 </div>
@@ -301,15 +301,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 <div>
                   <div className="flex justify-between text-zinc-700 mb-1 font-semibold">
                     <span>Sở thích cá nhân:</span>
-                    <span className="font-bold text-emerald-950">{Math.round(weights.w_user * 100)}%</span>
+                    <span className="font-bold text-emerald-950">{Math.round((weights.userPreference || 0) * 100)}%</span>
                   </div>
                   <input
                     type="range"
                     min="0.05"
                     max="0.3"
                     step="0.05"
-                    value={weights.w_user}
-                    onChange={e => setWeights(w => ({ ...w, w_user: parseFloat(e.target.value) }))}
+                    value={weights.userPreference || 0}
+                    onChange={e => setWeights(w => ({ ...w, userPreference: parseFloat(e.target.value) }))}
                     className="w-full accent-black"
                   />
                 </div>
@@ -317,15 +317,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 <div>
                   <div className="flex justify-between text-zinc-700 mb-1 font-semibold">
                     <span>Tối ưu thời gian:</span>
-                    <span className="font-bold text-emerald-950">{Math.round(weights.w_time * 100)}%</span>
+                    <span className="font-bold text-emerald-950">{Math.round((weights.cookingTime || 0) * 100)}%</span>
                   </div>
                   <input
                     type="range"
                     min="0.05"
                     max="0.2"
                     step="0.05"
-                    value={weights.w_time}
-                    onChange={e => setWeights(w => ({ ...w, w_time: parseFloat(e.target.value) }))}
+                    value={weights.cookingTime || 0}
+                    onChange={e => setWeights(w => ({ ...w, cookingTime: parseFloat(e.target.value) }))}
                     className="w-full accent-black"
                   />
                 </div>
@@ -374,8 +374,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 </thead>
                 <tbody className="divide-y divide-zinc-100 text-zinc-800">
                   {testCases.map(tc => (
-                    <tr key={tc.testId} className="hover:bg-zinc-50">
-                      <td className="py-3 px-3 font-mono font-bold text-emerald-950">{tc.testId}</td>
+                    <tr key={tc.id} className="hover:bg-zinc-50">
+                      <td className="py-3 px-3 font-mono font-bold text-emerald-950">{tc.id}</td>
                       <td className="py-3 px-3">{tc.description}</td>
                       <td className="py-3 px-3">
                         <div className="flex flex-wrap gap-1">
@@ -386,8 +386,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           ))}
                         </div>
                       </td>
-                      <td className="py-3 px-3 font-medium text-zinc-600">{tc.expectedRecipeNames.join(', ')}</td>
-                      <td className="py-3 px-3 font-medium text-emerald-950">{tc.returnedTopRecipes[0]?.name || 'N/A'}</td>
+                      <td className="py-3 px-3 font-medium text-zinc-600">{tc.expectedOutcome}</td>
+                      <td className="py-3 px-3 font-medium text-emerald-950">{tc.actualTopResult || 'N/A'}</td>
                       <td className="py-3 px-3 text-center">
                         {tc.passed ? (
                           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-zinc-100 text-emerald-950 font-bold text-[10px] uppercase">
