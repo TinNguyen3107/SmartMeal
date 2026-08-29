@@ -492,6 +492,39 @@ async function startServer() {
   app.post('/api/recipes', async (req, res) => {
     const body = req.body;
 
+    // Đảm bảo tất cả nguyên liệu đã tồn tại trong bảng Ingredient trước khi tạo Recipe
+    const resolvedIngredients = [];
+    for (const ing of body.ingredients || []) {
+      const normName = ing.normalizedName || ing.name.toUpperCase().replace(/\s+/g, '_');
+      let dbIng = await prisma.ingredient.findUnique({ where: { normalizedName: normName } });
+      
+      if (!dbIng) {
+        dbIng = await prisma.ingredient.create({
+          data: {
+            name: ing.name,
+            normalizedName: normName,
+            category: 'Other',
+            categoryNameVi: 'Khác',
+            defaultUnit: ing.unit || 'phần'
+          }
+        });
+        dbIngredients.push({
+          ...dbIng,
+          category: dbIng.category as any,
+          aliases: []
+        }); // Đồng bộ vào RAM
+      }
+      
+      resolvedIngredients.push({
+        ingredientId: dbIng.id,
+        name: ing.name,
+        normalizedName: normName,
+        quantity: ing.quantity || 1,
+        unit: ing.unit || 'phần',
+        isOptional: ing.isOptional || false
+      });
+    }
+
     // Lưu Recipe vào TiDB
     const created = await prisma.recipe.create({
       data: {
@@ -508,14 +541,7 @@ async function startServer() {
         reviewCount: 1,
         popularityScore: 80,
         ingredients: {
-          create: (body.ingredients || []).map((ing: any) => ({
-            ingredientId: ing.ingredientId || `ing-${Date.now()}-${Math.random().toString(36).substr(2,4)}`,
-            name: ing.name,
-            normalizedName: ing.normalizedName || ing.name.toUpperCase().replace(/\s+/g, '_'),
-            quantity: ing.quantity || 1,
-            unit: ing.unit || 'phần',
-            isOptional: ing.isOptional || false
-          }))
+          create: resolvedIngredients
         }
       },
       include: { ingredients: true }
