@@ -47,7 +47,7 @@ export async function extractIngredientsFromNL(prompt: string): Promise<Extracte
 
   try {
     const response = await ai.models.generateContent({
-      model: 'gemini-3.7-flash',
+      model: 'gemini-2.5-flash',
       contents: `You are a culinary AI NLP parser. Extract all cooking ingredients and user constraints from this Vietnamese/English text: "${prompt}".
 
 Rules:
@@ -183,7 +183,7 @@ export async function detectIngredientsFromImage(base64Image: string, mimeType: 
     const cleanBase64 = base64Image.replace(/^data:image\/\w+;base64,/, '');
 
     const response = await ai.models.generateContent({
-      model: 'gemini-3.7-flash',
+      model: 'gemini-2.5-flash',
       contents: {
         parts: [
           {
@@ -274,7 +274,7 @@ Nhiệm vụ của bạn:
     }));
 
     const chat = ai.chats.create({
-      model: 'gemini-3.7-flash',
+      model: 'gemini-2.5-flash',
       config: {
         systemInstruction: systemPrompt
       },
@@ -303,7 +303,7 @@ export async function generateRecipeFromIngredients(ingredients: string[], userP
 
   try {
     const response = await ai.models.generateContent({
-      model: 'gemini-3.7-flash',
+      model: 'gemini-2.5-flash',
       contents: `Hãy đóng vai một siêu đầu bếp. 
 Dựa vào các nguyên liệu sau: [${ingredients.join(', ')}].
 Và sở thích của người dùng: ${JSON.stringify(userPreferences || {})}.
