@@ -238,19 +238,24 @@ export const PantryManager: React.FC<PantryManagerProps> = ({
               {filteredItems.map(item => {
                 const getEmoji = (name: string) => {
                   const n = name.toLowerCase();
-                  if (n.includes('bò')) return '🥩';
-                  if (n.includes('gà') || n.includes('vịt')) return '🍗';
-                  if (n.includes('cá') || n.includes('tôm') || n.includes('mực')) return '🐟';
                   if (n.includes('trứng')) return '🥚';
                   if (n.includes('sữa')) return '🥛';
+                  if (n.includes('nước lọc') || n.includes('nước mắm') || n.includes('dầu ăn')) return '💧';
+                  if (n.includes('bò')) return '🥩';
+                  if (n.includes('gà') || n.includes('vịt')) return '🍗';
+                  if (n.includes('heo') || n.includes('lợn') || n.includes('thịt')) return '🍖';
+                  if (n.includes('cá') || n.includes('tôm') || n.includes('mực') || n.includes('cua') || n.includes('hải sản')) return '🐟';
                   if (n.includes('cà chua')) return '🍅';
                   if (n.includes('khoai')) return '🥔';
                   if (n.includes('hành') || n.includes('tỏi')) return '🧅';
-                  if (n.includes('rau') || n.includes('xà lách')) return '🥬';
+                  if (n.includes('rau') || n.includes('xà lách') || n.includes('cải')) return '🥬';
                   if (n.includes('gạo') || n.includes('cơm')) return '🍚';
                   if (n.includes('mì') || n.includes('phở') || n.includes('bún')) return '🍜';
-                  if (n.includes('đường') || n.includes('muối') || n.includes('tiêu')) return '🧂';
+                  if (n.includes('đường') || n.includes('muối') || n.includes('tiêu') || n.includes('gia vị')) return '🧂';
                   if (n.includes('nấm')) return '🍄';
+                  if (n.includes('đậu') || n.includes('đỗ')) return '🥜';
+                  if (n.includes('chanh') || n.includes('quất')) return '🍋';
+                  if (n.includes('ớt')) return '🌶️';
                   return '🥦';
                 };
 
