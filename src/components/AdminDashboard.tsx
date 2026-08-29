@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { RecipeFormModal } from './RecipeFormModal';
 import {
   ShieldCheck,
   BarChart3,
@@ -49,6 +50,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   onRefreshData
 }) => {
   const [activeTab, setActiveTab] = useState<'evaluation' | 'recipes' | 'ingredients' | 'logs'>('evaluation');
+  const [showRecipeModal, setShowRecipeModal] = useState(false);
 
   // Evaluation state
   const [kValue, setKValue] = useState<number>(5);
@@ -457,55 +459,30 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               </button>
 
               <button
-                onClick={() => {
-                  const name = prompt('Nhập tên món ăn mới (VD: Trứng chiên):');
-                  if (!name) return;
-                  const ings = prompt('Nhập các nguyên liệu chính, cách nhau dấu phẩy (VD: Trứng gà, Hành lá):');
-                  if (!ings) return;
-                  
-                  const newRecipe = {
-                    name,
-                    vietnameseName: name,
-                    description: 'Công thức mới được thêm từ Admin',
-                    image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&auto=format&fit=crop&q=80',
-                    cuisine: 'Vietnamese',
-                    category: 'Món chính',
-                    dietaryTags: ['Vietnamese'],
-                    difficulty: 'Easy',
-                    preparationTime: 5,
-                    cookingTime: 10,
-                    totalTime: 15,
-                    calories: 250,
-                    servings: 2,
-                    ingredients: ings.split(',').map(i => ({
-                      ingredientId: 'ing-' + Date.now(),
-                      name: i.trim(),
-                      normalizedName: i.trim().toUpperCase().replace(/\s+/g, '_'),
-                      quantity: 1,
-                      unit: 'phần'
-                    })),
-                    instructions: [
-                      { stepNumber: 1, instruction: 'Chuẩn bị nguyên liệu.' },
-                      { stepNumber: 2, instruction: 'Nấu chín và thưởng thức.' }
-                    ]
-                  };
-
-                  fetch('/api/recipes', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(newRecipe)
-                  }).then(() => {
-                    onRefreshData();
-                    loadAdminData();
-                  });
-                }}
+                onClick={() => setShowRecipeModal(true)}
                 className="px-4 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 text-xs font-bold rounded-lg flex items-center gap-2 border border-zinc-200"
               >
                 <Plus className="w-4 h-4" />
-                Tạo Mock Data
+                Tạo thủ công
               </button>
             </div>
           </div>
+
+          {showRecipeModal && (
+            <RecipeFormModal
+              onClose={() => setShowRecipeModal(false)}
+              onSubmit={async (newRecipe) => {
+                await fetch('/api/recipes', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(newRecipe)
+                });
+                onRefreshData();
+                loadAdminData();
+                setShowRecipeModal(false);
+              }}
+            />
+          )}
 
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
