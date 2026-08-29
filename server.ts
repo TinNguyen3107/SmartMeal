@@ -579,8 +579,8 @@ async function startServer() {
     const idx = dbRecipes.findIndex(r => r.id === req.params.id);
     if (idx === -1) return res.status(404).json({ message: 'Không tìm thấy công thức' });
 
-    // Update in TiDB
-    const updated = await prisma.recipe.update({
+    // Update in TiDB (ignore if not in db e.g., mock data)
+    await prisma.recipe.update({
       where: { id: req.params.id },
       data: {
         name: req.body.name,
@@ -590,7 +590,7 @@ async function startServer() {
         totalTime: req.body.totalTime,
         calories: req.body.calories
       }
-    });
+    }).catch(() => {});
 
     // Sync to RAM
     dbRecipes[idx] = { ...dbRecipes[idx], ...req.body, updatedAt: new Date().toISOString() };
@@ -688,7 +688,7 @@ async function startServer() {
     let isFav = false;
     if (existing) {
       await prisma.favorite.delete({
-        where: { userId_recipeId: { userId, recipeId } }
+        where: { id: existing.id }
       });
     } else {
       await prisma.favorite.create({
