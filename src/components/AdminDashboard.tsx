@@ -495,6 +495,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <th className="pb-3 px-3">Độ khó</th>
                   <th className="pb-3 px-3">Đánh giá</th>
                   <th className="pb-3 px-3">Nguyên liệu</th>
+                  <th className="pb-3 px-3 text-right">Thao tác</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-100 text-zinc-800">
@@ -521,6 +522,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     <td className="py-3 px-3 font-medium">{r.difficulty}</td>
                     <td className="py-3 px-3 text-emerald-950 font-bold">★ {r.rating} ({r.reviewCount})</td>
                     <td className="py-3 px-3 font-mono font-medium">{r.ingredients.length} món</td>
+                    <td className="py-3 px-3 text-right">
+                      <button
+                        onClick={async () => {
+                          if (confirm(`Bạn có chắc muốn xóa món "${r.name}"?`)) {
+                            await fetch(`/api/recipes/${r.id}`, { method: 'DELETE' });
+                            onRefreshData();
+                            loadAdminData();
+                          }
+                        }}
+                        className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>

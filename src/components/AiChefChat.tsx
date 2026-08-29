@@ -7,7 +7,8 @@ import {
   RefreshCw,
   Lightbulb,
   ChefHat,
-  Refrigerator
+  Refrigerator,
+  Trash2
 } from 'lucide-react';
 import { UserIngredient } from '../types';
 
@@ -24,14 +25,28 @@ interface ChatMessage {
 }
 
 export const AiChefChat: React.FC<AiChefChatProps> = ({ pantryItems }) => {
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: 'msg-welcome',
-      role: 'model',
-      text: `Xin chào! Tôi là trợ lý nấu ăn của SmartMeal.\nTủ lạnh của bạn đang có: **${pantryItems.map(p => p.name).join(', ') || 'Trứng gà, Cà chua, Hành lá'}**.\n\nBạn muốn tôi gợi ý món ăn, hướng dẫn nêm nếm hay tìm cách thay thế nguyên liệu nào?`,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  const defaultWelcomeMsg: ChatMessage = {
+    id: 'msg-welcome',
+    role: 'model',
+    text: `Xin chào! Tôi là trợ lý nấu ăn của SmartMeal.\nTủ lạnh của bạn đang có: **${pantryItems.map(p => p.name).join(', ') || 'Trứng gà, Cà chua, Hành lá'}**.\n\nBạn muốn tôi gợi ý món ăn, hướng dẫn nêm nếm hay tìm cách thay thế nguyên liệu nào?`,
+    timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  };
+
+  const [messages, setMessages] = useState<ChatMessage[]>(() => {
+    const saved = localStorage.getItem('ai_chef_chat_history');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        return [defaultWelcomeMsg];
+      }
     }
-  ]);
+    return [defaultWelcomeMsg];
+  });
+
+  useEffect(() => {
+    localStorage.setItem('ai_chef_chat_history', JSON.stringify(messages));
+  }, [messages]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -239,6 +254,19 @@ export const AiChefChat: React.FC<AiChefChatProps> = ({ pantryItems }) => {
           >
             <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
             Sinh công thức tự động (AI)
+          </button>
+          
+          <button
+            disabled={isLoading}
+            onClick={() => {
+              if (confirm('Bạn có chắc muốn xóa lịch sử trò chuyện không?')) {
+                setMessages([defaultWelcomeMsg]);
+              }
+            }}
+            className="text-[11px] px-3 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 whitespace-nowrap transition-colors flex items-center gap-1.5 font-bold shadow-sm"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+            Xóa lịch sử
           </button>
           
           {samplePrompts.map((prompt, idx) => (

@@ -196,7 +196,7 @@ export const PantryManager: React.FC<PantryManagerProps> = ({
           {/* Filter Bar */}
           <div className="bg-white border border-zinc-200 rounded-2xl p-5 card-shadow flex flex-col sm:flex-row gap-3 items-center justify-between">
             {/* Category tabs */}
-            <div className="flex gap-1.5 flex-wrap w-full sm:w-auto pb-1 sm:pb-0">
+            <div className="flex gap-1.5 overflow-x-auto w-full sm:w-auto pb-2 scrollbar-none">
               {categories.map(cat => (
                 <button
                   key={cat.id}
@@ -240,7 +240,7 @@ export const PantryManager: React.FC<PantryManagerProps> = ({
                   const n = name.toLowerCase();
                   if (n.includes('trứng')) return '🥚';
                   if (n.includes('sữa')) return '🥛';
-                  if (n.includes('nước lọc') || n.includes('nước mắm') || n.includes('dầu ăn')) return '💧';
+                  if (n.includes('nước') || n.includes('dầu ăn')) return '💧';
                   if (n.includes('bò')) return '🥩';
                   if (n.includes('gà') || n.includes('vịt')) return '🍗';
                   if (n.includes('heo') || n.includes('lợn') || n.includes('thịt')) return '🍖';

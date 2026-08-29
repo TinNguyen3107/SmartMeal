@@ -121,7 +121,7 @@ async function startServer() {
     }
 
     // 3. Load Recipes từ TiDB vào RAM (kèm nguyên liệu)
-    const dbRecs = await prisma.recipe.findMany({ include: { ingredients: true } });
+    const dbRecs = await prisma.recipe.findMany({ include: { ingredients: true, instructions: true } });
     if (dbRecs.length > 0) {
       dbRecipes = dbRecs.map(r => ({
         id: r.id,
@@ -149,7 +149,10 @@ async function startServer() {
           unit: i.unit,
           isOptional: i.isOptional
         })),
-        instructions: [
+        instructions: (r.instructions && r.instructions.length > 0) ? r.instructions.map(ins => ({
+          stepNumber: ins.stepNumber,
+          instruction: ins.instruction
+        })) : [
           { stepNumber: 1, instruction: 'Chuẩn bị nguyên liệu.' },
           { stepNumber: 2, instruction: 'Chế biến và thưởng thức.' }
         ],
@@ -555,15 +558,23 @@ async function startServer() {
         popularityScore: 80,
         ingredients: {
           create: resolvedIngredients
+        },
+        instructions: {
+          create: (body.instructions || []).map((ins: any, idx: number) => ({
+            stepNumber: ins.stepNumber || idx + 1,
+            instruction: ins.instruction
+          }))
         }
       },
-      include: { ingredients: true }
+      include: { ingredients: true, instructions: true }
     });
 
     // Đồng bộ vào RAM
     const newRecipe: Recipe = {
       ...body,
       id: created.id,
+      ingredients: created.ingredients,
+      instructions: created.instructions,
       rating: 5.0,
       reviewCount: 1,
       popularityScore: 80,

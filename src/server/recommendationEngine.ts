@@ -63,7 +63,11 @@ export function normalizeIngredient(
 
   // 2. Partial substring matching
   for (const ing of ingredientsList) {
-    for (const alias of ing.aliases) {
+    const cleanMainName = sanitizeString(ing.name);
+    if (cleanMainName.includes(cleanInput) || cleanInput.includes(cleanMainName)) {
+      return { normalizedName: ing.normalizedName, canonicalIngredient: ing };
+    }
+    for (const alias of (ing.aliases || [])) {
       const cleanAlias = sanitizeString(alias);
       if (cleanInput.includes(cleanAlias) || cleanAlias.includes(cleanInput)) {
         return { normalizedName: ing.normalizedName, canonicalIngredient: ing };
