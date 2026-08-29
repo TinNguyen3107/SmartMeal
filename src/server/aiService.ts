@@ -379,3 +379,36 @@ Hãy trả về dưới định dạng JSON với đầy đủ thông tin chi ti
     throw err;
   }
 }
+
+export async function generateWeeklyMealPlan(preferences: string) {
+  try {
+    const prompt = `Bạn là một chuyên gia dinh dưỡng. Hãy lập một thực đơn 7 ngày hợp lý dựa trên sở thích: ${preferences}.
+    Trả về định dạng JSON nghiêm ngặt gồm 7 ngày (Thứ 2 đến Chủ Nhật), mỗi ngày có 3 bữa (breakfast, lunch, dinner).`;
+    
+    const response = await model.generateContent({
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+      generationConfig: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            "Thứ 2": { type: Type.OBJECT, properties: { breakfast: { type: Type.STRING }, lunch: { type: Type.STRING }, dinner: { type: Type.STRING } }, required: ["breakfast", "lunch", "dinner"] },
+            "Thứ 3": { type: Type.OBJECT, properties: { breakfast: { type: Type.STRING }, lunch: { type: Type.STRING }, dinner: { type: Type.STRING } }, required: ["breakfast", "lunch", "dinner"] },
+            "Thứ 4": { type: Type.OBJECT, properties: { breakfast: { type: Type.STRING }, lunch: { type: Type.STRING }, dinner: { type: Type.STRING } }, required: ["breakfast", "lunch", "dinner"] },
+            "Thứ 5": { type: Type.OBJECT, properties: { breakfast: { type: Type.STRING }, lunch: { type: Type.STRING }, dinner: { type: Type.STRING } }, required: ["breakfast", "lunch", "dinner"] },
+            "Thứ 6": { type: Type.OBJECT, properties: { breakfast: { type: Type.STRING }, lunch: { type: Type.STRING }, dinner: { type: Type.STRING } }, required: ["breakfast", "lunch", "dinner"] },
+            "Thứ 7": { type: Type.OBJECT, properties: { breakfast: { type: Type.STRING }, lunch: { type: Type.STRING }, dinner: { type: Type.STRING } }, required: ["breakfast", "lunch", "dinner"] },
+            "Chủ Nhật": { type: Type.OBJECT, properties: { breakfast: { type: Type.STRING }, lunch: { type: Type.STRING }, dinner: { type: Type.STRING } }, required: ["breakfast", "lunch", "dinner"] }
+          },
+          required: ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ Nhật"]
+        }
+      }
+    });
+
+    return JSON.parse(response.text || '{}');
+  } catch (err) {
+    console.error('Gemini Weekly Plan error:', err);
+    throw err;
+  }
+}
+

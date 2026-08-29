@@ -56,7 +56,11 @@ export const PantryManager: React.FC<PantryManagerProps> = ({
   };
 
   const filteredItems = pantryItems.filter(item => {
-    const matchCat = selectedCategory === 'All' || item.category === selectedCategory;
+    // Tìm category từ allIngredients (vì UserIngredient không lưu category trực tiếp)
+    const originalIng = allIngredients.find(i => i.id === item.ingredientId);
+    const itemCategory = originalIng ? originalIng.category : 'Other';
+
+    const matchCat = selectedCategory === 'All' || itemCategory === selectedCategory;
     const matchQuery = !searchQuery || item.name.toLowerCase().includes(searchQuery.toLowerCase());
     return matchCat && matchQuery;
   });
@@ -192,7 +196,7 @@ export const PantryManager: React.FC<PantryManagerProps> = ({
           {/* Filter Bar */}
           <div className="bg-white border border-zinc-200 rounded-2xl p-5 card-shadow flex flex-col sm:flex-row gap-3 items-center justify-between">
             {/* Category tabs */}
-            <div className="flex gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0 scrollbar-none">
+            <div className="flex gap-1.5 flex-wrap w-full sm:w-auto pb-1 sm:pb-0">
               {categories.map(cat => (
                 <button
                   key={cat.id}
@@ -231,22 +235,41 @@ export const PantryManager: React.FC<PantryManagerProps> = ({
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {filteredItems.map(item => (
-                <div
-                  key={item.id}
-                  className="bg-white border border-zinc-200 hover:border-zinc-300 rounded-xl p-4 card-shadow flex items-center justify-between group transition-all"
-                >
-                  <div className="flex items-center gap-3 truncate">
-                    <div className="w-10 h-10 rounded-lg bg-zinc-100 text-zinc-600 flex items-center justify-center text-xs font-bold uppercase shrink-0">
-                      {item.name.charAt(0)}
+              {filteredItems.map(item => {
+                const getEmoji = (name: string) => {
+                  const n = name.toLowerCase();
+                  if (n.includes('bò')) return '🥩';
+                  if (n.includes('gà') || n.includes('vịt')) return '🍗';
+                  if (n.includes('cá') || n.includes('tôm') || n.includes('mực')) return '🐟';
+                  if (n.includes('trứng')) return '🥚';
+                  if (n.includes('sữa')) return '🥛';
+                  if (n.includes('cà chua')) return '🍅';
+                  if (n.includes('khoai')) return '🥔';
+                  if (n.includes('hành') || n.includes('tỏi')) return '🧅';
+                  if (n.includes('rau') || n.includes('xà lách')) return '🥬';
+                  if (n.includes('gạo') || n.includes('cơm')) return '🍚';
+                  if (n.includes('mì') || n.includes('phở') || n.includes('bún')) return '🍜';
+                  if (n.includes('đường') || n.includes('muối') || n.includes('tiêu')) return '🧂';
+                  if (n.includes('nấm')) return '🍄';
+                  return '🥦';
+                };
+
+                return (
+                  <div
+                    key={item.id}
+                    className="bg-white border border-zinc-200 hover:border-zinc-300 rounded-xl p-4 card-shadow flex items-center justify-between group transition-all"
+                  >
+                    <div className="flex items-center gap-3 truncate">
+                      <div className="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center text-lg shadow-sm shrink-0">
+                        {getEmoji(item.name)}
+                      </div>
+                      <div className="truncate">
+                        <h4 className="text-xs font-bold text-emerald-950 truncate leading-tight">{item.name}</h4>
+                        <p className="text-[11px] text-emerald-900/60 font-medium mt-0.5">
+                          {item.quantity} {item.unit}
+                        </p>
+                      </div>
                     </div>
-                    <div className="truncate">
-                      <h4 className="text-xs font-bold text-emerald-950 truncate leading-tight">{item.name}</h4>
-                      <p className="text-[11px] text-emerald-900/60 font-medium mt-0.5">
-                        {item.quantity} {item.unit}
-                      </p>
-                    </div>
-                  </div>
 
                   <button
                     onClick={() => onRemovePantryItem(item.id)}

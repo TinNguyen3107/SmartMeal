@@ -25,7 +25,8 @@ import {
   extractIngredientsFromNL,
   detectIngredientsFromImage,
   chatWithRecipeAssistant,
-  generateRecipeFromIngredients
+  generateRecipeFromIngredients,
+  generateWeeklyMealPlan
 } from './src/server/aiService';
 import {
   Ingredient,
@@ -389,15 +390,27 @@ async function startServer() {
       ingredientId = newIng.id;
     }
     
-    const created = await prisma.userIngredient.create({
-      data: {
-        userId,
-        ingredientId: ingredientId,
-        name: norm.canonicalIngredient?.name || name,
-        quantity: Number(quantity) || 1,
-        unit: unit || norm.canonicalIngredient?.defaultUnit || 'phần'
-      }
+    let created;
+    const existingUserIng = await prisma.userIngredient.findFirst({
+      where: { userId, ingredientId }
     });
+
+    if (existingUserIng) {
+      created = await prisma.userIngredient.update({
+        where: { id: existingUserIng.id },
+        data: { quantity: existingUserIng.quantity + (Number(quantity) || 1) }
+      });
+    } else {
+      created = await prisma.userIngredient.create({
+        data: {
+          userId,
+          ingredientId: ingredientId,
+          name: norm.canonicalIngredient?.name || name,
+          quantity: Number(quantity) || 1,
+          unit: unit || norm.canonicalIngredient?.defaultUnit || 'phần'
+        }
+      });
+    }
 
     addLog('SEARCH', `Thêm vào tủ lạnh: ${created.name} (${created.quantity} ${created.unit})`);
     
@@ -772,6 +785,17 @@ async function startServer() {
       res.json({ success: true, recipe: generatedRecipe });
     } catch (err) {
       res.status(500).json({ success: false, message: 'Lỗi khi gọi AI sinh công thức.' });
+    }
+  });
+
+  app.post('/api/ai/generate-meal-plan', async (req, res) => {
+    addLog('AI_GENERATE', `AI đang thiết kế thực đơn 7 ngày`);
+    try {
+      const preferences = req.body.preferences || 'Ăn uống lành mạnh, đủ chất';
+      const plan = await generateWeeklyMealPlan(preferences);
+      res.json({ success: true, plan });
+    } catch (err) {
+      res.status(500).json({ success: false, message: 'Lỗi khi gọi AI sinh thực đơn.' });
     }
   });
 

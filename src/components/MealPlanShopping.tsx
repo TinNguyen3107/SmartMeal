@@ -63,6 +63,30 @@ export const MealPlanShopping: React.FC<MealPlanShoppingProps> = ({
     setCustomQty(1);
   };
 
+  const [isGeneratingPlan, setIsGeneratingPlan] = useState(false);
+
+  const generateMealPlanAI = async () => {
+    setIsGeneratingPlan(true);
+    try {
+      const prefs = prompt('Nhập sở thích hoặc chế độ ăn kiêng (VD: Ăn Keto giảm cân, hoặc Ăn chay):') || 'Lành mạnh';
+      const res = await fetch('/api/ai/generate-meal-plan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ preferences: prefs })
+      });
+      const data = await res.json();
+      if (data.success && data.plan) {
+        setMealPlan(data.plan);
+      } else {
+        alert('Có lỗi khi tạo thực đơn.');
+      }
+    } catch (e) {
+      alert('Lỗi kết nối AI.');
+    } finally {
+      setIsGeneratingPlan(false);
+    }
+  };
+
   const handleCopyShoppingList = () => {
     const text = shoppingList
       .map(item => `${item.isBought ? '[x]' : '[ ]'} ${item.name}: ${item.quantity} ${item.unit} ${item.recipeName ? `(cho món ${item.recipeName})` : ''}`)
@@ -261,13 +285,23 @@ export const MealPlanShopping: React.FC<MealPlanShoppingProps> = ({
         </div>
       ) : (
         /* 7-DAY MEAL PLANNER VIEW */
+        /* 7-DAY MEAL PLANNER VIEW */
         <div className="bg-white border border-zinc-200 rounded-2xl p-8 card-shadow space-y-6">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <h3 className="text-base font-bold text-emerald-950 flex items-center gap-2">
               <Utensils className="w-5 h-5 text-emerald-900/60" />
               Lịch trình ăn uống tuần này
             </h3>
-            <span className="text-xs text-emerald-900/60 bg-zinc-100 px-3 py-1 rounded-md font-medium">Gợi ý dinh dưỡng cân bằng</span>
+            <div className="flex gap-2">
+              <span className="text-xs text-emerald-900/60 bg-zinc-100 px-3 py-2 rounded-lg font-medium">Gợi ý dinh dưỡng</span>
+              <button
+                onClick={generateMealPlanAI}
+                disabled={isGeneratingPlan}
+                className="px-4 py-2 bg-emerald-100 text-emerald-800 hover:bg-emerald-200 text-xs font-bold rounded-lg transition-colors border border-emerald-200 flex items-center gap-2"
+              >
+                {isGeneratingPlan ? 'Đang suy nghĩ...' : '✨ Thiết kế bằng AI'}
+              </button>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-3.5">
