@@ -1,6 +1,7 @@
 import express from 'express';
 import path from 'path';
 import dotenv from 'dotenv';
+import bcrypt from 'bcryptjs';
 dotenv.config(); // Load .env TRƯỚC khi dùng process.env
 
 import { createServer as createViteServer } from 'vite';
@@ -92,13 +93,13 @@ async function startServer() {
     const adminExists = await prisma.user.findUnique({ where: { email: 'admin@gmail.com' } });
     if (!adminExists) {
       await prisma.user.create({
-        data: { email: 'admin@gmail.com', password: 'admin123', name: 'Admin', role: 'admin', avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=Admin' }
+        data: { email: 'admin@gmail.com', password: bcrypt.hashSync('admin123', 10), name: 'Admin', role: 'admin', avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=Admin' }
       });
     }
     const userExists = await prisma.user.findUnique({ where: { email: 'user@gmail.com' } });
     if (!userExists) {
       await prisma.user.create({
-        data: { email: 'user@gmail.com', password: 'user123', name: 'User', role: 'user', avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=User' }
+        data: { email: 'user@gmail.com', password: bcrypt.hashSync('user123', 10), name: 'User', role: 'user', avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=User' }
       });
     }
 
@@ -175,7 +176,7 @@ async function startServer() {
       where: { email: (email || '').toLowerCase() }
     });
 
-    if (!user || user.password !== password) {
+    if (!user || !bcrypt.compareSync(password, user.password)) {
       return res.status(401).json({ message: 'Email hoặc mật khẩu không chính xác' });
     }
 
@@ -219,11 +220,14 @@ async function startServer() {
       return res.status(400).json({ message: 'Email đã tồn tại trên hệ thống' });
     }
 
+    // Mã hóa mật khẩu
+    const hashedPassword = bcrypt.hashSync(password, 10);
+
     // Tạo user mới trên TiDB
     const created = await prisma.user.create({
       data: {
         email: email.toLowerCase(),
-        password,
+        password: hashedPassword,
         name,
         avatar: `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(name)}`,
         role: 'user'
@@ -331,42 +335,66 @@ async function startServer() {
     res.json({ success: true });
   });
 
-  // ==================== USER PANTRY / MY INGREDIENTS ====================
-  app.get('/api/user/pantry', (req, res) => {
-    const userId = currentUser?.id || 'guest';
-    const items = dbPantry[userId] || [];
+  app.get('/api/user/pantry', async (req, res) => {
+    const userId = currentUser?.id;
+    if (!userId) return res.json({ items: [] });
+
+    const items = await prisma.userIngredient.findMany({
+      where: { userId }
+    });
     res.json({ items });
   });
 
-  app.post('/api/user/pantry', (req, res) => {
-    const userId = currentUser?.id || 'guest';
+  app.post('/api/user/pantry', async (req, res) => {
+    const userId = currentUser?.id;
+    if (!userId) return res.status(401).json({ message: 'Vui lòng đăng nhập' });
+
     const { name, quantity, unit, category } = req.body;
     if (!name) return res.status(400).json({ message: 'Vui lòng nhập tên nguyên liệu' });
 
     const norm = normalizeIngredient(name, dbIngredients);
-    const newItem: UserIngredient = {
-      id: `pantry-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
-      ingredientId: norm.canonicalIngredient?.id || `custom-${Date.now()}`,
-      name: norm.canonicalIngredient?.name || name,
-      normalizedName: norm.normalizedName,
-      category: norm.canonicalIngredient?.category || category || 'Other',
-      quantity: Number(quantity) || 1,
-      unit: unit || norm.canonicalIngredient?.defaultUnit || 'phần',
-      addedAt: new Date().toISOString()
-    };
+    
+    // Đảm bảo Ingredient id tồn tại trong TiDB hoặc tạo mới nếu chưa có
+    let ingredientId = norm.canonicalIngredient?.id;
+    if (!ingredientId) {
+      const newIng = await prisma.ingredient.create({
+        data: {
+          name: name,
+          normalizedName: norm.normalizedName,
+          category: category || 'Other',
+          categoryNameVi: category || 'Khác',
+          defaultUnit: unit || 'phần'
+        }
+      });
+      ingredientId = newIng.id;
+    }
+    
+    const created = await prisma.userIngredient.create({
+      data: {
+        userId,
+        ingredientId: ingredientId,
+        name: norm.canonicalIngredient?.name || name,
+        quantity: Number(quantity) || 1,
+        unit: unit || norm.canonicalIngredient?.defaultUnit || 'phần'
+      }
+    });
 
-    if (!dbPantry[userId]) dbPantry[userId] = [];
-    dbPantry[userId].push(newItem);
-    addLog('SEARCH', `Thêm vào tủ lạnh: ${newItem.name} (${newItem.quantity} ${newItem.unit})`);
-    res.json({ success: true, item: newItem, items: dbPantry[userId] });
+    addLog('SEARCH', `Thêm vào tủ lạnh: ${created.name} (${created.quantity} ${created.unit})`);
+    
+    const items = await prisma.userIngredient.findMany({ where: { userId } });
+    res.json({ success: true, item: created, items });
   });
 
-  app.delete('/api/user/pantry/:id', (req, res) => {
-    const userId = currentUser?.id || 'guest';
-    if (dbPantry[userId]) {
-      dbPantry[userId] = dbPantry[userId].filter(i => i.id !== req.params.id);
-    }
-    res.json({ success: true, items: dbPantry[userId] || [] });
+  app.delete('/api/user/pantry/:id', async (req, res) => {
+    const userId = currentUser?.id;
+    if (!userId) return res.status(401).json({ message: 'Vui lòng đăng nhập' });
+
+    await prisma.userIngredient.deleteMany({
+      where: { id: req.params.id, userId }
+    });
+
+    const items = await prisma.userIngredient.findMany({ where: { userId } });
+    res.json({ success: true, items });
   });
 
   // ==================== USER HISTORY (FR-15) ====================
@@ -426,8 +454,19 @@ async function startServer() {
     }
 
     addLog('RECIPE_VIEW', `Xem chi tiết món: ${recipe.name}`);
-    const reviews = dbReviews.filter(rev => rev.recipeId === recipe.id);
-    res.json({ recipe, reviews });
+    const reviews = await prisma.review.findMany({
+      where: { recipeId: recipe.id },
+      orderBy: { createdAt: 'desc' }
+    });
+    
+    // Map format
+    const formattedReviews = reviews.map(r => ({
+      ...r,
+      userName: r.userId === currentUser?.id ? currentUser.name : 'Người dùng Ẩn danh',
+      date: r.createdAt.toISOString().split('T')[0]
+    }));
+    
+    res.json({ recipe, reviews: formattedReviews });
   });
 
   app.post('/api/recipes', async (req, res) => {
@@ -543,52 +582,88 @@ async function startServer() {
   });
 
   // Favorites (FR-17)
-  app.get('/api/user/favorites', (req, res) => {
-    const userId = currentUser?.id || 'guest';
-    const favIds = dbFavorites[userId] || [];
-    const favorites = dbRecipes.filter(r => favIds.includes(r.id));
-    res.json({ favorites, favoriteIds: favIds });
+  app.get('/api/user/favorites', async (req, res) => {
+    const userId = currentUser?.id;
+    if (!userId) return res.json({ favorites: [], favoriteIds: [] });
+
+    const favs = await prisma.favorite.findMany({
+      where: { userId },
+      include: { recipe: true }
+    });
+
+    const favoriteIds = favs.map(f => f.recipeId);
+    const favorites = favs.map(f => f.recipe);
+    res.json({ favorites, favoriteIds });
   });
 
-  app.post('/api/user/favorites/toggle', (req, res) => {
-    const userId = currentUser?.id || 'guest';
-    const { recipeId } = req.body;
-    if (!dbFavorites[userId]) dbFavorites[userId] = [];
+  app.post('/api/user/favorites/toggle', async (req, res) => {
+    const userId = currentUser?.id;
+    if (!userId) return res.status(401).json({ message: 'Vui lòng đăng nhập' });
 
-    const isFav = dbFavorites[userId].includes(recipeId);
-    if (isFav) {
-      dbFavorites[userId] = dbFavorites[userId].filter(id => id !== recipeId);
+    const { recipeId } = req.body;
+    
+    const existing = await prisma.favorite.findUnique({
+      where: { userId_recipeId: { userId, recipeId } }
+    });
+
+    let isFav = false;
+    if (existing) {
+      await prisma.favorite.delete({
+        where: { userId_recipeId: { userId, recipeId } }
+      });
     } else {
-      dbFavorites[userId].push(recipeId);
+      await prisma.favorite.create({
+        data: { userId, recipeId }
+      });
+      isFav = true;
     }
-    res.json({ isFavorite: !isFav, favoriteIds: dbFavorites[userId] });
+
+    const allFavs = await prisma.favorite.findMany({ where: { userId } });
+    res.json({ isFavorite: isFav, favoriteIds: allFavs.map(f => f.recipeId) });
   });
 
   // Ratings & Reviews (FR-16)
-  app.post('/api/user/ratings', (req, res) => {
+  app.post('/api/user/ratings', async (req, res) => {
     const { recipeId, rating, comment } = req.body;
-    const newRev: RecipeReview = {
-      id: `rev-${Date.now()}`,
-      recipeId,
-      userId: currentUser?.id || 'guest',
-      userName: currentUser?.name || 'Thành viên SmartMeal',
-      userAvatar: currentUser?.avatar,
-      rating: Number(rating) || 5,
-      comment: comment || 'Món ăn rất ngon và dễ làm!',
-      date: new Date().toISOString().split('T')[0]
-    };
-    dbReviews.unshift(newRev);
+    const userId = currentUser?.id;
+    if (!userId) return res.status(401).json({ message: 'Vui lòng đăng nhập' });
 
-    // Update recipe average rating
-    const recReviews = dbReviews.filter(r => r.recipeId === recipeId);
+    const newRev = await prisma.review.create({
+      data: {
+        userId,
+        recipeId,
+        rating: Number(rating) || 5,
+        comment: comment || 'Món ăn rất ngon và dễ làm!'
+      }
+    });
+
+    // Update recipe average rating in TiDB
+    const recReviews = await prisma.review.findMany({ where: { recipeId } });
     const avg = recReviews.reduce((sum, r) => sum + r.rating, 0) / recReviews.length;
-    const recipe = dbRecipes.find(r => r.id === recipeId);
-    if (recipe) {
-      recipe.rating = Math.round(avg * 10) / 10;
-      recipe.reviewCount = recReviews.length;
+    
+    const updatedRecipe = await prisma.recipe.update({
+      where: { id: recipeId },
+      data: {
+        rating: Math.round(avg * 10) / 10,
+        reviewCount: recReviews.length
+      }
+    });
+
+    // Cập nhật lại trong mảng RAM
+    const ramRecipe = dbRecipes.find(r => r.id === recipeId);
+    if (ramRecipe) {
+      ramRecipe.rating = updatedRecipe.rating;
+      ramRecipe.reviewCount = updatedRecipe.reviewCount;
     }
 
-    res.json({ success: true, review: newRev, newRating: recipe?.rating });
+    const formattedReview = {
+      ...newRev,
+      userName: currentUser.name,
+      userAvatar: currentUser.avatar,
+      date: newRev.createdAt.toISOString().split('T')[0]
+    };
+
+    res.json({ success: true, review: formattedReview, newRating: updatedRecipe.rating });
   });
 
   // ==================== AI NLP & MULTIMODAL API (FR-05, FR-20, FR-21, FR-26) ====================

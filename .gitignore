@@ -8,3 +8,8 @@ coverage/
 !.env.example
 
 /src/generated/prisma
+
+# Bỏ qua tất cả các file markdown
+*.md
+# Nhưng vẫn giữ lại file README.md
+!README.md
