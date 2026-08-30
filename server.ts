@@ -149,7 +149,7 @@ async function startServer() {
           unit: i.unit,
           isOptional: i.isOptional
         })),
-        instructions: (r.instructions && r.instructions.length > 0) ? r.instructions.map(ins => ({
+        instructions: (r.instructions && r.instructions.length > 0) ? r.instructions.sort((a, b) => a.stepNumber - b.stepNumber).map(ins => ({
           stepNumber: ins.stepNumber,
           instruction: ins.instruction
         })) : [
@@ -574,7 +574,7 @@ async function startServer() {
       ...body,
       id: created.id,
       ingredients: created.ingredients,
-      instructions: created.instructions,
+      instructions: created.instructions.sort((a, b) => a.stepNumber - b.stepNumber),
       dietaryTags: body.dietaryTags || ['Vietnamese'],
       rating: 5.0,
       reviewCount: 1,

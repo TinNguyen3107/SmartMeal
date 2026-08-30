@@ -4,7 +4,6 @@ import {
   Sparkles,
   Layers,
   MessageSquareText,
-  Camera,
   Plus,
   X,
   SlidersHorizontal,
@@ -49,7 +48,7 @@ export const RecommendationHub: React.FC<RecommendationHubProps> = ({
   userDietaryPreferences
 }) => {
   // Input Method state
-  const [inputTab, setInputTab] = useState<'search' | 'category' | 'nlp' | 'vision'>('search');
+  const [inputTab, setInputTab] = useState<'search' | 'category' | 'nlp'>('search');
 
   const [selectedIngredients, setSelectedIngredients] = useState<{ name: string; quantity?: number; unit?: string }[]>([]);
 
@@ -74,9 +73,7 @@ export const RecommendationHub: React.FC<RecommendationHubProps> = ({
   const [isExtractingNlp, setIsExtractingNlp] = useState(false);
   const [nlpSummary, setNlpSummary] = useState<string | null>(null);
 
-  // Vision Input
-  const [visionImage, setVisionImage] = useState<string | null>(null);
-  const [isDetectingVision, setIsDetectingVision] = useState(false);
+
 
   // Filter preferences
   const [showFilterDrawer, setShowFilterDrawer] = useState(false);
@@ -168,38 +165,6 @@ export const RecommendationHub: React.FC<RecommendationHubProps> = ({
     } finally {
       setIsExtractingNlp(false);
     }
-  };
-
-  // Handle Vision Image Upload
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = async () => {
-      const base64 = reader.result as string;
-      setVisionImage(base64);
-      setIsDetectingVision(true);
-      try {
-        const res = await fetch('/api/ai/vision-fridge', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ imageBase64: base64, mimeType: file.type })
-        });
-        const data = await res.json();
-        if (res.status === 401) {
-          alert('⚠️ Bạn cần đăng nhập để sử dụng tính năng AI!');
-        } else if (data.success && data.ingredients?.length) {
-          setSelectedIngredients(data.ingredients);
-          setNlpSummary(data.understoodIntentSummary || 'Đã nhận diện thành công thực phẩm từ ảnh!');
-          runRecommendation(data.ingredients);
-        }
-      } catch (err) {
-        console.error('Vision error:', err);
-      } finally {
-        setIsDetectingVision(false);
-      }
-    };
-    reader.readAsDataURL(file);
   };
 
   // Run Recommendation Request
@@ -326,7 +291,7 @@ export const RecommendationHub: React.FC<RecommendationHubProps> = ({
             </div>
 
             {/* Segmented Tabs */}
-            <div className="grid grid-cols-4 gap-1 p-1.5 bg-[#F2EDE4] rounded-2xl border border-[#EAE7E0] text-xs mb-5">
+            <div className="grid grid-cols-3 gap-1 p-1.5 bg-[#F2EDE4] rounded-2xl border border-[#EAE7E0] text-xs mb-5">
               <button
                 id="input-tab-search"
                 onClick={() => setInputTab('search')}
@@ -359,17 +324,6 @@ export const RecommendationHub: React.FC<RecommendationHubProps> = ({
               >
                 <MessageSquareText className="w-3.5 h-3.5" />
                 <span>AI Câu nói</span>
-              </button>
-              <button
-                id="input-tab-vision"
-                onClick={() => setInputTab('vision')}
-                className={`py-2 rounded-xl font-semibold transition-all flex flex-col items-center gap-1 ${inputTab === 'vision'
-                    ? 'bg-[#4A5D4E] text-white shadow-sm'
-                    : 'text-[#686868] hover:text-[#3D3D3D]'
-                  }`}
-              >
-                <Camera className="w-3.5 h-3.5" />
-                <span>Ảnh tủ lạnh</span>
               </button>
             </div>
 
@@ -559,55 +513,6 @@ export const RecommendationHub: React.FC<RecommendationHubProps> = ({
               </div>
             )}
 
-            {/* TAB 4: AI Fridge Vision (FR-26) */}
-            {inputTab === 'vision' && (
-              <div className="space-y-3 text-center">
-                <p className="text-xs text-[#686868]">
-                  Tải lên ảnh chụp tủ lạnh, kệ bếp hoặc bàn nguyên liệu. Gemini Vision sẽ tự động nhận diện danh sách thực phẩm:
-                </p>
-
-                <div className="border-2 border-dashed border-[#D1CEC7] hover:border-[#8BA08E] rounded-3xl p-5 bg-[#F9F7F2] transition-colors">
-                  {visionImage ? (
-                    <div className="relative">
-                      <img
-                        src={visionImage}
-                        alt="Fridge scan"
-                        className="w-full h-40 object-cover rounded-2xl border border-[#EAE7E0]"
-                      />
-                      <button
-                        onClick={() => setVisionImage(null)}
-                        className="absolute top-2 right-2 p-1.5 rounded-full bg-emerald-500/70 text-white hover:bg-emerald-500"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    </div>
-                  ) : (
-                    <label className="cursor-pointer flex flex-col items-center justify-center py-4">
-                      <div className="w-12 h-12 rounded-full bg-[#8BA08E]/20 text-[#4A5D4E] flex items-center justify-center mb-2">
-                        <Camera className="w-6 h-6" />
-                      </div>
-                      <span className="text-xs font-bold text-[#3D3D3D]">Chọn ảnh tủ lạnh hoặc chụp ảnh</span>
-                      <span className="text-[10px] text-[#7D857E] mt-1">Hỗ trợ JPG, PNG, WEBP</span>
-                      <input
-                        id="fridge-camera-input"
-                        type="file"
-                        accept="image/*"
-                        capture="environment"
-                        onChange={handleImageUpload}
-                        className="hidden"
-                      />
-                    </label>
-                  )}
-                </div>
-
-                {isDetectingVision && (
-                  <div className="p-3 rounded-2xl bg-[#8BA08E]/20 border border-[#8BA08E]/40 text-[#4A5D4E] text-xs flex items-center justify-center gap-2 font-medium">
-                    <RefreshCw className="w-4 h-4 animate-spin text-[#4A5D4E]" />
-                    Gemini Vision AI đang nhận diện đồ ăn trong ảnh...
-                  </div>
-                )}
-              </div>
-            )}
           </div>
 
           {/* Tray: Selected Ingredients (Active List) */}
