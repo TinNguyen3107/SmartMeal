@@ -575,6 +575,7 @@ async function startServer() {
       id: created.id,
       ingredients: created.ingredients,
       instructions: created.instructions,
+      dietaryTags: body.dietaryTags || ['Vietnamese'],
       rating: 5.0,
       reviewCount: 1,
       popularityScore: 80,
@@ -597,6 +598,7 @@ async function startServer() {
         name: req.body.name,
         vietnameseName: req.body.vietnameseName,
         description: req.body.description,
+        image: req.body.image,
         difficulty: req.body.difficulty,
         totalTime: req.body.totalTime,
         calories: req.body.calories

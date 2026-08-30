@@ -347,14 +347,18 @@ Hãy trả về dưới định dạng JSON với đầy đủ thông tin chi ti
                 },
                 required: ["stepNumber", "instruction"]
               }
-            }
+            },
+            englishKeyword: { type: Type.STRING, description: "A single english keyword for the main ingredient (e.g. egg, beef, pork, chicken, soup, fish)" }
           },
-          required: ["name", "vietnameseName", "description", "cuisine", "category", "difficulty", "totalTime", "calories", "ingredients", "instructions"]
+          required: ["name", "vietnameseName", "description", "cuisine", "category", "difficulty", "totalTime", "calories", "ingredients", "instructions", "englishKeyword"]
         }
       }
     });
 
     const parsed = JSON.parse(response.text || '{}');
+    if (parsed.englishKeyword) {
+      parsed.image = `https://loremflickr.com/800/600/food,${encodeURIComponent(parsed.englishKeyword)}/all`;
+    }
     return parsed;
   } catch (err) {
     console.error('Gemini Generate Recipe error:', err);

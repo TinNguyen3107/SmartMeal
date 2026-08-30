@@ -51,6 +51,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<'evaluation' | 'recipes' | 'ingredients' | 'logs'>('evaluation');
   const [showRecipeModal, setShowRecipeModal] = useState(false);
+  const [editingRecipe, setEditingRecipe] = useState<Recipe | null>(null);
 
   // Evaluation state
   const [kValue, setKValue] = useState<number>(5);
@@ -459,7 +460,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               </button>
 
               <button
-                onClick={() => setShowRecipeModal(true)}
+                onClick={() => {
+                  setEditingRecipe(null);
+                  setShowRecipeModal(true);
+                }}
                 className="px-4 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 text-xs font-bold rounded-lg flex items-center gap-2 border border-zinc-200"
               >
                 <Plus className="w-4 h-4" />
@@ -470,16 +474,29 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
           {showRecipeModal && (
             <RecipeFormModal
-              onClose={() => setShowRecipeModal(false)}
+              initialData={editingRecipe}
+              onClose={() => {
+                setShowRecipeModal(false);
+                setEditingRecipe(null);
+              }}
               onSubmit={async (newRecipe) => {
-                await fetch('/api/recipes', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify(newRecipe)
-                });
+                if (editingRecipe) {
+                  await fetch(`/api/recipes/${editingRecipe.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newRecipe)
+                  });
+                } else {
+                  await fetch('/api/recipes', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newRecipe)
+                  });
+                }
                 onRefreshData();
                 loadAdminData();
                 setShowRecipeModal(false);
+                setEditingRecipe(null);
               }}
             />
           )}
@@ -522,7 +539,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     <td className="py-3 px-3 font-medium">{r.difficulty}</td>
                     <td className="py-3 px-3 text-emerald-950 font-bold">★ {r.rating} ({r.reviewCount})</td>
                     <td className="py-3 px-3 font-mono font-medium">{r.ingredients.length} món</td>
-                    <td className="py-3 px-3 text-right">
+                    <td className="py-3 px-3 text-right flex justify-end gap-1">
+                      <button
+                        onClick={() => {
+                          setEditingRecipe(r);
+                          setShowRecipeModal(true);
+                        }}
+                        className="p-1.5 text-zinc-500 hover:bg-zinc-100 rounded-lg transition-colors"
+                        title="Sửa công thức"
+                      >
+                        <Edit2 className="w-4 h-4" />
+                      </button>
                       <button
                         onClick={async () => {
                           if (confirm(`Bạn có chắc muốn xóa món "${r.name}"?`)) {
@@ -532,6 +559,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           }
                         }}
                         className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                        title="Xóa công thức"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>

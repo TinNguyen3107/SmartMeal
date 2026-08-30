@@ -4,24 +4,29 @@ import { X, Trash2 } from 'lucide-react';
 interface RecipeFormModalProps {
   onClose: () => void;
   onSubmit: (recipe: any) => void;
+  initialData?: any;
 }
 
-export const RecipeFormModal: React.FC<RecipeFormModalProps> = ({ onClose, onSubmit }) => {
+export const RecipeFormModal: React.FC<RecipeFormModalProps> = ({ onClose, onSubmit, initialData }) => {
   const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&auto=format&fit=crop&q=80',
-    cuisine: 'Vietnamese',
-    category: 'Món chính',
-    difficulty: 'Easy',
-    preparationTime: 10,
-    cookingTime: 20,
-    calories: 300,
-    servings: 2,
+    name: initialData?.name || '',
+    description: initialData?.description || '',
+    image: initialData?.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&auto=format&fit=crop&q=80',
+    cuisine: initialData?.cuisine || 'Vietnamese',
+    category: initialData?.category || 'Món chính',
+    difficulty: initialData?.difficulty || 'Easy',
+    preparationTime: initialData?.preparationTime || 10,
+    cookingTime: initialData?.cookingTime || (initialData?.totalTime ? initialData.totalTime - (initialData.preparationTime || 10) : 20),
+    calories: initialData?.calories || 300,
+    servings: initialData?.servings || 2,
   });
 
-  const [ingredients, setIngredients] = useState([{ name: '', quantity: 1, unit: 'g' }]);
-  const [instructions, setInstructions] = useState([{ stepNumber: 1, instruction: '' }]);
+  const [ingredients, setIngredients] = useState(
+    initialData?.ingredients?.length ? initialData.ingredients : [{ name: '', quantity: 1, unit: 'g' }]
+  );
+  const [instructions, setInstructions] = useState(
+    initialData?.instructions?.length ? initialData.instructions : [{ stepNumber: 1, instruction: '' }]
+  );
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,6 +66,10 @@ export const RecipeFormModal: React.FC<RecipeFormModalProps> = ({ onClose, onSub
             <div className="col-span-2">
               <label className="block text-xs font-bold mb-1">Mô tả hấp dẫn</label>
               <input required value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} className="w-full border p-2 rounded-lg text-sm bg-white" placeholder="Món bò mềm tan..." />
+            </div>
+            <div className="col-span-2">
+              <label className="block text-xs font-bold mb-1">Link Ảnh Minh Họa</label>
+              <input required value={formData.image} onChange={e => setFormData({ ...formData, image: e.target.value })} className="w-full border p-2 rounded-lg text-sm bg-white" placeholder="https://..." />
             </div>
             <div>
               <label className="block text-xs font-bold mb-1">Thời gian chuẩn bị (phút)</label>
