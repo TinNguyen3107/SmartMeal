@@ -259,14 +259,15 @@ export async function chatWithRecipeAssistant(
   }
 
   try {
-    const systemPrompt = `Bạn là "Bếp Trưởng AI SmartMeal" - chuyên gia ẩm thực thân thiện, chu đáo và am hiểu sâu sắc ẩm thực Việt Nam và quốc tế.
+    const systemPrompt = `Bạn là "Bếp Trưởng & Chuyên Gia Dinh Dưỡng Lâm Sàng SmartMeal" - tư vấn am hiểu sâu sắc về dinh dưỡng thể thao (Gym, High Protein), ăn kiêng khoa học (Eat Clean, Low Carb, KETO, Vegan) và ẩm thực thực tế.
 Người dùng hiện đang có trong bếp/tủ lạnh các nguyên liệu sau: [${pantryIngredients.join(', ')}].
-Sở thích người dùng: ${JSON.stringify(userPreferences || {})}.
+Sở thích / Mục tiêu dinh dưỡng người dùng: ${JSON.stringify(userPreferences || {})}.
 
-Nhiệm vụ của bạn:
-1. Trả lời câu hỏi ẩm thực, gợi ý món nấu từ nguyên liệu có sẵn.
-2. Khi người dùng bổ sung điều kiện (ví dụ "tôi không ăn cay", "muốn món ít dầu mỡ", "thiếu gia vị này thay thế bằng gì"), hãy cập nhật đề xuất linh hoạt, chính xác.
-3. Luôn đưa ra câu trả lời ngắn gọn, súc tích, có gạch đầu dòng rõ ràng, kèm mẹo nấu ăn hữu ích.`;
+Nhiệm vụ bắt buộc:
+1. ĐỊNH LƯỢNG CHÍNH XÁC: Khi đưa ra công thức hoặc hướng dẫn nêm nếm/thay thế, CUNG CẤP SỐ LƯỢNG CHUẨN XÁC theo gram/ml/quả/củ (không nói mập mờ "vừa đủ", "nêm vừa ăn").
+2. PHÂN TÍCH MACRONUTRIENTS (P/C/F): Giải thích rõ lượng Kcal, Protein (g), Carb (g), Fat (g) và tại sao tỷ lệ này tối ưu cho mục tiêu của người dùng (Tập gym tăng cơ, giảm mỡ, ăn kiêng, v.v.).
+3. CHÍNH XÁC THỜI GIAN: Đưa ra thời gian luộc/xào/nướng chính xác từng phút để bảo toàn vi chất dinh dưỡng.
+4. Trình bày bằng tiếng Việt rõ ràng, ngắn gọn, có gạch đầu dòng và icon sinh động.`;
 
     const formattedHistory = history.slice(-6).map(h => ({
       role: h.role,
@@ -304,35 +305,43 @@ export async function generateRecipeFromIngredients(ingredients: string[], userP
   try {
     const response = await ai.models.generateContent({
       model: 'gemini-3.6-flash',
-      contents: `Hãy đóng vai một siêu đầu bếp. 
-Dựa vào các nguyên liệu sau: [${ingredients.join(', ')}].
-Và sở thích của người dùng: ${JSON.stringify(userPreferences || {})}.
+      contents: `Bạn là Chuyên Gia Dinh Dưỡng Lâm Sàng và Siêu Đầu Bếp Chuyên Nghiệp của SmartMeal.
+Dựa vào các nguyên liệu có sẵn: [${ingredients.join(', ')}].
+Và hồ sơ / sở thích của người dùng: ${JSON.stringify(userPreferences || {})}.
 
-Hãy sáng tạo ra 1 công thức món ăn mới cực kỳ hấp dẫn, dễ làm và ngon miệng.
-Chú ý: Bạn CÓ THỂ bổ sung thêm các loại gia vị cơ bản (muối, tiêu, đường, nước mắm, dầu ăn, tỏi, hành) nếu cần thiết.
-
-Hãy trả về dưới định dạng JSON với đầy đủ thông tin chi tiết.`,
+YÊU CẦU BẮT BUỘC VỀ ĐỊNH LƯỢNG & DINH DƯỠNG KHOA HỌC:
+1. ĐỊNH LƯỢNG CHÍNH XÁC: Tất cả nguyên liệu PHẢI có số lượng cụ thể bằng con số chuẩn (gam, ml, quả, củ, muỗng cà phê...). KHÔNG ĐƯỢC dùng các từ chung chung như "vừa đủ", "một ít", "tùy thích".
+2. THỜI GIAN CHUẨN XÁC: Tính toán chính xác Thời gian chuẩn bị/sơ chế (preparationTime) và Thời gian chế biến/nấu (cookingTime) theo từng phút.
+3. PHÂN TÍCH MACRONUTRIENTS (P/C/F): Tính toán chuẩn xác năng lượng Kcal, Protein (g), Carbohydrate (g), và Fat (g) cho 1 khẩu phần dựa trên bảng thành phần dinh dưỡng thực phẩm.
+4. TỐI ƯU CHO ĐỐI TƯỢNG: Điều chỉnh định lượng và cách chế biến phù hợp với mục tiêu (ví dụ: Tập gym/High Protein -> tối ưu đạm & cơ bắp; Low Carb/Eat Clean -> hạn chế đường tinh luyện, tăng xơ & mỡ tốt; Giảm cân -> tạo độ no lâu, calo vừa phải).
+5. CƠ SỞ KHOA HỌC (nutritionNotes): Viết 1-2 câu giải thích cơ sở dinh dưỡng khoa học lý giải vì sao định lượng và tỷ lệ đạm/carb/béo này tối ưu cho người ăn.`,
       config: {
         responseMimeType: 'application/json',
         responseSchema: {
           type: Type.OBJECT,
           properties: {
-            name: { type: Type.STRING, description: "Tên món ăn (tiếng Việt)" },
+            name: { type: Type.STRING, description: "Tên món ăn hấp dẫn bằng tiếng Việt" },
             vietnameseName: { type: Type.STRING },
-            description: { type: Type.STRING, description: "Mô tả hấp dẫn về món ăn" },
-            cuisine: { type: Type.STRING, description: "Vietnamese, Western, Asian, v.v." },
-            category: { type: Type.STRING, description: "Món chính, Ăn vặt, Canh..." },
+            description: { type: Type.STRING, description: "Mô tả ngắn về hương vị và lợi ích của món ăn" },
+            cuisine: { type: Type.STRING, description: "Vietnamese, Asian, Western, Fusion..." },
+            category: { type: Type.STRING, description: "Món chính, Canh / Súp, Món xào, Món kho, Salad / Khai vị..." },
             difficulty: { type: Type.STRING, description: "Easy, Medium, Hard" },
-            totalTime: { type: Type.NUMBER, description: "Tổng thời gian nấu (phút)" },
-            calories: { type: Type.NUMBER, description: "Calo ước tính" },
+            preparationTime: { type: Type.NUMBER, description: "Thời gian sơ chế chuẩn bị (phút)" },
+            cookingTime: { type: Type.NUMBER, description: "Thời gian nấu trực tiếp trên bếp (phút)" },
+            totalTime: { type: Type.NUMBER, description: "Tổng thời gian thực hiện (phút)" },
+            calories: { type: Type.NUMBER, description: "Tổng lượng Calo (kcal) cho 1 khẩu phần" },
+            proteinGrams: { type: Type.NUMBER, description: "Lượng Protein (g)" },
+            carbGrams: { type: Type.NUMBER, description: "Lượng Carbohydrate (g)" },
+            fatGrams: { type: Type.NUMBER, description: "Lượng Chất béo Fat (g)" },
+            nutritionNotes: { type: Type.STRING, description: "Giải thích cơ sở khoa học dinh dưỡng cho công thức" },
             ingredients: {
               type: Type.ARRAY,
               items: {
                 type: Type.OBJECT,
                 properties: {
-                  name: { type: Type.STRING },
-                  quantity: { type: Type.NUMBER },
-                  unit: { type: Type.STRING }
+                  name: { type: Type.STRING, description: "Tên nguyên liệu" },
+                  quantity: { type: Type.NUMBER, description: "Số lượng con số chính xác" },
+                  unit: { type: Type.STRING, description: "Đơn vị tính chuẩn: g, ml, quả, củ..." }
                 },
                 required: ["name", "quantity", "unit"]
               }
@@ -342,14 +351,32 @@ Hãy trả về dưới định dạng JSON với đầy đủ thông tin chi ti
               items: {
                 type: Type.OBJECT,
                 properties: {
-                  stepNumber: { type: Type.NUMBER },
-                  instruction: { type: Type.STRING }
+                  stepNumber: { type: Type.NUMBER, description: "Số thứ tự bước (1, 2, 3...)" },
+                  instruction: { type: Type.STRING, description: "Hướng dẫn thực hiện chi tiết" },
+                  estimatedMinutes: { type: Type.NUMBER, description: "Thời gian thực hiện bước này (phút)" }
                 },
                 required: ["stepNumber", "instruction"]
               }
             }
           },
-          required: ["name", "vietnameseName", "description", "cuisine", "category", "difficulty", "totalTime", "calories", "ingredients", "instructions"]
+          required: [
+            "name",
+            "vietnameseName",
+            "description",
+            "cuisine",
+            "category",
+            "difficulty",
+            "preparationTime",
+            "cookingTime",
+            "totalTime",
+            "calories",
+            "proteinGrams",
+            "carbGrams",
+            "fatGrams",
+            "nutritionNotes",
+            "ingredients",
+            "instructions"
+          ]
         }
       }
     });

@@ -18,6 +18,10 @@ export const RecipeFormModal: React.FC<RecipeFormModalProps> = ({ onClose, onSub
     preparationTime: initialData?.preparationTime || 10,
     cookingTime: initialData?.cookingTime || (initialData?.totalTime ? initialData.totalTime - (initialData.preparationTime || 10) : 20),
     calories: initialData?.calories || 300,
+    proteinGrams: initialData?.proteinGrams || 25,
+    carbGrams: initialData?.carbGrams || 30,
+    fatGrams: initialData?.fatGrams || 10,
+    nutritionNotes: initialData?.nutritionNotes || '',
     servings: initialData?.servings || 2,
   });
 
@@ -86,6 +90,22 @@ export const RecipeFormModal: React.FC<RecipeFormModalProps> = ({ onClose, onSub
             <div>
               <label className="block text-xs font-bold mb-1">Khẩu phần (người)</label>
               <input required type="number" min="1" value={formData.servings} onChange={e => setFormData({ ...formData, servings: Number(e.target.value) })} className="w-full border p-2 rounded-lg text-sm bg-white" />
+            </div>
+            <div>
+              <label className="block text-xs font-bold mb-1">Protein (g)</label>
+              <input type="number" min="0" value={formData.proteinGrams} onChange={e => setFormData({ ...formData, proteinGrams: Number(e.target.value) })} className="w-full border p-2 rounded-lg text-sm bg-white" />
+            </div>
+            <div>
+              <label className="block text-xs font-bold mb-1">Carbohydrate (g)</label>
+              <input type="number" min="0" value={formData.carbGrams} onChange={e => setFormData({ ...formData, carbGrams: Number(e.target.value) })} className="w-full border p-2 rounded-lg text-sm bg-white" />
+            </div>
+            <div>
+              <label className="block text-xs font-bold mb-1">Fat (g)</label>
+              <input type="number" min="0" value={formData.fatGrams} onChange={e => setFormData({ ...formData, fatGrams: Number(e.target.value) })} className="w-full border p-2 rounded-lg text-sm bg-white" />
+            </div>
+            <div className="col-span-2">
+              <label className="block text-xs font-bold mb-1">Cơ sở khoa học dinh dưỡng (Nutrition Notes)</label>
+              <input value={formData.nutritionNotes} onChange={e => setFormData({ ...formData, nutritionNotes: e.target.value })} className="w-full border p-2 rounded-lg text-sm bg-white" placeholder="Giải thích ngắn gọn lý do chọn định lượng & tỷ lệ P/C/F này..." />
             </div>
           </div>
 

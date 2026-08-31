@@ -76,6 +76,10 @@ export interface Recipe {
   cookingTime: number;     // minutes
   totalTime: number;       // minutes
   calories: number;        // kcal
+  proteinGrams?: number;   // grams
+  carbGrams?: number;      // grams
+  fatGrams?: number;       // grams
+  nutritionNotes?: string; // Scientific basis & nutritional breakdown note
   servings: number;
   rating: number;          // 1.0 - 5.0
   reviewCount: number;

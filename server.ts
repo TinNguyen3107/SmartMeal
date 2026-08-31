@@ -794,12 +794,17 @@ async function startServer() {
 
   app.post('/api/ai/generate-recipe', async (req, res) => {
     if (!currentUser) return res.status(401).json({ message: 'Vui lòng đăng nhập để sử dụng AI' });
-    const { ingredients = [], preferences = {} } = req.body;
+    const { ingredients = [] } = req.body;
     if (!ingredients.length) return res.status(400).json({ message: 'Vui lòng cung cấp danh sách nguyên liệu' });
 
-    addLog('AI_GENERATE', `AI đang sáng tạo công thức từ: ${ingredients.join(', ')}`);
+    const mergedPreferences = {
+      ...(currentUser?.preferences || {}),
+      ...(req.body.preferences || {})
+    };
+
+    addLog('AI_GENERATE', `AI đang sáng tạo công thức chuẩn dinh dưỡng từ: ${ingredients.join(', ')}`);
     try {
-      const generatedRecipe = await generateRecipeFromIngredients(ingredients, preferences);
+      const generatedRecipe = await generateRecipeFromIngredients(ingredients, mergedPreferences);
       res.json({ success: true, recipe: generatedRecipe });
     } catch (err) {
       res.status(500).json({ success: false, message: 'Lỗi khi gọi AI sinh công thức.' });

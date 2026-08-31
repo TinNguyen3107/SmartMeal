@@ -300,6 +300,45 @@ export const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({
             {recipe.description}
           </div>
 
+          {/* Scientific Nutrition & Macronutrients Breakdown (P / C / F) */}
+          {(recipe.proteinGrams !== undefined || recipe.carbGrams !== undefined || recipe.fatGrams !== undefined || recipe.nutritionNotes) && (
+            <div className="p-5 rounded-2xl bg-emerald-50/70 border border-emerald-200/80 space-y-3">
+              <div className="flex items-center justify-between">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-950 flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-emerald-600" />
+                  Phân Tích Dinh Dưỡng Khoa Học (Macro Breakdown)
+                </h4>
+                <span className="text-[11px] font-bold text-emerald-800 bg-emerald-100 px-2.5 py-0.5 rounded-full">
+                  1 Khẩu phần
+                </span>
+              </div>
+
+              {/* Macro Pills */}
+              <div className="grid grid-cols-3 gap-3">
+                <div className="p-3 rounded-xl bg-white border border-emerald-100 text-center">
+                  <p className="text-[10px] font-bold text-zinc-500 uppercase">Protein (Đạm)</p>
+                  <p className="text-base font-extrabold text-emerald-700">{recipe.proteinGrams ?? '--'}g</p>
+                </div>
+                <div className="p-3 rounded-xl bg-white border border-emerald-100 text-center">
+                  <p className="text-[10px] font-bold text-zinc-500 uppercase">Carb (Tinh bột)</p>
+                  <p className="text-base font-extrabold text-amber-700">{recipe.carbGrams ?? '--'}g</p>
+                </div>
+                <div className="p-3 rounded-xl bg-white border border-emerald-100 text-center">
+                  <p className="text-[10px] font-bold text-zinc-500 uppercase">Fat (Chất béo)</p>
+                  <p className="text-base font-extrabold text-rose-700">{recipe.fatGrams ?? '--'}g</p>
+                </div>
+              </div>
+
+              {/* Scientific Basis Note */}
+              {recipe.nutritionNotes && (
+                <div className="text-xs text-emerald-900 leading-relaxed font-medium bg-white/80 p-3 rounded-xl border border-emerald-200/60">
+                  <strong className="text-emerald-950 font-bold">Cơ sở khoa học: </strong>
+                  {recipe.nutritionNotes}
+                </div>
+              )}
+            </div>
+          )}
+
           {/* 2-Columns Layout: Ingredients Checklist vs Step-by-Step Cooking */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             {/* LEFT: Ingredients Checklist & Scaler (5 cols) */}
