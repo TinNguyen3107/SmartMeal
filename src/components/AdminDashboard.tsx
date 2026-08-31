@@ -14,7 +14,8 @@ import {
   RefreshCw,
   Trash2,
   Edit2,
-  Check
+  Check,
+  Info
 } from 'lucide-react';
 import {
   BarChart,
@@ -123,10 +124,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   // Chart data for accuracy metrics
   const chartData = metrics
     ? [
-      { metric: 'Precision@K', score: metrics.precisionAtK, target: 80 },
-      { metric: 'Recall@K', score: metrics.recallAtK, target: 70 },
-      { metric: 'HitRate@K', score: metrics.hitRateAtK, target: 90 },
-      { metric: 'NDCG@K', score: metrics.ndcgAtK, target: 85 }
+      { metric: 'Precision@K (Độ chính xác)', score: metrics.precisionAtK, target: 80 },
+      { metric: 'HitRate@K (Tỷ lệ thành công)', score: metrics.hitRateAtK, target: 90 }
     ]
     : [];
 
@@ -190,42 +189,46 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       {/* TAB 1: EVALUATION & BENCHMARK METRICS */}
       {activeTab === 'evaluation' && (
         <div className="space-y-8">
-          {/* Top Score Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-white border border-zinc-200 rounded-2xl p-6 card-shadow space-y-1">
-              <div className="flex justify-between items-center text-xs text-emerald-900/60 font-bold uppercase tracking-wider">
-                <span>Precision@{kValue}</span>
-                <span className="text-emerald-950">&ge; 80%</span>
+          {/* Explanation Banner */}
+          <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 sm:p-5 flex items-start gap-3">
+            <Info className="w-5 h-5 text-emerald-700 shrink-0 mt-0.5" />
+            <div className="text-xs text-emerald-900 space-y-1">
+              <p className="font-bold text-sm text-emerald-950">Đánh Giá Độ Chính Xác Thuật Toán Gợi Ý</p>
+              <p className="leading-relaxed">
+                Hệ thống tự động chạy kịch bản kiểm thử (Test Cases) thực tế để đánh giá 2 chỉ số cốt lõi: 
+                <strong> Độ chính xác (Precision)</strong> và <strong> Tỷ lệ gợi ý thành công (Hit Rate)</strong> khi đề xuất món ăn từ nguyên liệu có sẵn.
+              </p>
+            </div>
+          </div>
+
+          {/* Main 2 Score Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="bg-white border-2 border-emerald-500/30 rounded-2xl p-6 card-shadow space-y-2">
+              <div className="flex justify-between items-center text-xs text-emerald-900/70 font-bold uppercase tracking-wider">
+                <span>Precision@{kValue} (Độ chính xác)</span>
+                <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-bold">Mục tiêu &ge; 80%</span>
               </div>
-              <p className="text-3xl font-bold text-emerald-950">{metrics?.precisionAtK || 0}%</p>
-              <p className="text-[11px] text-emerald-900/60">Tỷ lệ công thức đề xuất thực sự chuẩn xác</p>
+              <div className="flex items-baseline gap-2">
+                <p className="text-4xl font-extrabold text-emerald-950">{metrics?.precisionAtK || 0}%</p>
+                <span className="text-xs text-emerald-700 font-medium">chuẩn xác</span>
+              </div>
+              <p className="text-xs text-zinc-500 leading-relaxed">
+                Tỷ lệ các món ăn gợi ý thực sự phù hợp với danh sách nguyên liệu trong tủ bếp của người dùng.
+              </p>
             </div>
 
-            <div className="bg-white border border-zinc-200 rounded-2xl p-6 card-shadow space-y-1">
-              <div className="flex justify-between items-center text-xs text-emerald-900/60 font-bold uppercase tracking-wider">
-                <span>HitRate@{kValue}</span>
-                <span className="text-emerald-950">&ge; 90%</span>
+            <div className="bg-white border-2 border-zinc-200 rounded-2xl p-6 card-shadow space-y-2">
+              <div className="flex justify-between items-center text-xs text-emerald-900/70 font-bold uppercase tracking-wider">
+                <span>HitRate@{kValue} (Tỷ lệ gợi ý thành công)</span>
+                <span className="px-2 py-0.5 rounded-full bg-zinc-100 text-zinc-700 text-[11px] font-bold">Mục tiêu &ge; 90%</span>
               </div>
-              <p className="text-3xl font-bold text-zinc-700">{metrics?.hitRateAtK || 0}%</p>
-              <p className="text-[11px] text-emerald-900/60">Tỷ lệ phiên gợi ý chứa 1 món ưng ý</p>
-            </div>
-
-            <div className="bg-white border border-zinc-200 rounded-2xl p-6 card-shadow space-y-1">
-              <div className="flex justify-between items-center text-xs text-emerald-900/60 font-bold uppercase tracking-wider">
-                <span>Recall@{kValue}</span>
-                <span className="text-emerald-950">&ge; 70%</span>
+              <div className="flex items-baseline gap-2">
+                <p className="text-4xl font-extrabold text-zinc-800">{metrics?.hitRateAtK || 0}%</p>
+                <span className="text-xs text-zinc-600 font-medium">thành công</span>
               </div>
-              <p className="text-3xl font-bold text-zinc-700">{metrics?.recallAtK || 0}%</p>
-              <p className="text-[11px] text-emerald-900/60">Độ bao phủ món mục tiêu</p>
-            </div>
-
-            <div className="bg-white border border-zinc-200 rounded-2xl p-6 card-shadow space-y-1">
-              <div className="flex justify-between items-center text-xs text-emerald-900/60 font-bold uppercase tracking-wider">
-                <span>NDCG@{kValue}</span>
-                <span className="text-emerald-950">&ge; 85%</span>
-              </div>
-              <p className="text-3xl font-bold text-zinc-700">{metrics?.ndcgAtK || 0}%</p>
-              <p className="text-[11px] text-emerald-900/60">Chất lượng xếp hạng giảm dần</p>
+              <p className="text-xs text-zinc-500 leading-relaxed">
+                Tỷ lệ các phiên tìm kiếm mà thuật toán tìm ra ít nhất 1 món ăn ưng ý cho người dùng.
+              </p>
             </div>
           </div>
 

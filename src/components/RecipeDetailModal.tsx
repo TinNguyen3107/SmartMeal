@@ -163,7 +163,7 @@ export const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          message: `Tôi đang xem món "${recipe?.name}" với nguyên liệu: [${recipe?.ingredients.map(i => `${i.quantity} ${i.unit} ${i.name}`).join(', ')}]. Câu hỏi: "${substitutionPrompt}". Hãy hướng dẫn tỉ lệ và cách làm phù hợp cho đúng món này.`,
+          message: `Tôi đang xem món "${recipe?.name}" với nguyên liệu: [${(recipe?.ingredients || []).map(i => `${i.quantity} ${i.unit} ${i.name}`).join(', ')}]. Câu hỏi: "${substitutionPrompt}". Hãy hướng dẫn tỉ lệ và cách làm phù hợp cho đúng món này.`,
           pantryIngredients: pantryItems.map(p => p.name)
         })
       });
@@ -224,7 +224,7 @@ export const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({
                 <span className="px-3 py-1 rounded-md bg-emerald-100/80 text-white text-xs font-semibold backdrop-blur-sm">
                   {recipe.cuisine}
                 </span>
-                {recipe.dietaryTags.map(d => (
+                {(recipe.dietaryTags || []).map(d => (
                   <span key={d} className="px-2.5 py-1 rounded-md bg-zinc-700/80 text-zinc-100 text-xs font-medium backdrop-blur-sm">
                     {d}
                   </span>
@@ -329,7 +329,7 @@ export const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({
 
               {/* Ingredients Table */}
               <div className="rounded-xl border border-zinc-200 p-1 space-y-1">
-                {recipe.ingredients.map(ing => {
+                {(recipe.ingredients || []).map(ing => {
                   const hasInPantry = pantryNormNames.has(ing.normalizedName);
                   const scaledQty = ing.quantity * servingsMultiplier;
 
@@ -429,7 +429,7 @@ export const RecipeDetailModal: React.FC<RecipeDetailModalProps> = ({
 
               {/* Steps Timeline List */}
               <div className="space-y-3">
-                {recipe.instructions.map((step) => {
+                {(recipe.instructions || []).map((step) => {
                   const isDone = completedSteps.includes(step.stepNumber);
                   const isCurrent = activeStep === step.stepNumber;
 
