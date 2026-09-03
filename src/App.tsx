@@ -3,7 +3,6 @@ import { Navbar } from './components/Navbar';
 import { RecommendationHub } from './components/RecommendationHub';
 import { PantryManager } from './components/PantryManager';
 import { RecipeExplorer } from './components/RecipeExplorer';
-import { AiChefChat } from './components/AiChefChat';
 import { MealPlanShopping, ShoppingItem } from './components/MealPlanShopping';
 import { AdminDashboard } from './components/AdminDashboard';
 import { RecipeDetailModal } from './components/RecipeDetailModal';
@@ -208,13 +207,6 @@ export function App() {
           />
         )}
 
-        {activeTab === 'ai-chef' && (
-          <AiChefChat
-            pantryItems={pantryItems}
-            onOpenRecipeModal={id => setSelectedRecipeId(id)}
-          />
-        )}
-
         {activeTab === 'planner' && (
           <MealPlanShopping
             shoppingList={shoppingList}
@@ -222,13 +214,6 @@ export function App() {
             onRemoveShoppingItem={handleRemoveShoppingItem}
             onAddCustomShoppingItem={handleAddCustomShoppingItem}
             onClearBought={handleClearBought}
-          />
-        )}
-
-        {activeTab === 'evaluation' && (
-          <AdminDashboard
-            allIngredients={allIngredients}
-            onRefreshData={refreshAppData}
           />
         )}
 

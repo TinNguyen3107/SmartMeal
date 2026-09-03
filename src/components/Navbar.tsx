@@ -3,9 +3,7 @@ import {
   Sparkles,
   UtensilsCrossed,
   Refrigerator,
-  Bot,
-  BarChart3,
-  CalendarCheck2,
+  ShoppingBag,
   ShieldCheck,
   User,
   LogOut,
@@ -109,19 +107,6 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
 
             <button
-              id="nav-tab-ai-chef"
-              onClick={() => setActiveTab('ai-chef')}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-2 ${
-                activeTab === 'ai-chef'
-                  ? 'bg-[#4A5D4E] text-white shadow-sm'
-                  : 'text-[#606962] hover:text-[#3D3D3D] hover:bg-white/80'
-              }`}
-            >
-              <Bot className={`w-3.5 h-3.5 ${activeTab === 'ai-chef' ? 'text-amber-200' : 'text-[#8BA08E]'}`} />
-              AI Bếp Trưởng
-            </button>
-
-            <button
               id="nav-tab-planner"
               onClick={() => setActiveTab('planner')}
               className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-2 ${
@@ -130,21 +115,8 @@ export const Navbar: React.FC<NavbarProps> = ({
                   : 'text-[#606962] hover:text-[#3D3D3D] hover:bg-white/80'
               }`}
             >
-              <CalendarCheck2 className={`w-3.5 h-3.5 ${activeTab === 'planner' ? 'text-amber-200' : 'text-[#8BA08E]'}`} />
-              Thực đơn & Đi chợ
-            </button>
-
-            <button
-              id="nav-tab-evaluation"
-              onClick={() => setActiveTab('evaluation')}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-2 ${
-                activeTab === 'evaluation'
-                  ? 'bg-[#4A5D4E] text-white shadow-sm'
-                  : 'text-[#606962] hover:text-[#3D3D3D] hover:bg-white/80'
-              }`}
-            >
-              <BarChart3 className={`w-3.5 h-3.5 ${activeTab === 'evaluation' ? 'text-amber-200' : 'text-[#8BA08E]'}`} />
-              Đánh giá AI (Section 17)
+              <ShoppingBag className={`w-3.5 h-3.5 ${activeTab === 'planner' ? 'text-amber-200' : 'text-[#8BA08E]'}`} />
+              Đi chợ
             </button>
 
             {currentUser?.role === 'admin' && (
@@ -269,28 +241,12 @@ export const Navbar: React.FC<NavbarProps> = ({
             Công thức
           </button>
           <button
-            onClick={() => setActiveTab('ai-chef')}
-            className={`px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-colors ${
-              activeTab === 'ai-chef' ? 'bg-emerald-500 text-white shadow' : 'bg-zinc-100 text-zinc-600'
-            }`}
-          >
-            Trợ lý Bếp
-          </button>
-          <button
             onClick={() => setActiveTab('planner')}
             className={`px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-colors ${
               activeTab === 'planner' ? 'bg-emerald-500 text-white shadow' : 'bg-zinc-100 text-zinc-600'
             }`}
           >
             Đi chợ
-          </button>
-          <button
-            onClick={() => setActiveTab('evaluation')}
-            className={`px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-colors ${
-              activeTab === 'evaluation' ? 'bg-emerald-500 text-white shadow' : 'bg-zinc-100 text-zinc-600'
-            }`}
-          >
-            Đánh giá
           </button>
           {currentUser?.role === 'admin' && (
             <button

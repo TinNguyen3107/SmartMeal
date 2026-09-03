@@ -23,10 +23,8 @@ import {
 } from './src/server/recommendationEngine';
 import {
   extractIngredientsFromNL,
-  detectIngredientsFromImage,
   chatWithRecipeAssistant,
   generateRecipeFromIngredients,
-  generateWeeklyMealPlan,
   validateGeneratedRecipeDraft
 } from './src/server/aiService';
 import {
@@ -847,16 +845,6 @@ async function startServer() {
     res.json({ success: true, ...extracted });
   });
 
-  app.post('/api/ai/vision-fridge', async (req, res) => {
-    if (!currentUser) return res.status(401).json({ message: 'Vui lòng đăng nhập để sử dụng AI' });
-    const { imageBase64, mimeType } = req.body;
-    if (!imageBase64) return res.status(400).json({ message: 'Thiếu dữ liệu ảnh' });
-
-    addLog('AI_NLP', `AI Vision quét ảnh tủ lạnh`);
-    const detected = await detectIngredientsFromImage(imageBase64, mimeType || 'image/jpeg');
-    res.json({ success: true, ...detected });
-  });
-
   app.post('/api/ai/chat', async (req, res) => {
     if (!currentUser) return res.status(401).json({ message: 'Vui lòng đăng nhập để trò chuyện với AI Bếp trưởng' });
     const { message, history = [], pantryIngredients = [] } = req.body;
@@ -894,18 +882,6 @@ async function startServer() {
       });
     } catch (err) {
       res.status(500).json({ success: false, message: 'Lỗi khi gọi AI sinh công thức.' });
-    }
-  });
-
-  app.post('/api/ai/generate-meal-plan', async (req, res) => {
-    if (!currentUser) return res.status(401).json({ message: 'Vui lòng đăng nhập để sử dụng AI' });
-    addLog('AI_GENERATE', `AI đang thiết kế thực đơn 7 ngày`);
-    try {
-      const preferences = req.body.preferences || 'Ăn uống lành mạnh, đủ chất';
-      const plan = await generateWeeklyMealPlan(preferences);
-      res.json({ success: true, plan });
-    } catch (err) {
-      res.status(500).json({ success: false, message: 'Lỗi khi gọi AI sinh thực đơn.' });
     }
   });
 

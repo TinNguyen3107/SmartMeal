@@ -501,7 +501,7 @@ export const RecommendationHub: React.FC<RecommendationHubProps> = ({
                   {isExtractingNlp ? (
                     <>
                       <RefreshCw className="w-4 h-4 animate-spin" />
-                      Gemini AI đang phân tích văn bản...
+                      Đang phân tích văn bản và trích xuất nguyên liệu...
                     </>
                   ) : (
                     <>

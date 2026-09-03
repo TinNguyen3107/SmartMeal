@@ -1,69 +1,90 @@
-# SmartMeal - Hệ thống gợi ý món ăn thông minh
+# SmartMeal - He thong goi y mon an thong minh
 
-SmartMeal là một ứng dụng Web hiện đại giúp giải quyết bài toán muôn thuở: "Hôm nay ăn gì với những nguyên liệu đang có trong tủ lạnh?".
+SmartMeal la ung dung web ho tro nguoi dung tra loi cau hoi: "Hom nay nau gi voi nhung nguyen lieu dang co?". He thong cho phep quan ly nguyen lieu trong tu bep, phan tich dau vao cua nguoi dung va goi y cac cong thuc phu hop kem dinh luong, thoi gian nau, thong tin dinh duong va cac buoc che bien chi tiet.
 
-Hệ thống cho phép người dùng nhập nguyên liệu đầu vào theo nhiều cách khác nhau (gõ tìm kiếm, chọn danh mục, mô tả bằng giọng nói/văn bản tự nhiên hoặc chụp ảnh tủ lạnh), từ đó hệ thống sử dụng thuật toán Matching và AI (Gemini) để đề xuất những món ăn ngon nhất, phù hợp nhất với sở thích và chế độ ăn của người dùng.
+De tai duoc thiet ke theo huong hybrid recommendation: loi goi y mon an hoat dong doc lap bang thuat toan matching/scoring, trong khi Gemini chi la module tuy chon de ho tro NLP nang cao va tao ban nhap cong thuc cho admin.
 
----
+## Chuc nang chinh
 
-## Các tính năng nổi bật
-1. Quản lý tủ lạnh (Pantry): Lưu trữ các nguyên liệu người dùng đang có sẵn.
-2. 4 Phương thức nhập nguyên liệu thông minh:
-   - Tìm kiếm nhanh (Autocomplete).
-   - Chọn từ Danh mục trực quan.
-   - AI NLP: Gõ một câu tự nhiên (VD: "Tôi có trứng và cà chua, muốn ăn đồ chay"), AI sẽ tự bóc tách.
-   - AI Vision (Camera): Chụp ảnh tủ lạnh, AI tự động nhận diện nguyên liệu có trong ảnh.
-3. Động cơ gợi ý (Recommendation Engine): 
-   - Tính toán tỷ lệ trùng khớp (Match Score %).
-   - Ưu tiên món ăn ít thiếu nguyên liệu nhất.
-   - Cá nhân hóa theo độ khó, thời gian nấu và chế độ dinh dưỡng (Healthy, Eat Clean, v.v.).
-4. Chatbot AI Bếp trưởng: Hỗ trợ hỏi đáp công thức và tư vấn nấu ăn trực tiếp.
-5. Danh sách đi chợ (Shopping List): Tự động thêm các nguyên liệu còn thiếu vào danh sách cần mua.
+1. Quan ly tu nguyen lieu ca nhan
+   - Them/xoa nguyen lieu nguoi dung dang co.
+   - Luu so luong, don vi va nhom nguyen lieu.
+   - Dong bo danh sach nguyen lieu sang man hinh goi y mon an.
 
----
+2. Goi y mon an tu nguyen lieu san co
+   - Nhap nguyen lieu bang tim kiem/autocomplete.
+   - Chon nguyen lieu theo danh muc.
+   - Nhap cau tu nhien va de he thong tach nguyen lieu, thoi gian, so thich.
+   - Tinh Match Score va Final Score cho tung cong thuc.
+   - Hien thi nguyen lieu da co, nguyen lieu con thieu va ly do goi y.
 
-## Công nghệ sử dụng
-- Frontend: React 19, Vite, Tailwind CSS, Lucide React (Icons).
-- Backend: Node.js, Express.js (Xử lý API và thuật toán gợi ý).
-- AI Engine: Tích hợp @google/genai cho tính năng Natural Language và Computer Vision.
-- Ngôn ngữ: TypeScript.
+3. Kho cong thuc va chi tiet mon an
+   - Xem danh sach cong thuc trong he thong.
+   - Xem chi tiet mon an: anh, nguyen lieu, dinh luong, calo, P/C/F, thoi gian va cac buoc nau.
+   - Danh dau yeu thich, danh gia sao va binh luan.
+   - Them nguyen lieu con thieu vao gio di cho.
 
----
+4. Gio di cho
+   - Tu dong gom nguyen lieu con thieu tu cac mon duoc goi y.
+   - Them mon can mua thu cong.
+   - Danh dau da mua, xoa mon da mua va sao chep danh sach.
 
-## Hướng dẫn Cài đặt & Vận hành
+5. Quan tri vien
+   - Quan ly cong thuc mon an.
+   - Quan ly tu dien nguyen lieu.
+   - Tao cong thuc thu cong.
+   - Tao ban nhap cong thuc bang Gemini hoac bo sinh cuc bo, sau do admin kiem duyet truoc khi luu.
+   - Xem nhat ky he thong.
+   - Danh gia thuat toan goi y bang Precision@K va HitRate@K.
 
-### 1. Yêu cầu hệ thống
-- Máy tính cần cài đặt sẵn Node.js (phiên bản 18 trở lên).
-- Tài khoản API của Google Gemini (nếu muốn dùng tính năng AI nâng cao).
+## Rule va logic noi bat
 
-### 2. Các bước cài đặt
-Bật Terminal (Command Prompt / PowerShell) và điều hướng vào thư mục dự án, sau đó thực hiện các bước sau:
+- Chuan hoa nguyen lieu: bo dau tieng Viet, xu ly alias va dong nhat ten nguyen lieu.
+- Ingredient Match Score: tinh do trung khop giua nguyen lieu nguoi dung co va cong thuc.
+- Ingredient importance: phan biet nguyen lieu chinh, nguyen lieu phu va gia vi/tuy chon.
+- Quantity matching: tinh khop mot phan khi nguoi dung co it hon dinh luong can thiet.
+- Missing ingredient penalty: tru diem theo muc do quan trong cua nguyen lieu bi thieu.
+- Preference score: ca nhan hoa theo che do an, thoi gian nau, do kho va nguyen lieu can tranh.
+- Explainable recommendation: hien thi ly do tai sao he thong goi y mon do.
+- Evaluation suite: chay test case mau de do do chinh xac cua thuat toan goi y.
 
-Bước 1: Cài đặt thư viện phụ thuộc (node_modules)
+## Cong nghe su dung
+
+- Frontend: React, Vite, Tailwind CSS, Lucide React.
+- Backend: Node.js, Express.js.
+- Database: Prisma ORM voi MySQL/TiDB.
+- AI optional: `@google/genai` cho NLP nang cao va tao ban nhap cong thuc.
+- Ngon ngu: TypeScript.
+
+## Cai dat va chay du an
+
 ```bash
 npm install
-```
-
-Bước 2: Cấu hình biến môi trường (Environment Variables)
-1. Tạo một file tên là .env ở thư mục gốc của dự án (ngang hàng với package.json).
-2. Sao chép nội dung từ file .env.example sang .env và điền key API của bạn (ví dụ: GEMINI_API_KEY=your_key_here).
-
-Bước 3: Khởi động dự án
-```bash
 npm run dev
 ```
 
-### 3. Trải nghiệm
-Sau khi chạy lệnh trên, server sẽ tự động mở tại địa chỉ:
-http://localhost:3000 (Hoặc cổng khác nếu 3000 bị trùng).
+Ung dung chay tai:
 
-Bạn có thể sử dụng tính năng Đăng nhập Demo (Demo Login) trên góc phải màn hình để trải nghiệm ngay mà không cần tạo tài khoản.
+```text
+http://localhost:3000
+```
 
----
+Gemini API key la tuy chon. Neu khong co `GEMINI_API_KEY`, he thong van co the:
 
-## Quản trị viên (Admin)
-- Đăng nhập bằng tài khoản Admin demo.
-- Sử dụng tab Dashboard để xem thống kê độ chính xác (Precision/Hit Rate) của thuật toán, kiểm tra lịch sử thao tác hệ thống và quản lý từ điển Nguyên liệu / Công thức.
+- Phan tich cau nhap bang local parser.
+- Goi y mon an bang recommendation engine.
+- Tao ban nhap cong thuc bang local generator cho admin.
 
----
-Dự án thực tập/đồ án xây dựng theo tài liệu SRS - Ingredient-Based Food Recommendation System.
+## Tai khoan demo
+
+- User: `user@gmail.com` / `user123`
+- Admin: `admin@gmail.com` / `admin123`
+
+## Dinh huong production
+
+Khi deploy production can cau hinh:
+
+- `DATABASE_URL`
+- `GEMINI_API_KEY` neu muon bat AI nang cao
+- build server phu hop voi Prisma client
+- seed data cho database production

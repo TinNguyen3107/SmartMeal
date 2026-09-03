@@ -1,16 +1,11 @@
 import React, { useState } from 'react';
 import {
-  CalendarCheck2,
   ShoppingBag,
   Plus,
   Trash2,
   Check,
-  Copy,
-  Utensils,
-  Share2,
-  CheckCircle2
+  Copy
 } from 'lucide-react';
-import { Recipe } from '../types';
 
 export interface ShoppingItem {
   id: string;
@@ -36,24 +31,10 @@ export const MealPlanShopping: React.FC<MealPlanShoppingProps> = ({
   onAddCustomShoppingItem,
   onClearBought
 }) => {
-  const [activeTab, setActiveTab] = useState<'shopping' | 'planner'>('shopping');
-
   // Custom Shopping item input
   const [customName, setCustomName] = useState('');
   const [customQty, setCustomQty] = useState(1);
   const [customUnit, setCustomUnit] = useState('g');
-
-  // 7-day Meal planner state
-  const days = ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'Chủ Nhật'];
-  const [mealPlan, setMealPlan] = useState<Record<string, { breakfast: string; lunch: string; dinner: string }>>({
-    'Thứ 2': { breakfast: 'Trứng ốp la & Bánh mì', lunch: 'Ức gà áp chảo sốt bơ tỏi', dinner: 'Trứng sốt cà chua' },
-    'Thứ 3': { breakfast: 'Yến mạch hoa quả', lunch: 'Thịt heo rang cháy cạnh', dinner: 'Canh bí đỏ thịt bằm' },
-    'Thứ 4': { breakfast: 'Mì trứng xào rau cải', lunch: 'Bò xào ớt chuông hành tây', dinner: 'Canh chua cá lóc' },
-    'Thứ 5': { breakfast: 'Trứng luộc & Khoai lang', lunch: 'Đậu hũ sốt cà chua', dinner: 'Thịt kho trứng cút' },
-    'Thứ 6': { breakfast: 'Bánh mì pate trứng', lunch: 'Gà xào sả ớt', dinner: 'Canh rau muống luộc dầm sấu' },
-    'Thứ 7': { breakfast: 'Phở bò gia đình', lunch: 'Bò lúc lắc khoai tây', dinner: 'Lẩu hải sản sum vầy' },
-    'Chủ Nhật': { breakfast: 'Bún chả gia đình', lunch: 'Cá hồi sốt cam', dinner: 'Salad ức gà sốt mè rang' }
-  });
 
   const handleAddCustom = (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,32 +42,6 @@ export const MealPlanShopping: React.FC<MealPlanShoppingProps> = ({
     onAddCustomShoppingItem(customName.trim(), customQty, customUnit);
     setCustomName('');
     setCustomQty(1);
-  };
-
-  const [isGeneratingPlan, setIsGeneratingPlan] = useState(false);
-
-  const generateMealPlanAI = async () => {
-    setIsGeneratingPlan(true);
-    try {
-      const prefs = prompt('Nhập sở thích hoặc chế độ ăn kiêng (VD: Ăn Keto giảm cân, hoặc Ăn chay):') || 'Lành mạnh';
-      const res = await fetch('/api/ai/generate-meal-plan', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ preferences: prefs })
-      });
-      const data = await res.json();
-      if (res.status === 401) {
-        alert('⚠️ Bạn cần đăng nhập để sử dụng tính năng thiết kế thực đơn AI!');
-      } else if (data.success && data.plan) {
-        setMealPlan(data.plan);
-      } else {
-        alert('Có lỗi khi tạo thực đơn.');
-      }
-    } catch (e) {
-      alert('Lỗi kết nối AI.');
-    } finally {
-      setIsGeneratingPlan(false);
-    }
   };
 
   const handleCopyShoppingList = () => {
@@ -105,40 +60,15 @@ export const MealPlanShopping: React.FC<MealPlanShoppingProps> = ({
       <div className="bg-emerald-500 text-white rounded-3xl p-8 sm:p-10 card-shadow-lg flex flex-col sm:flex-row sm:items-center justify-between gap-6">
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-emerald-100 border border-zinc-700 text-emerald-600 text-[10px] font-bold uppercase tracking-widest mb-3">
-            <CalendarCheck2 className="w-4 h-4 text-zinc-100" />
-            Thực đơn & Đi chợ
+            <ShoppingBag className="w-4 h-4 text-zinc-100" />
+            Danh sách đi chợ
           </div>
-          <h1 className="text-2xl sm:text-4xl font-semibold text-white tracking-tight">Thực đơn & Giỏ đi chợ</h1>
-          <p className="mt-1 text-emerald-900/50 text-xs sm:text-sm">Quản lý thực phẩm cần mua và lịch trình ăn uống cho tuần mới</p>
-        </div>
-
-        {/* View Switcher */}
-        <div className="flex bg-emerald-50 p-1.5 rounded-xl border border-zinc-800 self-start sm:self-auto">
-          <button
-            onClick={() => setActiveTab('shopping')}
-            className={`px-5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${activeTab === 'shopping'
-                ? 'bg-white text-emerald-950 shadow-sm'
-                : 'text-emerald-900/50 hover:text-white'
-              }`}
-          >
-            <ShoppingBag className="w-4 h-4" />
-            Giỏ đi chợ ({shoppingList.length})
-          </button>
-          <button
-            onClick={() => setActiveTab('planner')}
-            className={`px-5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${activeTab === 'planner'
-                ? 'bg-white text-emerald-950 shadow-sm'
-                : 'text-emerald-900/50 hover:text-white'
-              }`}
-          >
-            <CalendarCheck2 className="w-4 h-4" />
-            Thực đơn 7 ngày
-          </button>
+          <h1 className="text-2xl sm:text-4xl font-semibold text-white tracking-tight">Giỏ đi chợ</h1>
+          <p className="mt-1 text-emerald-900/50 text-xs sm:text-sm">Gom các nguyên liệu còn thiếu từ món ăn được gợi ý để người dùng dễ chuẩn bị bữa nấu.</p>
         </div>
       </div>
 
-      {activeTab === 'shopping' ? (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Add item box (4 cols) */}
           <div className="lg:col-span-4 space-y-6">
             <form onSubmit={handleAddCustom} className="bg-white border border-zinc-200 rounded-2xl p-6 card-shadow space-y-4">
@@ -284,59 +214,7 @@ export const MealPlanShopping: React.FC<MealPlanShoppingProps> = ({
               </div>
             )}
           </div>
-        </div>
-      ) : (
-        /* 7-DAY MEAL PLANNER VIEW */
-        /* 7-DAY MEAL PLANNER VIEW */
-        <div className="bg-white border border-zinc-200 rounded-2xl p-8 card-shadow space-y-6">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <h3 className="text-base font-bold text-emerald-950 flex items-center gap-2">
-              <Utensils className="w-5 h-5 text-emerald-900/60" />
-              Lịch trình ăn uống tuần này
-            </h3>
-            <div className="flex gap-2">
-              <span className="text-xs text-emerald-900/60 bg-zinc-100 px-3 py-2 rounded-lg font-medium">Gợi ý dinh dưỡng</span>
-              <button
-                onClick={generateMealPlanAI}
-                disabled={isGeneratingPlan}
-                className="px-4 py-2 bg-emerald-100 text-emerald-800 hover:bg-emerald-200 text-xs font-bold rounded-lg transition-colors border border-emerald-200 flex items-center gap-2"
-              >
-                {isGeneratingPlan ? 'Đang suy nghĩ...' : '✨ Thiết kế bằng AI'}
-              </button>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-3.5">
-            {days.map(day => {
-              const plan = mealPlan[day];
-              return (
-                <div key={day} className="bg-zinc-50 border border-zinc-200 rounded-xl p-4 space-y-3">
-                  <div className="text-center font-bold text-xs text-emerald-950 border-b border-zinc-200 pb-2">
-                    {day}
-                  </div>
-
-                  <div className="space-y-2 text-xs">
-                    <div className="p-2.5 rounded-lg bg-white border border-zinc-100">
-                      <span className="text-[10px] text-emerald-900/60 block font-semibold">Sáng:</span>
-                      <p className="text-emerald-950 font-medium truncate">{plan.breakfast}</p>
-                    </div>
-
-                    <div className="p-2.5 rounded-lg bg-white border border-zinc-100">
-                      <span className="text-[10px] text-emerald-900/60 block font-semibold">Trưa:</span>
-                      <p className="text-emerald-950 font-medium truncate">{plan.lunch}</p>
-                    </div>
-
-                    <div className="p-2.5 rounded-lg bg-white border border-zinc-100">
-                      <span className="text-[10px] text-emerald-900/60 block font-semibold">Tối:</span>
-                      <p className="text-emerald-950 font-medium truncate">{plan.dinner}</p>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
+      </div>
     </div>
   );
 };
