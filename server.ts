@@ -104,66 +104,66 @@ async function startServer() {
       });
     }
 
-    // 2. Seed dữ liệu mẫu nếu CSDL đang trống để demo đồ án luôn có dữ liệu.
-    const ingredientCount = await prisma.ingredient.count();
-    if (ingredientCount === 0 && INITIAL_INGREDIENTS.length > 0) {
-      await prisma.ingredient.createMany({
-        data: INITIAL_INGREDIENTS.map(ing => ({
-          id: ing.id,
-          name: ing.name,
-          normalizedName: ing.normalizedName,
-          category: ing.category,
-          categoryNameVi: ing.categoryNameVi,
-          defaultUnit: ing.defaultUnit
-        })),
-        skipDuplicates: true
-      });
-    }
+    // 2. Merge dữ liệu mẫu vào CSDL để demo luôn có đủ món, không xóa dữ liệu admin đã tạo.
+    await prisma.ingredient.createMany({
+      data: INITIAL_INGREDIENTS.map(ing => ({
+        id: ing.id,
+        name: ing.name,
+        normalizedName: ing.normalizedName,
+        category: ing.category,
+        categoryNameVi: ing.categoryNameVi,
+        defaultUnit: ing.defaultUnit
+      })),
+      skipDuplicates: true
+    });
 
-    const recipeCount = await prisma.recipe.count();
-    if (recipeCount === 0 && INITIAL_RECIPES.length > 0) {
-      const ingredientsByNormalizedName = new Map(
-        (await prisma.ingredient.findMany()).map(ing => [ing.normalizedName, ing])
-      );
+    const ingredientsByNormalizedName = new Map(
+      (await prisma.ingredient.findMany()).map(ing => [ing.normalizedName, ing])
+    );
+    const existingSeedRecipeIds = new Set(
+      (await prisma.recipe.findMany({
+        where: { id: { in: INITIAL_RECIPES.map(recipe => recipe.id) } },
+        select: { id: true }
+      })).map(recipe => recipe.id)
+    );
 
-      for (const recipe of INITIAL_RECIPES) {
-        await prisma.recipe.create({
-          data: {
-            id: recipe.id,
-            name: recipe.name,
-            vietnameseName: recipe.vietnameseName || recipe.name,
-            description: recipe.description,
-            image: recipe.image,
-            cuisine: recipe.cuisine,
-            category: recipe.category,
-            difficulty: recipe.difficulty,
-            totalTime: recipe.totalTime,
-            calories: recipe.calories,
-            rating: recipe.rating,
-            reviewCount: recipe.reviewCount,
-            popularityScore: recipe.popularityScore,
-            ingredients: {
-              create: recipe.ingredients.map(ing => {
-                const dbIng = ingredientsByNormalizedName.get(ing.normalizedName);
-                return {
-                  ingredientId: dbIng?.id || ing.ingredientId,
-                  name: ing.name,
-                  normalizedName: ing.normalizedName,
-                  quantity: ing.quantity,
-                  unit: ing.unit,
-                  isOptional: Boolean(ing.isOptional || ing.importance === 'optional')
-                };
-              })
-            },
-            instructions: {
-              create: recipe.instructions.map(ins => ({
-                stepNumber: ins.stepNumber,
-                instruction: ins.instruction
-              }))
-            }
+    for (const recipe of INITIAL_RECIPES.filter(recipe => !existingSeedRecipeIds.has(recipe.id))) {
+      await prisma.recipe.create({
+        data: {
+          id: recipe.id,
+          name: recipe.name,
+          vietnameseName: recipe.vietnameseName || recipe.name,
+          description: recipe.description,
+          image: recipe.image,
+          cuisine: recipe.cuisine,
+          category: recipe.category,
+          difficulty: recipe.difficulty,
+          totalTime: recipe.totalTime,
+          calories: recipe.calories,
+          rating: recipe.rating,
+          reviewCount: recipe.reviewCount,
+          popularityScore: recipe.popularityScore,
+          ingredients: {
+            create: recipe.ingredients.map(ing => {
+              const dbIng = ingredientsByNormalizedName.get(ing.normalizedName);
+              return {
+                ingredientId: dbIng?.id || ing.ingredientId,
+                name: ing.name,
+                normalizedName: ing.normalizedName,
+                quantity: ing.quantity,
+                unit: ing.unit,
+                isOptional: Boolean(ing.isOptional || ing.importance === 'optional')
+              };
+            })
+          },
+          instructions: {
+            create: recipe.instructions.map(ins => ({
+              stepNumber: ins.stepNumber,
+              instruction: ins.instruction
+            }))
           }
-        });
-      }
+        }
+      });
     }
 
     // 3. Load Ingredients từ TiDB vào RAM
