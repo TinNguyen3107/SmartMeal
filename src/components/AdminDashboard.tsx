@@ -103,7 +103,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       const res = await fetch('/api/admin/run-evaluations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ k: kValue })
+        body: JSON.stringify({ k: kValue, weights })
       });
       const data = await res.json();
       if (data.success) {
@@ -429,37 +429,39 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   const ings = prompt('Nhập các nguyên liệu chính để AI tự động sáng tác món ăn (VD: Trứng gà, Hành lá):');
                   if (!ings) return;
                   
-                  // Gọi AI sinh công thức
                   try {
-                    alert('Đang nhờ AI suy nghĩ... Quá trình này mất khoảng 5-10 giây.');
+                    alert('Đang tạo bản nháp công thức... Nếu chưa cấu hình Gemini, hệ thống sẽ dùng bộ sinh cục bộ.');
                     const aiRes = await fetch('/api/ai/generate-recipe', {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ ingredients: ings.split(',') })
+                      body: JSON.stringify({ ingredients: ings.split(',').map(i => i.trim()).filter(Boolean) })
                     });
                     const data = await aiRes.json();
                     
                     if (data.success && data.recipe) {
-                      // Gửi kết quả của AI để tạo Recipe thực sự vào DB
-                      await fetch('/api/recipes', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(data.recipe)
+                      setEditingRecipe({
+                        ...data.recipe,
+                        id: '',
+                        image: data.recipe.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&auto=format&fit=crop&q=80'
                       });
-                      onRefreshData();
-                      loadAdminData();
-                      alert('Tạo công thức bằng AI thành công!');
+                      setShowRecipeModal(true);
+                      const warnings = data.validation?.warnings || [];
+                      alert(
+                        warnings.length
+                          ? `Đã tạo bản nháp bằng ${data.source === 'gemini' ? 'Gemini' : 'bộ sinh cục bộ'}. Vui lòng kiểm duyệt trước khi lưu:\n- ${warnings.join('\n- ')}`
+                          : `Đã tạo bản nháp bằng ${data.source === 'gemini' ? 'Gemini' : 'bộ sinh cục bộ'}. Hãy kiểm tra lại rồi bấm Lưu Công Thức.`
+                      );
                     } else {
-                      alert('AI sinh công thức thất bại. Vui lòng thử lại.');
+                      alert(data.message || 'Không thể tạo bản nháp công thức. Vui lòng thử lại.');
                     }
                   } catch (e) {
-                    alert('Lỗi kết nối AI.');
+                    alert('Lỗi kết nối khi tạo bản nháp công thức.');
                   }
                 }}
                 className="px-4 py-2 bg-emerald-100 hover:bg-emerald-200 text-emerald-800 text-xs font-bold rounded-lg flex items-center gap-2 border border-emerald-200"
               >
                 <Plus className="w-4 h-4" />
-                Sáng tác tự động (AI)
+                Tạo bản nháp bằng AI
               </button>
 
               <button
@@ -483,7 +485,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 setEditingRecipe(null);
               }}
               onSubmit={async (newRecipe) => {
-                if (editingRecipe) {
+                if (editingRecipe?.id) {
                   await fetch(`/api/recipes/${editingRecipe.id}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },

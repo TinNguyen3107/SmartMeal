@@ -7,6 +7,18 @@ interface RecipeFormModalProps {
   initialData?: any;
 }
 
+const normalizeIngredientName = (name: string) =>
+  name
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/g, 'd')
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/\s+/g, '_')
+    .toUpperCase();
+
 export const RecipeFormModal: React.FC<RecipeFormModalProps> = ({ onClose, onSubmit, initialData }) => {
   const [formData, setFormData] = useState({
     name: initialData?.name || '',
@@ -42,9 +54,10 @@ export const RecipeFormModal: React.FC<RecipeFormModalProps> = ({ onClose, onSub
       ingredients: ingredients.map((i, idx) => ({
         ingredientId: 'ing-manual-' + Date.now() + '-' + idx,
         name: i.name,
-        normalizedName: i.name.toUpperCase().replace(/\s+/g, '_'),
+        normalizedName: normalizeIngredientName(i.name),
         quantity: Number(i.quantity),
-        unit: i.unit
+        unit: i.unit,
+        importance: i.importance || (idx < 2 ? 'primary' : 'secondary')
       })),
       instructions: instructions.map((ins, i) => ({
         stepNumber: i + 1,
@@ -58,7 +71,9 @@ export const RecipeFormModal: React.FC<RecipeFormModalProps> = ({ onClose, onSub
     <div className="fixed inset-0 bg-black/60 z-100 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
         <div className="sticky top-0 bg-white border-b border-zinc-100 p-4 flex justify-between items-center z-10">
-          <h2 className="font-bold text-lg text-emerald-950">Tạo công thức thủ công</h2>
+          <h2 className="font-bold text-lg text-emerald-950">
+            {initialData?.id ? 'Sửa công thức' : initialData?.ingredients?.length ? 'Kiểm duyệt bản nháp công thức' : 'Tạo công thức thủ công'}
+          </h2>
           <button onClick={onClose} className="p-2 bg-zinc-100 rounded-full hover:bg-zinc-200"><X className="w-5 h-5" /></button>
         </div>
         <form onSubmit={handleSubmit} className="p-6 space-y-6">

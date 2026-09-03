@@ -26,7 +26,8 @@ import {
   detectIngredientsFromImage,
   chatWithRecipeAssistant,
   generateRecipeFromIngredients,
-  generateWeeklyMealPlan
+  generateWeeklyMealPlan,
+  validateGeneratedRecipeDraft
 } from './src/server/aiService';
 import {
   Ingredient,
@@ -105,10 +106,73 @@ async function startServer() {
       });
     }
 
-    // 2. Load Ingredients từ TiDB vào RAM
+    // 2. Seed dữ liệu mẫu nếu CSDL đang trống để demo đồ án luôn có dữ liệu.
+    const ingredientCount = await prisma.ingredient.count();
+    if (ingredientCount === 0 && INITIAL_INGREDIENTS.length > 0) {
+      await prisma.ingredient.createMany({
+        data: INITIAL_INGREDIENTS.map(ing => ({
+          id: ing.id,
+          name: ing.name,
+          normalizedName: ing.normalizedName,
+          category: ing.category,
+          categoryNameVi: ing.categoryNameVi,
+          defaultUnit: ing.defaultUnit
+        })),
+        skipDuplicates: true
+      });
+    }
+
+    const recipeCount = await prisma.recipe.count();
+    if (recipeCount === 0 && INITIAL_RECIPES.length > 0) {
+      const ingredientsByNormalizedName = new Map(
+        (await prisma.ingredient.findMany()).map(ing => [ing.normalizedName, ing])
+      );
+
+      for (const recipe of INITIAL_RECIPES) {
+        await prisma.recipe.create({
+          data: {
+            id: recipe.id,
+            name: recipe.name,
+            vietnameseName: recipe.vietnameseName || recipe.name,
+            description: recipe.description,
+            image: recipe.image,
+            cuisine: recipe.cuisine,
+            category: recipe.category,
+            difficulty: recipe.difficulty,
+            totalTime: recipe.totalTime,
+            calories: recipe.calories,
+            rating: recipe.rating,
+            reviewCount: recipe.reviewCount,
+            popularityScore: recipe.popularityScore,
+            ingredients: {
+              create: recipe.ingredients.map(ing => {
+                const dbIng = ingredientsByNormalizedName.get(ing.normalizedName);
+                return {
+                  ingredientId: dbIng?.id || ing.ingredientId,
+                  name: ing.name,
+                  normalizedName: ing.normalizedName,
+                  quantity: ing.quantity,
+                  unit: ing.unit,
+                  isOptional: Boolean(ing.isOptional || ing.importance === 'optional')
+                };
+              })
+            },
+            instructions: {
+              create: recipe.instructions.map(ins => ({
+                stepNumber: ins.stepNumber,
+                instruction: ins.instruction
+              }))
+            }
+          }
+        });
+      }
+    }
+
+    // 3. Load Ingredients từ TiDB vào RAM
     const dbIngs = await prisma.ingredient.findMany();
     if (dbIngs.length > 0) {
       dbIngredients = dbIngs.map(ing => ({
+        ...(INITIAL_INGREDIENTS.find(seed => seed.normalizedName === ing.normalizedName) || {}),
         id: ing.id,
         name: ing.name,
         normalizedName: ing.normalizedName,
@@ -120,10 +184,11 @@ async function startServer() {
       }));
     }
 
-    // 3. Load Recipes từ TiDB vào RAM (kèm nguyên liệu)
+    // 4. Load Recipes từ TiDB vào RAM (kèm nguyên liệu)
     const dbRecs = await prisma.recipe.findMany({ include: { ingredients: true, instructions: true } });
     if (dbRecs.length > 0) {
       dbRecipes = dbRecs.map(r => ({
+        ...(INITIAL_RECIPES.find(seed => seed.id === r.id) || {}),
         id: r.id,
         name: r.name,
         vietnameseName: r.vietnameseName,
@@ -131,17 +196,22 @@ async function startServer() {
         image: r.image,
         cuisine: r.cuisine as any,
         category: r.category as any,
-        dietaryTags: ['Vietnamese'] as any[],
+        dietaryTags: (INITIAL_RECIPES.find(seed => seed.id === r.id)?.dietaryTags || ['Vietnamese']) as any[],
         difficulty: r.difficulty as any,
-        preparationTime: 5,
-        cookingTime: r.totalTime - 5,
+        preparationTime: INITIAL_RECIPES.find(seed => seed.id === r.id)?.preparationTime || 5,
+        cookingTime: INITIAL_RECIPES.find(seed => seed.id === r.id)?.cookingTime || Math.max(0, r.totalTime - 5),
         totalTime: r.totalTime,
         calories: r.calories,
-        servings: 2,
+        proteinGrams: INITIAL_RECIPES.find(seed => seed.id === r.id)?.proteinGrams,
+        carbGrams: INITIAL_RECIPES.find(seed => seed.id === r.id)?.carbGrams,
+        fatGrams: INITIAL_RECIPES.find(seed => seed.id === r.id)?.fatGrams,
+        nutritionNotes: INITIAL_RECIPES.find(seed => seed.id === r.id)?.nutritionNotes,
+        servings: INITIAL_RECIPES.find(seed => seed.id === r.id)?.servings || 2,
         rating: r.rating,
         reviewCount: r.reviewCount,
         popularityScore: r.popularityScore,
         ingredients: r.ingredients.map(i => ({
+          ...(INITIAL_RECIPES.find(seed => seed.id === r.id)?.ingredients.find(seedIng => seedIng.normalizedName === i.normalizedName) || {}),
           ingredientId: i.ingredientId,
           name: i.name,
           normalizedName: i.normalizedName,
@@ -163,7 +233,14 @@ async function startServer() {
     console.log(`✅ Database loaded: ${dbIngredients.length} nguyên liệu, ${dbRecipes.length} công thức, 2 tài khoản`);
   }
 
-  await seedAndLoadDatabase();
+  try {
+    await seedAndLoadDatabase();
+  } catch (error) {
+    console.error('Không thể kết nối CSDL, chuyển sang dữ liệu mẫu trong bộ nhớ:', error);
+    dbIngredients = [...INITIAL_INGREDIENTS];
+    dbRecipes = [...INITIAL_RECIPES];
+    addLog('AUTH', 'Không thể kết nối CSDL, hệ thống đang chạy bằng dữ liệu mẫu trong bộ nhớ.');
+  }
 
   app.use(express.json({ limit: '20mb' }));
   app.use(express.urlencoded({ extended: true, limit: '20mb' }));
@@ -327,7 +404,7 @@ async function startServer() {
     if (!name || !category) {
       return res.status(400).json({ message: 'Thiếu tên hoặc danh mục nguyên liệu' });
     }
-    const normalized = name.toUpperCase().replace(/\s+/g, '_');
+    const normalized = normalizeIngredient(name, dbIngredients).normalizedName;
     const newIng: Ingredient = {
       id: `ing-${Date.now()}`,
       name,
@@ -511,7 +588,7 @@ async function startServer() {
     // Đảm bảo tất cả nguyên liệu đã tồn tại trong bảng Ingredient trước khi tạo Recipe
     const resolvedIngredients = [];
     for (const ing of body.ingredients || []) {
-      const normName = ing.normalizedName || ing.name.toUpperCase().replace(/\s+/g, '_');
+      const normName = ing.normalizedName || normalizeIngredient(ing.name, dbIngredients).normalizedName;
       let dbIng = await prisma.ingredient.findUnique({ where: { normalizedName: normName } });
       
       if (!dbIng) {
@@ -805,7 +882,16 @@ async function startServer() {
     addLog('AI_GENERATE', `AI đang sáng tạo công thức chuẩn dinh dưỡng từ: ${ingredients.join(', ')}`);
     try {
       const generatedRecipe = await generateRecipeFromIngredients(ingredients, mergedPreferences);
-      res.json({ success: true, recipe: generatedRecipe });
+      const validation = validateGeneratedRecipeDraft(generatedRecipe);
+      res.json({
+        success: true,
+        recipe: validation.normalizedRecipe,
+        validation: {
+          isValid: validation.isValid,
+          warnings: validation.warnings
+        },
+        source: process.env.GEMINI_API_KEY ? 'gemini' : 'local-generator'
+      });
     } catch (err) {
       res.status(500).json({ success: false, message: 'Lỗi khi gọi AI sinh công thức.' });
     }
@@ -847,7 +933,28 @@ async function startServer() {
   });
 
   app.post('/api/admin/run-evaluations', (req, res) => {
-    const { k = 5 } = req.body;
+    const { k = 5, weights } = req.body;
+    
+    // Dynamically calculate actual test results for each test case
+    const updatedTestCases = dbTestCases.map(tc => {
+      const recs = calculateRecommendations(
+        {
+          ingredients: tc.inputIngredients.map(name => ({ name })),
+          preferences: tc.filterConditions,
+          weights: weights
+        },
+        dbRecipes,
+        dbIngredients
+      );
+      const top1 = recs[0];
+      return {
+        ...tc,
+        actualTopResult: top1 ? top1.recipe.name : (tc.actualTopResult || 'Không tìm thấy'),
+        passed: Boolean(top1 && top1.matchScore >= 30)
+      };
+    });
+    dbTestCases = updatedTestCases;
+
     const metrics = evaluateRecommendationMetrics(dbTestCases, Number(k) || 5, dbRecipes, dbIngredients);
     addLog('RECOMMEND', `Chạy bộ kiểm thử tự động Evaluation Suite: Precision@${k}=${metrics.precisionAtK}%, HitRate@${k}=${metrics.hitRateAtK}%`);
     res.json({ success: true, metrics, testCases: dbTestCases });

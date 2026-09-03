@@ -52,6 +52,7 @@ export interface RecipeIngredientItem {
   quantity: number;
   unit: string;
   isOptional?: boolean;
+  importance?: 'primary' | 'secondary' | 'optional';
   notes?: string;
 }
 
@@ -201,16 +202,16 @@ export interface EvaluationMetricResult {
 
 export interface TestCaseResult {
   id: string;
-  name: string;
+  name?: string;
   description: string;
   inputIngredients: string[];
   filterConditions?: Record<string, any>;
   expectedOutcome: string;
   actualTopResult: string;
   passed: boolean;
-  score: number;
-  latencyMs: number;
-  details: string;
+  score?: number;
+  latencyMs?: number;
+  details?: string;
 }
 
 export interface MealPlanDay {

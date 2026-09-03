@@ -11,11 +11,11 @@ import {
 import { INITIAL_INGREDIENTS, INITIAL_RECIPES } from '../data/mockDatabase';
 
 export const DEFAULT_WEIGHTS: RecommendationWeightConfig = {
-  ingredientMatch: 0.50,
+  ingredientMatch: 0.55,
   userPreference: 0.20,
   rating: 0.10,
-  popularity: 0.10,
-  cookingTime: 0.05,
+  popularity: 0.05,
+  cookingTime: 0.10,
   difficulty: 0.05
 };
 
@@ -82,6 +82,36 @@ export function normalizeIngredient(
   };
 }
 
+function getIngredientImportanceWeight(ingredient: Recipe['ingredients'][number], allIngredients: Ingredient[]): number {
+  if (ingredient.importance === 'primary') return 1;
+  if (ingredient.importance === 'secondary') return 0.65;
+  if (ingredient.importance === 'optional' || ingredient.isOptional) return 0.2;
+
+  const canonical = allIngredients.find(i => i.normalizedName === ingredient.normalizedName);
+  if (canonical?.category === 'Condiment') return 0.35;
+  return 0.75;
+}
+
+function unitsLookComparable(userUnit?: string, recipeUnit?: string): boolean {
+  if (!userUnit || !recipeUnit) return false;
+  return sanitizeString(userUnit) === sanitizeString(recipeUnit);
+}
+
+function calculateQuantityRatio(
+  userQuantity?: number,
+  requiredQuantity?: number,
+  userUnit?: string,
+  requiredUnit?: string
+): number {
+  if (!userQuantity || !requiredQuantity || userQuantity <= 0 || requiredQuantity <= 0) {
+    return 1;
+  }
+  if (!unitsLookComparable(userUnit, requiredUnit)) {
+    return 1;
+  }
+  return Math.max(0, Math.min(1, userQuantity / requiredQuantity));
+}
+
 /**
  * FR-08, FR-09, FR-10, FR-11, FR-12, FR-13: Core Recommendation Calculation
  */
@@ -122,16 +152,28 @@ export function calculateRecommendations(
       if (hasExcluded) continue;
     }
 
-    // Required vs Optional ingredients
     const requiredRecipeIngredients = recipe.ingredients.filter(i => !i.isOptional);
-    const totalRequiredCount = requiredRecipeIngredients.length || 1;
+    const totalRequiredWeight = requiredRecipeIngredients.reduce(
+      (sum, ing) => sum + getIngredientImportanceWeight(ing, allIngredients),
+      0
+    ) || 1;
 
     const matchedIngredients: RecommendedRecipe['matchedIngredients'] = [];
     const missingIngredients: RecommendedRecipe['missingIngredients'] = [];
+    let matchedRequiredWeight = 0;
+    let quantityShortagePenalty = 0;
 
     for (const recIng of recipe.ingredients) {
       const userHas = normalizedUserList.find(u => u.normalizedName === recIng.normalizedName);
       if (userHas) {
+        const quantityRatio = calculateQuantityRatio(userHas.quantity, recIng.quantity, userHas.unit, recIng.unit);
+        if (!recIng.isOptional) {
+          const importanceWeight = getIngredientImportanceWeight(recIng, allIngredients);
+          matchedRequiredWeight += importanceWeight * quantityRatio;
+          if (quantityRatio < 1) {
+            quantityShortagePenalty += Math.round((1 - quantityRatio) * importanceWeight * 8);
+          }
+        }
         matchedIngredients.push({
           name: recIng.name,
           normalizedName: recIng.normalizedName,
@@ -152,11 +194,8 @@ export function calculateRecommendations(
       }
     }
 
-    // FR-09: Ingredient Match Score = (Matched Required / Total Required) * 100
-    const matchedRequiredCount = recipe.ingredients
-      .filter(i => !i.isOptional && userNormSet.has(i.normalizedName)).length;
-
-    let ingredientMatchScore = (matchedRequiredCount / totalRequiredCount) * 100;
+    // FR-09: Weighted Ingredient Match Score. Primary ingredients carry more value than condiments.
+    let ingredientMatchScore = (matchedRequiredWeight / totalRequiredWeight) * 100;
     ingredientMatchScore = Math.min(100, Math.max(0, Math.round(ingredientMatchScore)));
 
     // If no user ingredient matched at all and user provided ingredients, match is 0
@@ -217,7 +256,11 @@ export function calculateRecommendations(
     const diffScore = recipe.difficulty === 'Easy' ? 100 : recipe.difficulty === 'Medium' ? 80 : 60;
 
     // FR-12: Missing ingredient penalty
-    const missingPenalty = missingIngredients.length * 3;
+    const missingPenalty = missingIngredients.reduce((sum, ing) => {
+      const recipeIngredient = recipe.ingredients.find(r => r.normalizedName === ing.normalizedName);
+      const importanceWeight = recipeIngredient ? getIngredientImportanceWeight(recipeIngredient, allIngredients) : 0.75;
+      return sum + Math.round(importanceWeight * 6);
+    }, 0);
 
     // FR-13: Weighted Recommendation Score
     let finalScore =
@@ -227,7 +270,8 @@ export function calculateRecommendations(
       (popularityScore * weights.popularity) +
       (timeScore * weights.cookingTime) +
       (diffScore * weights.difficulty) -
-      missingPenalty;
+      missingPenalty -
+      quantityShortagePenalty;
 
     finalScore = Math.max(0, Math.min(100, Math.round(finalScore)));
 
