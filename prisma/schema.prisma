@@ -7,29 +7,141 @@ datasource db {
   provider = "mysql"
 }
 
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      String   @default("USER")
+  avatar    String?
+  gender    String?
+  age       Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  preference    UserPreference?
+  pantry        UserIngredient[]
+  favorites     Favorite[]
+  reviews       Review[]
+  histories     RecommendationHistory[]
+  legacyHistory History[]
+  feedbacks     RecommendationFeedback[]
+  evaluationRuns EvaluationRun[]
+  evaluationCases EvaluationCase[]
+
+  @@index([role])
+}
+
+model UserPreference {
+  id                  String   @id @default(uuid())
+  userId              String   @unique
+  dietaryType         String?
+  preferredCuisine    String?
+  maxCookingTime      Int?
+  preferredDifficulty String?
+  nutritionGoal       String?
+  activityLevel       String?
+  heightCm            Int?
+  weightKg            Float?
+  targetCalories      Int?
+  targetProtein       Float?
+  targetCarbs         Float?
+  targetFat           Float?
+  allergies           String?  @db.Text
+  tags                String   @db.Text
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @default(now()) @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Ingredient {
+  id              String   @id @default(uuid())
+  name            String
+  normalizedName  String   @unique
+  category        String
+  categoryNameVi  String
+  defaultUnit     String
+  caloriesPer100g Float?
+  proteinPer100g  Float?
+  carbsPer100g    Float?
+  fatPer100g      Float?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @default(now()) @updatedAt
+
+  aliases    IngredientAlias[]
+  recipes    RecipeIngredient[]
+  userPantry UserIngredient[]
+
+  @@index([category])
+}
+
+model IngredientAlias {
+  id           String @id @default(uuid())
+  ingredientId String
+  alias        String
+  normalized   String @unique
+
+  ingredient Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+
+  @@index([ingredientId])
+}
+
 model Recipe {
   id              String   @id @default(uuid())
   name            String
   vietnameseName  String
   description     String   @db.Text
-  image           String
+  image           String?
   cuisine         String
   category        String
   difficulty      String
-  totalTime       Int
-  calories        Int
+  totalTime       Int      @default(0)
+  preparationTime Int      @default(10)
+  cookingTime     Int      @default(15)
+  calories        Int?
+  servings        Int      @default(1)
+  tags            String   @default("[]")
+  source          String   @default("MANUAL")
+  status          String   @default("PUBLISHED")
   rating          Float    @default(5.0)
   reviewCount     Int      @default(0)
   popularityScore Int      @default(50)
   createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  updatedAt       DateTime @default(now()) @updatedAt
 
-  // Relations
-  ingredients  RecipeIngredient[]
-  instructions RecipeInstruction[]
-  histories    History[]
-  favorites    Favorite[]
-  reviews      Review[]
+  ingredients   RecipeIngredient[]
+  instructions  RecipeInstruction[]
+  favorites     Favorite[]
+  reviews       Review[]
+  histories     RecommendationHistory[]
+  legacyHistory History[]
+  feedbacks     RecommendationFeedback[]
+
+  @@index([status])
+  @@index([category])
+  @@index([cuisine])
+}
+
+model RecipeIngredient {
+  id              String  @id @default(uuid())
+  recipeId        String
+  ingredientId    String
+  name            String
+  normalizedName  String
+  quantity        Float
+  unit            String
+  isOptional      Boolean @default(false)
+  caloriesPer100g Float?
+  proteinPer100g  Float?
+  carbsPer100g    Float?
+  fatPer100g      Float?
+
+  recipe     Recipe     @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  ingredient Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+
+  @@index([recipeId])
+  @@index([ingredientId])
 }
 
 model RecipeInstruction {
@@ -37,26 +149,10 @@ model RecipeInstruction {
   recipeId    String
   stepNumber  Int
   instruction String @db.Text
-  
+
   recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
 
   @@index([recipeId])
-}
-
-model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  name      String
-  role      String   @default("user")
-  avatar    String?
-  createdAt DateTime @default(now())
-  
-  // Relations
-  histories  History[]
-  pantry     UserIngredient[]
-  favorites  Favorite[]
-  reviews    Review[]
 }
 
 model UserIngredient {
@@ -89,57 +185,12 @@ model Favorite {
   @@index([recipeId])
 }
 
-model Review {
-  id         String   @id @default(uuid())
-  userId     String
-  recipeId   String
-  rating     Float
-  comment    String   @db.Text
-  createdAt  DateTime @default(now())
-
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([recipeId])
-}
-
-model Ingredient {
-  id             String   @id @default(uuid())
-  name           String
-  normalizedName String   @unique
-  category       String
-  categoryNameVi String
-  defaultUnit    String
-  
-  // Relations
-  recipes        RecipeIngredient[]
-  userPantry     UserIngredient[]
-}
-
-model RecipeIngredient {
-  id               String  @id @default(uuid())
-  recipeId         String
-  ingredientId     String
-  name             String
-  normalizedName   String
-  quantity         Float
-  unit             String
-  isOptional       Boolean @default(false)
-  
-  recipe     Recipe     @relation(fields: [recipeId], references: [id], onDelete: Cascade)
-  ingredient Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
-
-  @@index([recipeId])
-  @@index([ingredientId])
-}
-
 model History {
   id         String   @id @default(uuid())
   userId     String
   recipeId   String
   recipeName String
-  type       String   // "VIEW" or "COOKED"
+  type       String
   date       DateTime @default(now())
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -147,4 +198,91 @@ model History {
 
   @@index([userId])
   @@index([recipeId])
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  userId    String
+  recipeId  String
+  rating    Float
+  comment   String?  @db.Text
+  createdAt DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([recipeId])
+}
+
+model RecommendationHistory {
+  id               String   @id @default(uuid())
+  userId           String?
+  recipeId         String
+  inputIngredients String   @db.Text
+  score            Float
+  matchScore       Float
+  missingCount     Int
+  generatedAt      DateTime @default(now())
+
+  user   User?  @relation(fields: [userId], references: [id], onDelete: SetNull)
+  recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([recipeId])
+}
+
+model RecommendationFeedback {
+  id        String   @id @default(uuid())
+  userId    String
+  recipeId  String
+  type      String
+  note      String?  @db.Text
+  createdAt DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([recipeId])
+}
+
+model EvaluationRun {
+  id                    String   @id @default(uuid())
+  executedById          String?
+  k                     Int
+  weights               Json
+  precisionAtK          Int
+  recallAtK             Int
+  hitRateAtK            Int
+  ndcgAtK               Int
+  evaluatedQueriesCount Int
+  averageLatencyMs      Int
+  userHelpfulRate       Int
+  testCases             Json
+  createdAt             DateTime @default(now())
+
+  executedBy User? @relation(fields: [executedById], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+  @@index([executedById])
+}
+
+model EvaluationCase {
+  id                String   @id @default(uuid())
+  code              String   @unique
+  description       String   @db.Text
+  inputIngredients  Json
+  expectedRecipeIds Json
+  nutritionGoal     String?
+  tags              Json
+  isActive          Boolean  @default(true)
+  createdById       String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  createdBy User? @relation(fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([isActive])
+  @@index([createdById])
 }

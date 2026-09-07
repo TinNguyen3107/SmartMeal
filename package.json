@@ -5,14 +5,19 @@
   "type": "module",
   "scripts": {
     "dev": "tsx server.ts",
-    "build": "vite build && esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs",
-    "start": "node dist/server.cjs",
+    "build": "vite build && esbuild server.ts --bundle --platform=node --format=esm --packages=external --sourcemap --outfile=dist/server.js",
+    "start": "node dist/server.js",
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "smoke": "node scripts/smoke-test.mjs",
+    "test:engine": "tsx scripts/engine-test.ts",
+    "prisma:generate": "prisma generate --config prisma7.config.ts",
+    "prisma:push": "prisma db push --config prisma7.config.ts",
+    "prisma:seed": "prisma db seed --config prisma7.config.ts",
+    "evaluation:seed": "tsx scripts/seed-evaluation-cases.ts"
   },
   "dependencies": {
-    "@google/genai": "^2.4.0",
     "@prisma/adapter-mariadb": "^7.10.0",
     "@tailwindcss/vite": "^4.1.14",
     "@types/bcryptjs": "2.4.6",
