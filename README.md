@@ -97,3 +97,4 @@ npm run smoke
 - SRS mới: `SmartMeal_SRS.md`
 - Lộ trình: `development_roadmap.md`
 - Giải thích thuật toán gợi ý: `docs/RECOMMENDATION_ENGINE.md`
+- Hướng dẫn sử dụng, phân quyền và toàn bộ rule: `docs/SMARTMEAL_USER_AND_RULE_GUIDE.md`

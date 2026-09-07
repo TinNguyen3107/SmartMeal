@@ -232,6 +232,22 @@ await check('ingredients expose nutrition facts per 100g', async () => {
   assert(Number(egg.proteinPer100g) > 0, 'Expected protein per 100g');
 });
 
+await check('water spinach and garlic return the approved stir-fry recipe', async () => {
+  const { body } = await request('/api/recommendations', {
+    method: 'POST',
+    body: JSON.stringify({
+      text: '1 bó rau muống, 3 tép tỏi',
+      nutritionGoal: 'BALANCED',
+      tags: ['Vietnamese', 'Healthy']
+    })
+  });
+  const top = body.recommendations?.[0];
+  assert(top, 'Expected an approved recipe for water spinach and garlic');
+  assert(top.vietnameseName === 'Rau muống xào tỏi', `Expected water-spinach stir-fry first, got ${top.vietnameseName}`);
+  assert(top.matchScore === 100, 'Water spinach should satisfy every required ingredient');
+  assert(top.missingIngredients?.length === 0, 'Only optional seasonings may be absent');
+});
+
 await check('local NLP recommendation ranks shrimp cucumber correctly', async () => {
   const { body } = await request('/api/recommendations', {
     method: 'POST',

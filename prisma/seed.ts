@@ -53,6 +53,7 @@ const nutritionFacts: Record<string, { caloriesPer100g: number; proteinPer100g: 
   broccoli: { caloriesPer100g: 34, proteinPer100g: 2.8, carbsPer100g: 6.6, fatPer100g: 0.4 },
   mushroom: { caloriesPer100g: 22, proteinPer100g: 3.1, carbsPer100g: 3.3, fatPer100g: 0.3 },
   cucumber: { caloriesPer100g: 15, proteinPer100g: 0.7, carbsPer100g: 3.6, fatPer100g: 0.1 },
+  'water-spinach': { caloriesPer100g: 19, proteinPer100g: 2.6, carbsPer100g: 3.1, fatPer100g: 0.2 },
   garlic: { caloriesPer100g: 149, proteinPer100g: 6.4, carbsPer100g: 33.1, fatPer100g: 0.5 },
   'fish-sauce': { caloriesPer100g: 35, proteinPer100g: 5, carbsPer100g: 3.6, fatPer100g: 0 },
   'soy-sauce': { caloriesPer100g: 53, proteinPer100g: 8.1, carbsPer100g: 4.9, fatPer100g: 0.6 }

@@ -35,6 +35,16 @@ const ingredients: TestIngredient[] = [
     id: 'rice', name: 'Cơm trắng', normalizedName: 'rice', category: 'carb', categoryNameVi: 'Tinh bột', defaultUnit: 'chén',
     caloriesPer100g: 130, proteinPer100g: 2.7, carbsPer100g: 28, fatPer100g: 0.3,
     aliases: [{ alias: 'rice', normalized: 'rice' }]
+  },
+  {
+    id: 'water-spinach', name: 'Rau muống', normalizedName: 'water-spinach', category: 'vegetable', categoryNameVi: 'Rau củ', defaultUnit: 'bó',
+    caloriesPer100g: 19, proteinPer100g: 2.6, carbsPer100g: 3.1, fatPer100g: 0.2,
+    aliases: [{ alias: 'rau muống', normalized: 'rau muong' }]
+  },
+  {
+    id: 'garlic', name: 'Tỏi', normalizedName: 'garlic', category: 'seasoning', categoryNameVi: 'Gia vị', defaultUnit: 'tép',
+    caloriesPer100g: 149, proteinPer100g: 6.4, carbsPer100g: 33.1, fatPer100g: 0.5,
+    aliases: [{ alias: 'tỏi', normalized: 'toi' }]
   }
 ];
 
@@ -134,4 +144,7 @@ assert.equal(unknownResult.recommendations.length, 0, 'Unknown ingredient must n
 assert.equal(unknownResult.generatedDraft?.source, 'LOCAL_GENERATOR', 'Unknown ingredient should use local flexible fallback');
 assert(unknownResult.warnings.some(warning => warning.includes('mystery-herb')), 'Unknown ingredient requires a verification warning');
 
-console.log('Engine tests passed: parsing, aliases, allergy boundaries, nutrition-goal ranking, and flexible fallback.');
+const waterSpinachDraft = buildRecommendations({ text: '1 bó rau muống, 3 tép tỏi' }, ingredients, recipes).generatedDraft;
+assert.equal(waterSpinachDraft?.vietnameseName, 'Rau muống xào tỏi (nháp linh hoạt)', 'Common water-spinach and garlic pair should use its local culinary rule');
+
+console.log('Engine tests passed: parsing, aliases, allergy boundaries, nutrition-goal ranking, and flexible fallback rules.');

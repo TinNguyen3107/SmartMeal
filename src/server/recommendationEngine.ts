@@ -540,6 +540,8 @@ export function generateRecipeDraft(ingredients: ResolvedIngredient[], request: 
   const vegetable = ingredients.find(item => item.category === 'vegetable' && item.id !== main.id);
   const carb = ingredients.find(item => item.category === 'carb');
   const seasoning = ingredients.find(item => item.category === 'seasoning');
+  const waterSpinach = ingredients.find(item => item.normalizedName === 'water-spinach');
+  const garlic = ingredients.find(item => item.normalizedName === 'garlic');
   const titleParts = [main.name, vegetable?.name, carb ? `ăn kèm ${carb.name}` : undefined].filter(Boolean);
   const defaultMinutes = carb ? 28 : 22;
   const requestedMax = Number(request.maxCookingTime) || defaultMinutes;
@@ -555,6 +557,48 @@ export function generateRecipeDraft(ingredients: ResolvedIngredient[], request: 
     : nutritionGoal.includes('weight')
     ? ['Healthy']
     : [];
+
+  // A small, explicit culinary rule keeps common Vietnamese ingredient pairs useful
+  // even when the recipe catalogue does not yet contain the approved recipe.
+  if (waterSpinach && garlic) {
+    const draftIngredients = [waterSpinach, garlic].map(item => ({
+      ingredientId: item.id,
+      name: item.name,
+      normalizedName: item.normalizedName,
+      quantity: item.quantity,
+      unit: item.unit === 'phần' ? item.defaultUnit : item.unit,
+      isOptional: item.normalizedName === 'garlic'
+    }));
+
+    return {
+      name: 'Flexible Stir-Fried Water Spinach with Garlic',
+      vietnameseName: 'Rau muống xào tỏi (nháp linh hoạt)',
+      description: 'Gợi ý cục bộ cho cặp nguyên liệu rau muống và tỏi. Đây không phải công thức đã được admin kiểm duyệt.',
+      cuisine: 'Vietnamese',
+      category: 'Món rau',
+      difficulty: 'Easy',
+      preparationTime: 8,
+      cookingTime: 7,
+      calories: estimatedNutrition.calories,
+      estimatedNutrition,
+      servings: 2,
+      tags: ['Flexible Recipe', 'Vietnamese', 'Quick Meal', 'Vegetarian', ...goalTags],
+      source: 'LOCAL_GENERATOR',
+      status: 'DRAFT',
+      ingredients: draftIngredients,
+      instructions: [
+        { stepNumber: 1, instruction: 'Nhặt rau muống, rửa sạch và để thật ráo. Băm nhỏ tỏi.' },
+        { stepNumber: 2, instruction: 'Làm nóng chảo với lượng dầu vừa đủ, phi tỏi đến khi thơm.' },
+        { stepNumber: 3, instruction: 'Cho rau muống vào xào lửa lớn 3 đến 4 phút, đảo liên tục để rau chín đều và còn xanh.' },
+        { stepNumber: 4, instruction: 'Nêm vừa ăn, tắt bếp khi rau vừa chín tới và dùng nóng.' }
+      ],
+      reasons: [
+        'Áp dụng rule món rau: rau muống kết hợp tỏi phù hợp với kỹ thuật xào nhanh lửa lớn.',
+        'Công thức sinh tại chỗ bằng luật cục bộ, không phụ thuộc Gemini API key.',
+        'Định lượng và dinh dưỡng là ước tính; cần xác minh trước khi dùng cho chế độ ăn điều trị.'
+      ]
+    };
+  }
 
   return {
     name: `Flexible ${main.normalizedName} Meal`,

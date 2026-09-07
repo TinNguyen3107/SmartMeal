@@ -104,6 +104,14 @@ export const seedIngredients = [
     aliases: ['dưa leo', 'dua leo', 'dưa chuột', 'cucumber']
   },
   {
+    name: 'Rau muống',
+    normalizedName: 'water-spinach',
+    category: 'vegetable',
+    categoryNameVi: 'Rau củ',
+    defaultUnit: 'bó',
+    aliases: ['rau muống', 'rau muong', 'water spinach', 'morning glory', 'kangkong']
+  },
+  {
     name: 'Tỏi',
     normalizedName: 'garlic',
     category: 'seasoning',
@@ -230,6 +238,31 @@ export const seedRecipes = [
       'Xào nấm đến khi vừa chín.',
       'Cho đậu hũ vào, nêm nước tương.',
       'Rắc hành lá và dùng nóng.'
+    ]
+  },
+  {
+    name: 'Stir-Fried Water Spinach with Garlic',
+    vietnameseName: 'Rau muống xào tỏi',
+    description: 'Món rau Việt Nam nhanh, thơm mùi tỏi, phù hợp khi cần thêm một món rau xanh cho bữa cơm.',
+    cuisine: 'Vietnamese',
+    category: 'Món rau',
+    difficulty: 'Easy',
+    preparationTime: 8,
+    cookingTime: 7,
+    calories: 105,
+    servings: 2,
+    tags: ['Vietnamese', 'Healthy', 'Quick Meal', 'Vegetarian'],
+    popularityScore: 82,
+    ingredients: [
+      { normalizedName: 'water-spinach', quantity: 1, unit: 'bó' },
+      { normalizedName: 'garlic', quantity: 3, unit: 'tép', isOptional: true },
+      { normalizedName: 'fish-sauce', quantity: 8, unit: 'ml', isOptional: true }
+    ],
+    instructions: [
+      'Nhặt rau muống, rửa sạch và để thật ráo nước. Bóc, băm nhỏ tỏi.',
+      'Làm nóng chảo với một lượng dầu vừa đủ, phi tỏi đến khi dậy mùi.',
+      'Cho rau muống vào xào lửa lớn 3 đến 4 phút, đảo liên tục để rau chín đều và còn xanh.',
+      'Nêm vừa ăn, tắt bếp ngay khi rau vừa chín tới và dùng nóng.'
     ]
   },
   {

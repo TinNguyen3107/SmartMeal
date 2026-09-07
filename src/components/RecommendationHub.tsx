@@ -787,7 +787,7 @@ export const RecommendationHub: React.FC<RecommendationHubProps> = ({
             ))}
           </div>
 
-          {generatedDraft && (
+          {generatedDraft && showGeneratedDraft && (
             <section className="bg-[#FDFBF7] border border-[#D8DFB0] rounded-[28px] overflow-hidden card-shadow">
               <div className="p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="min-w-0">
