@@ -1,15 +1,87 @@
 @import "tailwindcss";
 
 @layer base {
+  :root {
+    font-synthesis: none;
+    text-size-adjust: 100%;
+  }
+
   body {
     background-color: #FDFBF7;
     color: #3D3D3D;
-    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    font-family: 'Be Vietnam Pro', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-kerning: normal;
+    text-rendering: optimizeLegibility;
   }
 
   h1, h2, h3, .font-serif, .serif {
-    font-family: 'Fraunces', 'Georgia', serif;
+    font-family: 'Noto Serif', Georgia, serif;
+    font-kerning: normal;
+    letter-spacing: 0 !important;
+    line-height: 1.32 !important;
+    overflow-wrap: break-word;
   }
+
+  button, input, textarea, select {
+    font-family: inherit;
+    letter-spacing: 0 !important;
+    line-height: 1.4 !important;
+  }
+
+  p, span, label, li, td, th {
+    letter-spacing: 0 !important;
+    overflow-wrap: break-word;
+  }
+}
+
+/* Vietnamese diacritics need neutral tracking and enough line box height.
+   These overrides protect compact Tailwind utility combinations across every tab. */
+.tracking-tight,
+.tracking-wide,
+.tracking-wider {
+  letter-spacing: 0 !important;
+}
+
+.leading-tight,
+.leading-none {
+  line-height: 1.32 !important;
+}
+
+.text-\[10px\],
+.text-\[11px\],
+.text-xs {
+  line-height: 1.45 !important;
+}
+
+/* Tailwind's font-serif and tracking utilities are emitted after the base
+   layer. Keep the Vietnamese-safe typography above those generated utilities. */
+html body {
+  font-family: 'Be Vietnam Pro', 'Segoe UI', system-ui, -apple-system, sans-serif !important;
+}
+
+html body h1,
+html body h2,
+html body h3,
+html body .font-serif,
+html body .serif {
+  font-family: 'Noto Serif', Georgia, serif !important;
+  font-kerning: normal !important;
+  letter-spacing: 0 !important;
+  line-height: 1.32 !important;
+}
+
+html body .tracking-tight,
+html body .tracking-wide,
+html body .tracking-wider {
+  letter-spacing: 0 !important;
+}
+
+html body button,
+html body input,
+html body textarea,
+html body select {
+  letter-spacing: 0 !important;
+  line-height: 1.4 !important;
 }
 
 .card-shadow {
@@ -59,4 +131,3 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #A9A296;
 }
-
