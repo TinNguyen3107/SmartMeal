@@ -4,6 +4,8 @@
 
 SmartMeal recommends meals from ingredients the user currently has. Its primary source is the approved recipe catalogue in the database. Gemini is not required for matching, ranking, nutrition estimation, or the flexible draft fallback.
 
+The initial seed contains a baseline catalogue of more than 100 common Vietnamese household ingredients across protein, vegetables, carbohydrates, fruit, dairy, fats, and seasonings. This is a starting vocabulary, not a closed list: administrators can add or correct ingredients, aliases, units, and macro values in the admin dashboard without changing application code.
+
 There are two result types:
 
 1. **Approved recipe**: a recipe created or reviewed by an administrator and published. It can be opened, saved, rated, and included in user history.
@@ -90,6 +92,8 @@ If a recipe is listed, open it to inspect required/missing ingredients, steps, e
 4. Edit incorrect nutrition values or aliases rather than creating duplicate ingredients.
 
 Canonical names and aliases are how user input becomes a database ingredient. If an ingredient does not exist, it cannot match an approved recipe.
+
+The recommended data workflow is: first search the existing catalogue; if an item is absent, add it once with aliases and nutrition per 100 g; then add or revise the recipes that use it. The change immediately benefits every future user request and does not require a code fix or a Gemini call.
 
 ### 4.2 Recipe lifecycle
 

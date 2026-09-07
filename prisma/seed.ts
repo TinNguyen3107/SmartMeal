@@ -59,8 +59,8 @@ const nutritionFacts: Record<string, { caloriesPer100g: number; proteinPer100g: 
   'soy-sauce': { caloriesPer100g: 53, proteinPer100g: 8.1, carbsPer100g: 4.9, fatPer100g: 0.6 }
 };
 
-function nutritionFor(normalizedName: string) {
-  return nutritionFacts[normalizedName] || { caloriesPer100g: 35, proteinPer100g: 2, carbsPer100g: 7, fatPer100g: 0.5 };
+function nutritionFor(normalizedName: string, suppliedNutrition?: { caloriesPer100g: number; proteinPer100g: number; carbsPer100g: number; fatPer100g: number }) {
+  return suppliedNutrition || nutritionFacts[normalizedName] || { caloriesPer100g: 35, proteinPer100g: 2, carbsPer100g: 7, fatPer100g: 0.5 };
 }
 
 async function upsertUsers() {
@@ -148,7 +148,7 @@ async function upsertUsers() {
 async function upsertIngredients() {
   const map = new Map<string, string>();
 
-  for (const item of seedIngredients) {
+  const upsertIngredient = async (item: typeof seedIngredients[number]) => {
     const ingredient = await prisma.ingredient.upsert({
       where: { normalizedName: item.normalizedName },
       update: {
@@ -156,7 +156,7 @@ async function upsertIngredients() {
         category: item.category,
         categoryNameVi: item.categoryNameVi,
         defaultUnit: item.defaultUnit,
-        ...nutritionFor(item.normalizedName)
+        ...nutritionFor(item.normalizedName, item.nutrition)
       },
       create: {
         name: item.name,
@@ -164,18 +164,27 @@ async function upsertIngredients() {
         category: item.category,
         categoryNameVi: item.categoryNameVi,
         defaultUnit: item.defaultUnit,
-        ...nutritionFor(item.normalizedName)
+        ...nutritionFor(item.normalizedName, item.nutrition)
       }
     });
 
-    map.set(item.normalizedName, ingredient.id);
-
-    for (const alias of item.aliases) {
+    await Promise.all(item.aliases.map(async alias => {
       await prisma.ingredientAlias.upsert({
         where: { normalized: normalizeText(alias) },
         update: { alias, ingredientId: ingredient.id },
         create: { alias, normalized: normalizeText(alias), ingredientId: ingredient.id }
       });
+    }));
+
+    return [item.normalizedName, ingredient.id] as const;
+  };
+
+  // Two ingredients at a time keeps remote TiDB writes bounded while avoiding a
+  // long sequential seed when the catalogue grows.
+  for (let index = 0; index < seedIngredients.length; index += 2) {
+    const entries = await Promise.all(seedIngredients.slice(index, index + 2).map(upsertIngredient));
+    for (const [normalizedName, id] of entries) {
+      map.set(normalizedName, id);
     }
   }
 

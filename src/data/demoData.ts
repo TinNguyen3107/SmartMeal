@@ -1,4 +1,6 @@
-export const seedIngredients = [
+import { additionalSeedIngredients, type SeedIngredient } from './ingredientCatalog';
+
+export const seedIngredients: SeedIngredient[] = [
   {
     name: 'Trứng gà',
     normalizedName: 'egg',
@@ -134,7 +136,8 @@ export const seedIngredients = [
     categoryNameVi: 'Gia vị',
     defaultUnit: 'ml',
     aliases: ['nước tương', 'nuoc tuong', 'soy sauce']
-  }
+  },
+  ...additionalSeedIngredients
 ];
 
 export const seedRecipes = [

@@ -8,10 +8,10 @@ type TestIngredient = {
   category: string;
   categoryNameVi: string;
   defaultUnit: string;
-  caloriesPer100g: number;
-  proteinPer100g: number;
-  carbsPer100g: number;
-  fatPer100g: number;
+  caloriesPer100g: number | null;
+  proteinPer100g: number | null;
+  carbsPer100g: number | null;
+  fatPer100g: number | null;
   aliases: { alias: string; normalized: string }[];
 };
 
@@ -146,5 +146,18 @@ assert(unknownResult.warnings.some(warning => warning.includes('mystery-herb')),
 
 const waterSpinachDraft = buildRecommendations({ text: '1 bó rau muống, 3 tép tỏi' }, ingredients, recipes).generatedDraft;
 assert.equal(waterSpinachDraft?.vietnameseName, 'Rau muống xào tỏi (nháp linh hoạt)', 'Common water-spinach and garlic pair should use its local culinary rule');
+
+const duplicateIngredients = [
+  {
+    id: 'legacy-water-spinach', name: 'Rau muống', normalizedName: 'RAU_MUONG', category: 'vegetable', categoryNameVi: 'Vegetable', defaultUnit: 'bó',
+    caloriesPer100g: null, proteinPer100g: null, carbsPer100g: null, fatPer100g: null, aliases: []
+  },
+  {
+    id: 'catalog-water-spinach', name: 'Rau muống', normalizedName: 'water-spinach', category: 'vegetable', categoryNameVi: 'Rau củ', defaultUnit: 'bó',
+    caloriesPer100g: 19, proteinPer100g: 2.6, carbsPer100g: 3.1, fatPer100g: 0.2, aliases: [{ alias: 'rau muống', normalized: 'rau muong' }]
+  }
+];
+const duplicateResult = buildRecommendations({ text: '1 bó rau muống' }, duplicateIngredients, []);
+assert.equal(duplicateResult.normalizedIngredients[0]?.id, 'catalog-water-spinach', 'Resolver must prefer complete catalog data over a legacy duplicate');
 
 console.log('Engine tests passed: parsing, aliases, allergy boundaries, nutrition-goal ranking, and flexible fallback rules.');

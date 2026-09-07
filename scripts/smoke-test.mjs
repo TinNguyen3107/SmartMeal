@@ -232,6 +232,15 @@ await check('ingredients expose nutrition facts per 100g', async () => {
   assert(Number(egg.proteinPer100g) > 0, 'Expected protein per 100g');
 });
 
+await check('baseline ingredient catalogue covers common Vietnamese ingredients', async () => {
+  const { body } = await request('/api/ingredients');
+  const ingredientIds = new Set((body.ingredients || []).map(item => item.normalizedName));
+  assert(ingredientIds.size >= 100, `Expected at least 100 seeded ingredients, got ${ingredientIds.size}`);
+  for (const normalizedName of ['chicken-thigh', 'bok-choy', 'rice-vermicelli', 'oyster-sauce', 'avocado']) {
+    assert(ingredientIds.has(normalizedName), `Expected baseline ingredient ${normalizedName}`);
+  }
+});
+
 await check('water spinach and garlic return the approved stir-fry recipe', async () => {
   const { body } = await request('/api/recommendations', {
     method: 'POST',

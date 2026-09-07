@@ -144,6 +144,21 @@ export function parseTags(tags: string | string[] | undefined): string[] {
 }
 
 function resolveInputIngredients(parsed: ParsedIngredientInput[], ingredients: IngredientRecord[]): ResolvedIngredient[] {
+  const ingredientDataQuality = (ingredient: IngredientRecord) => {
+    const nutritionFields = [
+      ingredient.caloriesPer100g,
+      ingredient.proteinPer100g,
+      ingredient.carbsPer100g,
+      ingredient.fatPer100g
+    ];
+    const nutritionCount = nutritionFields.filter(value => Number.isFinite(Number(value))).length;
+    return nutritionCount * 10 + (ingredient.aliases?.length || 0);
+  };
+
+  const preferredMatch = (candidates: IngredientRecord[]) => candidates
+    .slice()
+    .sort((left, right) => ingredientDataQuality(right) - ingredientDataQuality(left))[0];
+
   return parsed
     .map(input => {
       const normalized = normalizeText(input.name);
@@ -151,9 +166,13 @@ function resolveInputIngredients(parsed: ParsedIngredientInput[], ingredients: I
         [ingredient.name, ingredient.normalizedName, ...(ingredient.aliases || []).flatMap(alias => [alias.alias, alias.normalized])]
           .map(normalizeText)
           .filter(Boolean);
-      const exactMatch = ingredients.find(ingredient => namesFor(ingredient).some(alias => alias === normalized));
+      const exactMatch = preferredMatch(ingredients.filter(ingredient =>
+        namesFor(ingredient).some(alias => alias === normalized)
+      ));
       const fuzzyMatch = normalized.length >= 4
-        ? ingredients.find(ingredient => namesFor(ingredient).some(alias => alias.length >= 4 && (normalized.includes(alias) || alias.includes(normalized))))
+        ? preferredMatch(ingredients.filter(ingredient =>
+          namesFor(ingredient).some(alias => alias.length >= 4 && (normalized.includes(alias) || alias.includes(normalized)))
+        ))
         : undefined;
       const match = exactMatch || fuzzyMatch;
       if (match) return { ...match, quantity: input.quantity, unit: input.unit, isKnown: true };
