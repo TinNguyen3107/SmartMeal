@@ -1,115 +1,99 @@
-# SmartMeal - He thong AI goi y mon an theo nguyen lieu va muc tieu dinh duong
+# SmartMeal
 
-SmartMeal la do an web nganh Cong nghe Thong tin cho phep nguoi dung nhap cac nguyen lieu dang co, sau do he thong tu phan tich tri so dinh duong va goi y cong thuc mon an phu hop cho nhieu nhom nguoi dung nhu an kieng, tap gym, low-carb, an chay hoac bua an can bang.
+SmartMeal là hệ thống gợi ý món ăn dựa trên nguyên liệu có sẵn. Dự án dùng React, Express, Prisma và MySQL/MariaDB, tập trung vào recommendation engine có thể chạy bằng dữ liệu nội bộ thay vì phụ thuộc Gemini API.
 
-Dinh huong thiet ke cua du an la **offline-first AI logic**: loi phan tich va goi y khong phu thuoc Gemini API. Gemini co the duoc bo sung sau nay de dien dat cong thuc tu nhien hon, nhung ket qua chinh duoc tao bang du lieu dinh duong noi bo va thuat toan scoring rieng.
+## Điểm chính
 
-## Chuc nang chinh
+- Đăng nhập thật với role `ADMIN` và `USER`.
+- Chuẩn hóa nguyên liệu bằng alias tiếng Việt/tiếng Anh.
+- Gợi ý món ăn từ recipe thật trong database.
+- Tính match score và hiển thị nguyên liệu còn thiếu.
+- Giải thích lý do món ăn được đề xuất.
+- User có history, favorite và rating.
+- Admin có dashboard, evaluation và công cụ sinh recipe draft.
+- Recipe draft có định lượng, thời gian và bước nấu; admin duyệt trước khi lưu.
+- Khi không có công thức đã duyệt phù hợp, user vẫn nhận được một công thức linh hoạt cục bộ; kết quả này được gắn nhãn chưa kiểm duyệt và không tự xuất bản.
+- Recommendation engine theo hướng hybrid: ingredient matching, nutrition-aware scoring, semantic scoring local và user preference.
 
-- Nhap danh sach nguyen lieu bang ngon ngu tu nhien co dinh luong.
-- Chuan hoa ten nguyen lieu bang alias tieng Viet/tieng Anh.
-- Quy doi so luong ve gram/ml.
-- Tinh calories, protein, carbohydrate, fat va fiber cho tung nguyen lieu.
-- Tinh tong tri so dinh duong cua toan bo nguyen lieu.
-- Hien thi ty le macro P/C/F theo nang luong.
-- Chon muc tieu dinh duong:
-  - Can bang
-  - An kieng/giam can
-  - Tap gym/tang co
-  - Low carb
-  - An chay
-- Goi y cong thuc mon an phu hop voi muc tieu.
-- Hien thi dinh luong, thoi gian, cac buoc nau va ly do goi y.
-- Giai thich thuat toan dung trong he thong.
-
-## Thuat toan Hybrid Nutrition Scoring
-
-He thong gom 4 buoc:
-
-1. **Ingredient parsing**
-   - Tach chuoi nguoi dung nhap thanh danh sach nguyen lieu.
-   - Vi du: `200g uc ga, 1 chen com, 150g bong cai`.
-
-2. **Nutrition analysis**
-   - Chuan hoa ten nguyen lieu bang alias.
-   - Quy doi ve gram/ml.
-   - Tinh calories, protein, carb, fat, fiber dua tren bang du lieu noi bo theo 100g.
-
-3. **Recipe candidate generation**
-   - Nhom nguyen lieu thanh protein, vegetable, carb, fat, seasoning.
-   - Sinh ung vien cong thuc theo cac mau nau an:
-     - Protein + rau cho an kieng/low-carb.
-     - Protein + carb cho tap gym/tang co.
-     - Nguyen lieu thuc vat cho an chay.
-     - Phuong an can bang neu thieu nhom chat.
-
-4. **Recommendation scoring**
-   - Macro score: 40%
-   - Cooking time score: 25%
-   - Calorie target score: 20%
-   - Ingredient variety score: 15%
-
-Cong thuc tong quat:
+## Tài khoản demo
 
 ```text
-Final Score =
-Macro Score * 0.40
-+ Time Score * 0.25
-+ Calorie Score * 0.20
-+ Variety Score * 0.15
+Admin: admin@gmail.com / admin123
+User:  user@gmail.com / user123
 ```
 
-Moi cong thuc duoc xep hang theo diem so va co phan giai thich ly do.
-
-## Vi sao khong lam dung Gemini?
-
-- Du lieu dinh duong nam trong `src/data/nutritionDatabase.ts`.
-- Thuat toan phan tich/giai thich nam trong `src/server/smartMealEngine.ts`.
-- API `/api/smartmeal/analyze` chay duoc ke ca khi khong co `GEMINI_API_KEY`.
-- Gemini chi nen dung trong giai do mo rong, vi du viet lai mo ta cong thuc tu nhien hon hoac giai thich bang van phong than thien hon.
-
-## Cong nghe
-
-- React
-- Vite
-- Tailwind CSS
-- Express
-- TypeScript
-
-## Chay du an
+## Cài đặt
 
 ```bash
 npm install
+```
+
+Tạo `.env` từ `.env.example`, sau đó cấu hình database:
+
+```text
+DATABASE_URL="mysql://USER:PASSWORD@HOST:PORT/DATABASE"
+DATABASE_URL_PRISMA="mysql://USER:PASSWORD@HOST:PORT/DATABASE"
+GEMINI_API_KEY=""
+```
+
+Gemini là tùy chọn. Recommendation core vẫn chạy khi không có key.
+
+Khi deploy, đặt `NODE_ENV=production` và `ALLOW_DEMO_LOGIN=false` để tắt nút đăng nhập demo. Cookie phiên đăng nhập chỉ truyền qua HTTPS ở môi trường production.
+
+## Prisma
+
+Generate Prisma Client:
+
+```bash
+npm run prisma:generate
+```
+
+Đồng bộ schema vào database:
+
+```bash
+npm run prisma:push
+```
+
+Seed dữ liệu demo:
+
+```bash
+npm run prisma:seed
+```
+
+Nạp các ca ground truth `TC-REC` cho evaluation. Lệnh này chỉ tạo ca chưa tồn tại, không ghi đè dữ liệu admin đã quản lý:
+
+```bash
+npm run evaluation:seed
+```
+
+## Chạy dự án
+
+```bash
 npm run dev
 ```
 
-Mo trinh duyet tai:
+Mở:
 
 ```text
 http://localhost:3000
 ```
 
-## API chinh
+## Kiểm thử
 
-```text
-POST /api/smartmeal/analyze
+Kiểm thử thuật toán chạy độc lập, không cần server hay database:
+
+```bash
+npm run test:engine
 ```
 
-Body mau:
+Kiểm thử tích hợp với server và database đang chạy:
 
-```json
-{
-  "text": "200g ức gà, 1 chén cơm, 150g bông cải xanh",
-  "goal": "muscle-gain",
-  "maxMinutes": 30,
-  "servings": 1
-}
+```bash
+npm run smoke
 ```
 
-## Huong phat trien
+## Tài liệu
 
-- Mo rong bang du lieu dinh duong.
-- Luu lich su phan tich cua nguoi dung.
-- Them tai khoan va ho so ca nhan.
-- Them database production.
-- Tich hop Gemini tuy chon de toi uu ngon ngu cong thuc, khong thay the thuat toan loi.
+- SRS mới: `SmartMeal_SRS.md`
+- Lộ trình: `development_roadmap.md`
+- Giải thích thuật toán gợi ý: `docs/RECOMMENDATION_ENGINE.md`
