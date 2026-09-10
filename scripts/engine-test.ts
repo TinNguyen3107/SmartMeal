@@ -54,6 +54,7 @@ function recipe(input: {
   tags: string[];
   calories: number;
   ingredientIds: string[];
+  optionalIngredientIds?: string[];
   preparationTime?: number;
   cookingTime?: number;
 }) {
@@ -83,7 +84,7 @@ function recipe(input: {
         normalizedName: item.normalizedName,
         quantity: item.id === 'rice' ? 1 : 150,
         unit: item.defaultUnit,
-        isOptional: false,
+        isOptional: input.optionalIngredientIds?.includes(item.id) ?? false,
         caloriesPer100g: item.caloriesPer100g,
         proteinPer100g: item.proteinPer100g,
         carbsPer100g: item.carbsPer100g,
@@ -98,7 +99,8 @@ const recipes = [
   recipe({ id: 'shrimp-tomato', name: 'Tôm xào cà chua', tags: ['Healthy'], calories: 210, ingredientIds: ['shrimp', 'tomato'] }),
   recipe({ id: 'tomato-only', name: 'Canh cà chua', tags: ['Healthy'], calories: 90, ingredientIds: ['tomato'] }),
   recipe({ id: 'muscle', name: 'Ức gà tăng cơ', tags: ['High Protein', 'Healthy', 'Low Carb'], calories: 320, ingredientIds: ['chicken'] }),
-  recipe({ id: 'rice-bowl', name: 'Cơm trắng', tags: ['Quick Meal'], calories: 520, ingredientIds: ['rice'] })
+  recipe({ id: 'rice-bowl', name: 'Cơm trắng', tags: ['Quick Meal'], calories: 520, ingredientIds: ['rice'] }),
+  recipe({ id: 'tomato-garlic', name: 'Cà chua xào tỏi', tags: ['Quick Meal'], calories: 95, ingredientIds: ['tomato', 'garlic'], optionalIngredientIds: ['garlic'] })
 ];
 
 function topRecipeId(request: Parameters<typeof buildRecommendations>[0]) {
@@ -144,6 +146,9 @@ assert.equal(unknownResult.recommendations.length, 0, 'Unknown ingredient must n
 assert.equal(unknownResult.generatedDraft?.source, 'LOCAL_GENERATOR', 'Unknown ingredient should use local flexible fallback');
 assert(unknownResult.warnings.some(warning => warning.includes('mystery-herb')), 'Unknown ingredient requires a verification warning');
 
+const optionalOnlyResult = buildRecommendations({ text: '3 tép tỏi' }, ingredients, recipes);
+assert.equal(optionalOnlyResult.recommendations.length, 0, 'An optional ingredient alone must not surface a 0% recipe match');
+
 const waterSpinachDraft = buildRecommendations({ text: '1 bó rau muống, 3 tép tỏi' }, ingredients, recipes).generatedDraft;
 assert.equal(waterSpinachDraft?.vietnameseName, 'Rau muống xào tỏi (nháp linh hoạt)', 'Common water-spinach and garlic pair should use its local culinary rule');
 
@@ -160,4 +165,4 @@ const duplicateIngredients = [
 const duplicateResult = buildRecommendations({ text: '1 bó rau muống' }, duplicateIngredients, []);
 assert.equal(duplicateResult.normalizedIngredients[0]?.id, 'catalog-water-spinach', 'Resolver must prefer complete catalog data over a legacy duplicate');
 
-console.log('Engine tests passed: parsing, aliases, allergy boundaries, nutrition-goal ranking, and flexible fallback rules.');
+console.log('Engine tests passed: parsing, aliases, allergy boundaries, nutrition-goal ranking, required-match eligibility, and flexible fallback rules.');

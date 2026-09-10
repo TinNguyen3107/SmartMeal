@@ -241,6 +241,14 @@ await check('baseline ingredient catalogue covers common Vietnamese ingredients'
   }
 });
 
+await check('optional ingredients alone never surface a zero-percent recipe match', async () => {
+  const { body } = await request('/api/recommendations', {
+    method: 'POST',
+    body: JSON.stringify({ text: '3 tép tỏi' })
+  });
+  assert((body.recommendations || []).every(item => item.matchScore > 0), 'Recommendations must match at least one required ingredient');
+});
+
 await check('water spinach and garlic return the approved stir-fry recipe', async () => {
   const { body } = await request('/api/recommendations', {
     method: 'POST',

@@ -508,7 +508,10 @@ export function buildRecommendations(
         ]
       };
     })
-    .filter(recipe => recipe.matchedIngredients.length > 0 || recipe.matchScore >= 50)
+    // A matched optional garnish alone must not surface a recipe as a result.
+    // Eligibility is based on at least one required ingredient; optional items
+    // can still improve the explanation once a recipe is eligible.
+    .filter(recipe => recipe.matchScore > 0)
     .sort((a, b) => b.score - a.score || a.missingIngredients.length - b.missingIngredients.length)
     .slice(0, 12);
 
