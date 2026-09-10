@@ -26,10 +26,24 @@ model User {
   histories     RecommendationHistory[]
   legacyHistory History[]
   feedbacks     RecommendationFeedback[]
+  sessions      Session[]
   evaluationRuns EvaluationRun[]
   evaluationCases EvaluationCase[]
 
   @@index([role])
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  tokenHash String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
 }
 
 model UserPreference {

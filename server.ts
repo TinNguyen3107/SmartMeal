@@ -13,7 +13,6 @@ dotenv.config();
 
 const PORT = Number(process.env.PORT) || 3000;
 const SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 7;
-const sessions = new Map<string, { id: string; email: string; name: string; role: string; expiresAt: number }>();
 const allowDemoLogin = process.env.ALLOW_DEMO_LOGIN === 'true'
   || (process.env.NODE_ENV !== 'production' && process.env.ALLOW_DEMO_LOGIN !== 'false');
 
@@ -56,19 +55,45 @@ function clearSessionCookie(res: Response) {
   });
 }
 
-function sessionFromRequest(req: Request) {
-  const token = getToken(req);
-  const session = token ? sessions.get(token) : undefined;
-  if (!session) return undefined;
-  if (session.expiresAt <= Date.now()) {
-    sessions.delete(token);
-    return undefined;
-  }
-  return publicUser(session);
+function sessionTokenHash(token: string) {
+  return crypto.createHash('sha256').update(token).digest('hex');
 }
 
-function storeSession(token: string, user: { id: string; email: string; name: string; role: string }) {
-  sessions.set(token, { ...publicUser(user), expiresAt: Date.now() + SESSION_TTL_MS });
+async function sessionFromRequest(req: Request) {
+  const token = getToken(req);
+  if (!token) return undefined;
+
+  const session = await prisma.session.findUnique({
+    where: { tokenHash: sessionTokenHash(token) },
+    include: { user: true }
+  });
+  if (!session) return undefined;
+  if (session.expiresAt <= new Date()) {
+    await prisma.session.delete({ where: { id: session.id } }).catch(() => undefined);
+    return undefined;
+  }
+  return publicUser(session.user);
+}
+
+async function createSession(user: { id: string }) {
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    const token = crypto.randomBytes(32).toString('hex');
+    try {
+      await prisma.session.create({
+        data: {
+          tokenHash: sessionTokenHash(token),
+          userId: user.id,
+          expiresAt: new Date(Date.now() + SESSION_TTL_MS)
+        }
+      });
+      return token;
+    } catch (error) {
+      const code = (error as { code?: string }).code;
+      if (code !== 'P2002' || attempt === 2) throw error;
+    }
+  }
+
+  throw new Error('Unable to create a session.');
 }
 
 function hasToken(value: string, token: string) {
@@ -373,14 +398,16 @@ function isConstraintError(error: unknown) {
 }
 
 function requireAuth(req: AuthedRequest, res: Response, next: NextFunction) {
-  const user = sessionFromRequest(req);
-
-  if (!user) {
-    return res.status(401).json({ message: 'Vui lòng đăng nhập.' });
-  }
-
-  req.user = user;
-  next();
+  void sessionFromRequest(req)
+    .then(user => {
+      if (!user) {
+        res.status(401).json({ message: 'Vui lòng đăng nhập.' });
+        return;
+      }
+      req.user = user;
+      next();
+    })
+    .catch(next);
 }
 
 function requireAdmin(req: AuthedRequest, res: Response, next: NextFunction) {
@@ -761,8 +788,7 @@ async function startServer() {
         preference: { create: { tags: JSON.stringify(['Vietnamese', 'Quick Meal']) } }
       }
     });
-    const token = crypto.randomBytes(32).toString('hex');
-    storeSession(token, user);
+    const token = await createSession(user);
     setSessionCookie(res, token);
     res.status(201).json({ success: true, user: await toUiUser(user) });
   }));
@@ -774,8 +800,7 @@ async function startServer() {
       return res.status(401).json({ message: 'Email hoặc mật khẩu không đúng.' });
     }
 
-    const token = crypto.randomBytes(32).toString('hex');
-    storeSession(token, user);
+    const token = await createSession(user);
     setSessionCookie(res, token);
     res.json({ success: true, user: await toUiUser(user) });
   }));
@@ -787,25 +812,26 @@ async function startServer() {
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) return res.status(404).json({ message: 'Chưa seed tài khoản demo. Hãy chạy npm run prisma:seed.' });
 
-    const token = crypto.randomBytes(32).toString('hex');
-    storeSession(token, user);
+    const token = await createSession(user);
     setSessionCookie(res, token);
     res.json({ success: true, user: await toUiUser(user) });
   }));
 
   app.get('/api/auth/me', asyncHandler(async (req, res) => {
-    const sessionUser = sessionFromRequest(req);
+    const sessionUser = await sessionFromRequest(req);
     if (!sessionUser) return res.json({ user: null });
     const user = await prisma.user.findUnique({ where: { id: sessionUser.id } });
     res.json({ user: user ? await toUiUser(user) : null });
   }));
 
-  app.post('/api/auth/logout', (req, res) => {
+  app.post('/api/auth/logout', asyncHandler(async (req, res) => {
     const token = getToken(req);
-    sessions.delete(token);
+    if (token) {
+      await prisma.session.deleteMany({ where: { tokenHash: sessionTokenHash(token) } });
+    }
     clearSessionCookie(res);
     res.json({ success: true, ok: true });
-  });
+  }));
 
   app.get('/api/me/profile', requireAuth, asyncHandler(async (req, res) => {
     const user = await prisma.user.findUnique({
@@ -956,10 +982,7 @@ async function startServer() {
       }
     });
 
-    const sessionUser = publicUser(updated);
-    const token = getToken(req);
-    if (token) storeSession(token, sessionUser);
-    req.user = sessionUser;
+    req.user = publicUser(updated);
     res.json({ success: true, user: await toUiUser(updated) });
   }));
 
@@ -1017,7 +1040,7 @@ async function startServer() {
   }));
 
   app.get('/api/user/pantry', asyncHandler(async (req, res) => {
-    const user = sessionFromRequest(req);
+    const user = await sessionFromRequest(req);
     if (!user) return res.json({ success: true, items: [] });
     res.json({ success: true, items: await loadUiPantry(user.id) });
   }));
@@ -1055,7 +1078,7 @@ async function startServer() {
   }));
 
   app.get('/api/user/favorites', asyncHandler(async (req, res) => {
-    const user = sessionFromRequest(req);
+    const user = await sessionFromRequest(req);
     if (!user) return res.json({ success: true, favoriteIds: [] });
     const favorites = await prisma.favorite.findMany({
       where: { userId: user.id },
@@ -1151,7 +1174,7 @@ async function startServer() {
       include: recipeInclude
     });
     if (!recipe) return res.status(404).json({ message: 'Không tìm thấy món ăn.' });
-    const user = sessionFromRequest(req);
+    const user = await sessionFromRequest(req);
     if (recipe.status !== 'PUBLISHED' && user?.role !== 'ADMIN') {
       return res.status(404).json({ message: 'Khong tim thay mon an.' });
     }
@@ -1206,7 +1229,7 @@ async function startServer() {
     };
     if (!request.text.trim()) return res.status(400).json({ message: 'Vui lòng nhập ít nhất một nguyên liệu.' });
 
-    const optionalUser = sessionFromRequest(req);
+    const optionalUser = await sessionFromRequest(req);
     if (optionalUser) {
       const preference = await prisma.userPreference.findUnique({ where: { userId: optionalUser.id } });
       const storedAllergies = parsePreferenceTags(preference?.allergies);
@@ -1338,7 +1361,7 @@ async function startServer() {
   }));
 
   app.post('/api/recommendations/feedback', asyncHandler(async (req, res) => {
-    const user = sessionFromRequest(req);
+    const user = await sessionFromRequest(req);
     if (user && req.body?.recipeId) {
       if (!await findPublishedRecipe(String(req.body.recipeId))) {
         return res.status(404).json({ success: false, message: 'Không tìm thấy công thức đã xuất bản.' });
